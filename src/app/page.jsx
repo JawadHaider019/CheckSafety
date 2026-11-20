@@ -1735,7 +1735,7 @@ export default function EditorialLuxuryPage() {
           </div>
 
           {/* Master Showcase Card (Hero Impression: Full BG Photography, Dark Navy Glass Gradient, Split Layout) */}
-          <div className="relative rounded-[20px] sm:rounded-[36px] lg:rounded-[40px] overflow-hidden text-white border border-slate-200/40 shadow-xl p-4 sm:p-7 lg:p-9 xl:p-10 sector-card-reveal">
+          <div className="relative rounded-[24px] sm:rounded-[36px] lg:rounded-[44px] overflow-hidden text-white border border-slate-200/40 shadow-2xl p-6 sm:p-9 lg:p-12 xl:p-14 min-h-[580px] sm:min-h-[640px] lg:min-h-[660px] flex flex-col justify-between sector-card-reveal">
             {/* Full High-Resolution Background Photography */}
             {/* Full High-Resolution Background Photography with Smooth Crossfade */}
             {TRADE_USE_CASES.map((trade, idx) => (
@@ -1754,7 +1754,7 @@ export default function EditorialLuxuryPage() {
             <div className="absolute top-1/3 -right-16 w-[400px] h-[400px] rounded-full bg-[#00E08C]/15 blur-[120px] pointer-events-none" />
 
             {/* Showcase Card Content */}
-            <div key={activeTradeTab} className="animate-tab-content relative z-10 max-w-4xl space-y-4 sm:space-y-5">
+            <div key={activeTradeTab} className="animate-tab-content relative z-10 w-full space-y-5 sm:space-y-6">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] sm:text-xs font-semibold text-white/90">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#00E08C] animate-pulse" />
@@ -1762,7 +1762,7 @@ export default function EditorialLuxuryPage() {
                 </span>
               </div>
 
-              <div>
+              <div className="max-w-3xl">
                 <div className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#00E08C] font-mono flex items-center gap-2 mb-1.5">
                   <span>{currentTrade.emoji}</span>
                   <span>{currentTrade.tabSubtitle}</span>
@@ -1770,35 +1770,34 @@ export default function EditorialLuxuryPage() {
                 <h3 className="text-xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white leading-[1.14]">
                   {currentTrade.headline}
                 </h3>
+                <p className="text-xs sm:text-sm text-slate-200/95 leading-relaxed mt-2.5 font-normal">
+                  {currentTrade.hazardContext}
+                </p>
               </div>
 
-              <p className="text-xs sm:text-sm text-slate-200/95 leading-relaxed max-w-2xl font-normal">
-                {currentTrade.hazardContext}
-              </p>
-
-              {/* 3 Key Safeguards in Glass Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 pt-1">
+              {/* 3 Key Safeguards in Glass Grid - Full Width & Substantial Presence */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6 xl:gap-7 pt-2 w-full">
                 {currentTrade.safeguards.map((item, sIdx) => (
                   <div
                     key={sIdx}
                     style={{ animationDelay: `${sIdx * 65 + 60}ms` }}
-                    className="animate-safeguard-card p-4 sm:p-4.5 rounded-xl sm:rounded-2xl bg-white/[0.08] hover:bg-white/[0.12] border border-white/15 backdrop-blur-md transition-all duration-200 flex flex-col justify-between group shadow-sm hover:border-[#00E08C]/40 sector-safeguard-card"
+                    className="animate-safeguard-card p-6 sm:p-7 lg:p-8 min-h-[190px] sm:min-h-[210px] lg:min-h-[230px] rounded-2xl sm:rounded-3xl bg-white/[0.08] hover:bg-white/[0.14] border border-white/20 backdrop-blur-md transition-all duration-200 flex flex-col justify-between group shadow-md hover:border-[#00E08C]/50 hover:shadow-lg sector-safeguard-card"
                   >
                     <div>
-                      <div className="flex items-center justify-between mb-2.5">
-                        <div className="w-7 h-7 rounded-lg bg-[#00E08C] text-[#0B2545] font-extrabold flex items-center justify-center text-xs shadow-sm group-hover:scale-105 transition-transform">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#00E08C] text-[#0B2545] font-black flex items-center justify-center text-xs sm:text-sm shadow-sm group-hover:scale-105 transition-transform">
                           0{sIdx + 1}
                         </div>
                         {item.codeBadge && (
-                          <span className="text-[10px] font-mono uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-white/10 text-[#00E08C] border border-[#00E08C]/30 backdrop-blur-sm">
+                          <span className="text-[11px] sm:text-xs font-mono uppercase tracking-wider font-bold px-3 py-1 rounded-full bg-white/10 text-[#00E08C] border border-[#00E08C]/40 backdrop-blur-sm">
                             {item.codeBadge}
                           </span>
                         )}
                       </div>
-                      <div className="text-xs sm:text-sm font-bold text-white leading-snug group-hover:text-[#00E08C] transition-colors">
+                      <div className="text-base sm:text-lg font-bold text-white leading-snug group-hover:text-[#00E08C] transition-colors">
                         {item.title}
                       </div>
-                      <p className="text-[11px] sm:text-xs text-slate-200/85 leading-relaxed mt-1.5 font-normal">
+                      <p className="text-xs sm:text-sm text-slate-200/90 leading-relaxed mt-2.5 font-normal">
                         {item.description}
                       </p>
                     </div>
