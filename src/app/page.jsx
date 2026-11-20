@@ -474,7 +474,11 @@ export default function EditorialLuxuryPage() {
     setActiveFailsafeStep(idx);
     if (typeof window !== "undefined") {
       const el = document.getElementById(`failsafe-step-${idx}`);
-      el?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      if (window.__lenis) {
+        window.__lenis.scrollTo(el, { offset: -110, duration: 0.8 });
+      } else {
+        el?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
     }
   }
 
@@ -858,12 +862,12 @@ export default function EditorialLuxuryPage() {
       if (failsafesLeft) {
         gsap.fromTo(
           failsafesLeft,
-          { x: -50, opacity: 0 },
+          { opacity: 0 },
           {
-            x: 0,
             opacity: 1,
-            duration: 0.95,
-            ease: "power3.out",
+            duration: 0.8,
+            ease: "power2.out",
+            clearProps: "all",
             scrollTrigger: {
               trigger: failsafesLeft,
               start: "top 84%",
@@ -1063,7 +1067,7 @@ export default function EditorialLuxuryPage() {
   
 
   return (
-    <div ref={pageContainerRef} className="min-h-screen bg-white text-[#111215] flex flex-col font-sans antialiased selection:bg-[#111215] selection:text-white pt-16 overflow-x-hidden">
+    <div ref={pageContainerRef} className="min-h-screen bg-white text-[#111215] flex flex-col font-sans antialiased selection:bg-[#111215] selection:text-white pt-16 overflow-x-clip">
       {/* ========================================================================= */}
       {/* 1. CLEAN FLAT WHITE HEADER (SEPARATED FROM HERO, NO SHADOW/BORDER) */}
       {/* ========================================================================= */}
@@ -1663,7 +1667,7 @@ export default function EditorialLuxuryPage() {
       {/* ========================================================================= */}
       <section
         id="sectors"
-        className="relative z-20 pt-6 sm:pt-8 pb-8 sm:pb-10 bg-white scroll-mt-24"
+        className="relative z-20 pt-6 sm:pt-8 pb-8 sm:pb-10 bg-white scroll-mt-14"
       >
         <div className="w-[96%] max-w-[1800px] mx-auto px-2 sm:px-4">
           {/* Header Row */}
@@ -2037,17 +2041,25 @@ export default function EditorialLuxuryPage() {
       {/* ========================================================================= */}
       {/* 5. IN-FIELD 5-LAYER DEFENSE MATRIX (DEVELOPER SCOPE §4, §5.3, §5.4, §6.2, §6.4) */}
       {/* ========================================================================= */}
-      <section id="failsafes" className="section-defer py-20 sm:py-28 bg-[#F8FAFC] scroll-mt-20 border-t border-slate-200/60 relative">
+      {/* ========================================================================= */}
+      {/* 5. IN-FIELD 5-LAYER DEFENSE MATRIX (HOW CHECKSAFE PROTECTS WHEN YOU CANNOT SPEAK) */}
+      {/* ========================================================================= */}
+      {/* ========================================================================= */}
+      {/* 5. IN-FIELD 5-LAYER DEFENSE MATRIX (HOW CHECKSAFE PROTECTS WHEN YOU CANNOT SPEAK) */}
+      {/* ========================================================================= */}
+      <section id="failsafes" className="py-20 sm:py-28 bg-[#F8FAFC] scroll-mt-20 border-t border-slate-200/60 relative">
         {/* Navigation Anchor Aliases */}
         <div id="architecture" className="absolute -top-20 left-0 pointer-events-none" />
         <div className="w-[96%] max-w-[1800px] mx-auto px-2 sm:px-4">
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-16">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-16 items-stretch">
 
             {/* ------------------------------------------------------------------- */}
-            {/* LEFT COLUMN: Sticky Anchor & Strategic Overview (Fixed in View)     */}
+            {/* LEFT COLUMN: Sticky Anchor & Strategic Overview (Pins Across All 5 Cards) */}
             {/* ------------------------------------------------------------------- */}
-            <div className="lg:col-span-5 lg:sticky lg:top-28 lg:self-start space-y-6 failsafes-left-reveal">
+            <div className="lg:col-span-5 relative">
+              <div className="lg:sticky lg:top-28 space-y-6">
+                <div className="failsafes-left-reveal space-y-6">
               {/* Badge with Solid Circle Icon style */}
               <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#0B2545]/5 border border-[#0B2545]/20 text-[#0B2545] text-xs font-extrabold uppercase tracking-wider shadow-2xs">
                 <div className="w-5 h-5 rounded-full bg-[#0B2545] text-white flex items-center justify-center shrink-0">
@@ -2063,7 +2075,7 @@ export default function EditorialLuxuryPage() {
               </h2>
 
               <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
-                <span className="font-bold text-[#111827]">Zero-compromise covert defense:</span> Aggressors demand compliance and watch phones closely. Checksafe replaces loud panic alarms with deceptive covert decoys, zero-internet GSM failovers, and zero-knowledge cryptographic vaults engineered to Safety Guidelines lone-worker standards.
+                <span className="font-bold text-[#111827]">Zero-compromise covert defense:</span> Aggressors demand compliance and watch phones closely. Checksafe replaces loud panic alarms with deceptive covert decoys, zero-internet GSM failovers, and zero-knowledge cryptographic vaults engineered to UK lone-worker safeguarding principles.
               </p>
 
               {/* Action Buttons */}
@@ -2105,51 +2117,44 @@ export default function EditorialLuxuryPage() {
                 </div>
               </div>
             </div>
+              </div>
+            </div>
 
             {/* ------------------------------------------------------------------- */}
-            {/* RIGHT COLUMN: Dedicated Scrollable Layer Stack (Right Will Be Scrolled) */}
+            {/* RIGHT COLUMN: All 5 Connected Cards Open in Natural Document Flow   */}
             {/* ------------------------------------------------------------------- */}
             <div className="lg:col-span-7 relative failsafes-right-reveal">
               {/* Top Micro-Header for the 5-Layer Stack */}
-              <div className="flex items-center justify-between text-[11px] font-mono text-slate-500 pb-2.5 mb-4 border-b border-slate-200/80">
+              <div className="flex items-center justify-between text-[11px] font-mono text-slate-500 pb-2.5 mb-6 border-b border-slate-200/80">
                 <span className="font-bold uppercase tracking-wider text-[#0B2545] flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#00E08C] animate-pulse" />
-                  <span>5-Layer Connected Timeline</span>
+                  <span>5-Layer Connected Safeguards Architecture</span>
                 </span>
-                <span className="text-slate-400">Click steps to inspect details · 1–5</span>
+                <span className="text-slate-400">All 5 layers continuously active</span>
               </div>
 
-              {/* Scrollable Container with Smooth Scrollbar & Height Cap on Desktop */}
+              {/* Connected 5-Layer Stack - All Cards Open & Natural Document Flow */}
               <div
                 id="failsafes-scroll-container"
-                className="lg:max-h-[660px] xl:max-h-[720px] lg:overflow-y-auto lg:pr-3 xl:pr-4 space-y-4 sm:space-y-5 custom-scrollbar scroll-smooth relative"
+                className="space-y-6 sm:space-y-8 relative"
               >
                 {/* ------------------------------------------------------------- */}
                 {/* LAYER 01: TRIPLE-TAP FAKE LOW-BATTERY SCREEN                   */}
                 {/* ------------------------------------------------------------- */}
-                <div id="failsafe-step-0" className="relative flex items-start gap-3.5 sm:gap-4 group scroll-mt-4 failsafe-step-reveal">
+                <div id="failsafe-step-0" className="relative flex items-start gap-3.5 sm:gap-4 group scroll-mt-28 failsafe-step-reveal">
                   {/* Continuous Vertical Connecting Line to Step 02 */}
-                  <div className="block absolute left-[17px] sm:left-[19px] top-4 sm:top-5 -bottom-[36px] sm:-bottom-[42px] w-[2px] bg-slate-300 pointer-events-none z-0" />
+                  <div className="block absolute left-[17px] sm:left-[19px] top-6 -bottom-8 w-[2px] bg-slate-200/90 pointer-events-none z-0" />
 
                   {/* Step Node */}
-                  <button
-                    type="button"
-                    onClick={() => handleSelectFailsafeStep(0)}
-                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full font-mono text-xs sm:text-sm font-bold flex items-center justify-center shrink-0 z-10 transition-all duration-200 cursor-pointer ${activeFailsafeStep === 0
-                      ? "bg-[#0B2545] text-[#00E08C] ring-4 ring-emerald-400/20 shadow-md scale-105 border border-[#00E08C]/40"
-                      : "bg-white border-2 border-slate-300 text-slate-600 hover:border-slate-400 shadow-2xs"
-                      }`}
-                  >
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full font-mono text-xs sm:text-sm font-bold flex items-center justify-center shrink-0 z-10 bg-[#0B2545] text-[#00E08C] ring-4 ring-emerald-400/20 shadow-md border border-[#00E08C]/40">
                     01
-                  </button>
+                  </div>
 
-                  {/* Card: Active vs Inactive (CVB Reference Style) */}
-                  {activeFailsafeStep === 0 ? (
-                    <div className="flex-1 rounded-2xl sm:rounded-3xl bg-[#0B2545] text-white p-5 sm:p-7 shadow-xl border border-[#0B2545] ring-2 ring-[#00E08C]/30 transition-all duration-300">
+                  <div className="flex-1 rounded-2xl sm:rounded-3xl bg-[#0B2545] text-white p-5 sm:p-7 shadow-xl border border-[#0B2545] ring-2 ring-[#00E08C]/30 transition-all duration-300">
                       <div className="flex items-start justify-between gap-4">
                         <div className="space-y-1.5 pr-2">
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-amber-400/20 border border-amber-400/40 text-amber-300">
-                            Covert Protection · Screen Disguise Mode
+                            Scope §5.3 · Covert Screen Disguise
                           </span>
                           <h3 className="text-base sm:text-lg font-black tracking-wide text-white uppercase leading-snug">
                             Triple-Tap Fake Low-Battery Screen
@@ -2165,64 +2170,74 @@ export default function EditorialLuxuryPage() {
 
                       {/* Active Expanded Simulation Widget */}
                       <div className="mt-5 pt-4 border-t border-white/10 space-y-3.5">
-                        <div className="rounded-2xl bg-black/40 border border-white/10 p-4 sm:p-5 relative overflow-hidden backdrop-blur-sm">
+                        <div className="rounded-2xl bg-[#030712] border border-slate-800 p-4 sm:p-5 relative overflow-hidden shadow-2xl">
+                          {/* Top Status Bar with Dynamic Island */}
+                          <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 pb-3 mb-2 border-b border-slate-800/80">
+                            <span className="font-bold text-slate-300">09:41</span>
+                            <div className="w-16 h-3 bg-slate-900 rounded-full border border-slate-800" />
+                            <div className="flex items-center gap-1.5 text-slate-400">
+                              <span className="text-[10px]">5G</span>
+                              <span className="w-3.5 h-2 rounded-xs border border-rose-500/80 flex items-center p-0.5">
+                                <span className="h-full w-0.5 bg-rose-500 rounded-2xs" />
+                              </span>
+                            </div>
+                          </div>
+
                           {failsafeBlackout ? (
                             <div
                               onClick={() => setFailsafeBlackout(false)}
-                              className="py-10 flex flex-col items-center justify-center text-center cursor-pointer select-none rounded-xl bg-black border border-white/10 group transition"
+                              className="py-6 sm:py-8 flex flex-col items-center justify-center text-center cursor-pointer select-none rounded-xl bg-black border border-slate-900 transition-all hover:border-slate-800 group"
                             >
-                              <div className="w-12 h-20 rounded-xl border-2 border-rose-500/80 p-1 flex flex-col justify-end items-center mb-4">
-                                <div className="w-full h-2 bg-rose-500 rounded-xs animate-pulse" />
+                              <div className="w-10 h-16 rounded-xl border-2 border-rose-600/70 p-1 flex flex-col justify-end items-center mb-3 group-hover:scale-105 transition-transform">
+                                <div className="w-full h-1.5 bg-rose-500 rounded-xs animate-pulse" />
                               </div>
-                              <div className="text-sm font-mono font-bold text-slate-200">
-                                Screen Powered Down (Disguise Active)
+                              <div className="text-xs font-mono font-bold text-slate-300 tracking-wide">
+                                Device Display Powered Down
                               </div>
-                              <div className="mt-2.5 text-xs text-emerald-400 font-mono font-semibold flex items-center gap-1.5 bg-emerald-950/70 px-3 py-1 rounded-full border border-emerald-500/30">
-                                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                                <span>London AWS Sentinel Running · 34:12 remaining</span>
+                              <div className="mt-2 text-[10px] text-emerald-400 font-mono font-bold flex items-center gap-1.5 bg-emerald-950/80 px-3 py-1 rounded-full border border-emerald-500/40">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                <span>London AWS Sentinel Running (34:12)</span>
                               </div>
-                              <span className="mt-4 text-xs text-slate-400 underline decoration-slate-600 group-hover:text-white transition">
-                                Tap anywhere to exit blackout
+                              <span className="mt-3 text-[10px] text-slate-500 underline decoration-slate-700 group-hover:text-slate-300 transition">
+                                Tap anywhere to wake simulator
                               </span>
                             </div>
                           ) : (
-                            <div className="space-y-4">
-                              {/* Clean Header Bar */}
-                              <div className="flex items-center justify-between text-xs font-mono text-slate-400 pb-2 border-b border-white/10">
-                                <div className="flex items-center gap-2 text-slate-300">
-                                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-                                  <span className="font-bold">Covert Low-Battery Screen</span>
+                            <div className="space-y-4 py-1">
+                              <div className="rounded-xl bg-slate-900/90 border border-slate-800 p-4 flex flex-col items-center text-center shadow-lg">
+                                <div className="w-10 h-10 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center mb-2">
+                                  <BatteryCharging className="w-5 h-5 animate-pulse" />
                                 </div>
-                                <span className="text-rose-400 font-bold bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">
-                                  1% Critical
-                                </span>
+                                <div className="text-sm font-bold text-white">
+                                  Low Battery (1% Remaining)
+                                </div>
+                                <p className="text-[11px] text-slate-400 mt-1 max-w-xs leading-relaxed">
+                                  Device will enter emergency shutdown. Checksafe cloud timer persists independently on London eu-west-2 servers.
+                                </p>
+
+                                <div className="w-full mt-3.5 space-y-1.5">
+                                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
+                                    <span>Battery Cell Level</span>
+                                    <span className="text-rose-400 font-bold">1% Critical</span>
+                                  </div>
+                                  <div className="grid grid-cols-10 gap-1 h-2 bg-black p-0.5 rounded-md border border-slate-800">
+                                    <div className="bg-rose-500 rounded-xs animate-pulse" />
+                                    {[...Array(9)].map((_, i) => (
+                                      <div key={i} className="bg-slate-800/60 rounded-xs" />
+                                    ))}
+                                  </div>
+                                </div>
                               </div>
 
-                              {/* Clean Alert Card */}
-                              <div className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center shrink-0">
-                                  <BatteryCharging className="w-6 h-6 animate-pulse" />
-                                </div>
-                                <div className="space-y-0.5">
-                                  <div className="text-sm font-bold text-white">
-                                    1% Low Battery Shutdown Graphic
-                                  </div>
-                                  <div className="text-xs text-slate-300 leading-relaxed">
-                                    Triple-tap top-left instantly renders the phone dead to an aggressor while countdown keeps executing on London servers.
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Crisp Button */}
                               <button
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setFailsafeBlackout(true);
                                 }}
-                                className="w-full py-3 px-4 rounded-xl bg-[#00E08C] hover:bg-[#00c77b] text-[#0B2545] font-black text-xs uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-[0.99]"
+                                className="w-full py-2.5 px-4 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold font-mono transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-[0.99]"
                               >
-                                <Sparkles className="w-4 h-4" />
+                                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                                 <span>Simulate Covert Blackout Screen</span>
                               </button>
                             </div>
@@ -2235,58 +2250,31 @@ export default function EditorialLuxuryPage() {
                         </div>
                       </div>
                     </div>
-                  ) : (
-                    <div
-                      onClick={() => handleSelectFailsafeStep(0)}
-                      className="flex-1 flex items-center justify-between gap-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer group"
-                    >
-                      <div className="space-y-1 pr-2">
-                        <h3 className="font-extrabold text-xs sm:text-sm text-[#111827] uppercase tracking-wide group-hover:text-[#0B2545] transition">
-                          Triple-Tap Fake Low-Battery Screen
-                        </h3>
-                        <p className="text-xs text-slate-500 font-normal leading-relaxed line-clamp-2">
-                          Instant pitch-black 1% shutdown disguise while AWS countdown executes independently in London.
-                        </p>
-                      </div>
-                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-slate-200 bg-white flex items-center justify-center shrink-0 text-slate-500 group-hover:border-slate-400 group-hover:text-[#0B2545] transition shadow-2xs">
-                        <BatteryCharging className="w-4 h-4 sm:w-5 sm:h-5" />
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 {/* ------------------------------------------------------------- */}
-                {/* LAYER 02: custom secret Duress Code & DECOY RESOLUTION          */}
+                {/* LAYER 02: CUSTOM SECRET DURESS CODE & DECOY RESOLUTION        */}
                 {/* ------------------------------------------------------------- */}
-                <div id="failsafe-step-1" className="relative flex items-start gap-3.5 sm:gap-4 group scroll-mt-4 failsafe-step-reveal">
+                <div id="failsafe-step-1" className="relative flex items-start gap-3.5 sm:gap-4 group scroll-mt-28 failsafe-step-reveal">
                   {/* Continuous Vertical Connecting Line to Step 03 */}
-                  <div className="block absolute left-[17px] sm:left-[19px] top-4 sm:top-5 -bottom-[36px] sm:-bottom-[42px] w-[2px] bg-slate-300 pointer-events-none z-0" />
+                  <div className="block absolute left-[17px] sm:left-[19px] top-6 -bottom-8 w-[2px] bg-slate-200/90 pointer-events-none z-0" />
 
                   {/* Step Node */}
-                  <button
-                    type="button"
-                    onClick={() => handleSelectFailsafeStep(1)}
-                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full font-mono text-xs sm:text-sm font-bold flex items-center justify-center shrink-0 z-10 transition-all duration-200 cursor-pointer ${activeFailsafeStep === 1
-                      ? "bg-[#0B2545] text-[#00E08C] ring-4 ring-emerald-400/20 shadow-md scale-105 border border-[#00E08C]/40"
-                      : "bg-white border-2 border-slate-300 text-slate-600 hover:border-slate-400 shadow-2xs"
-                      }`}
-                  >
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full font-mono text-xs sm:text-sm font-bold flex items-center justify-center shrink-0 z-10 bg-[#0B2545] text-[#00E08C] ring-4 ring-emerald-400/20 shadow-md border border-[#00E08C]/40">
                     02
-                  </button>
+                  </div>
 
-                  {/* Card: Active vs Inactive (CVB Reference Style) */}
-                  {activeFailsafeStep === 1 ? (
-                    <div className="flex-1 rounded-2xl sm:rounded-3xl bg-[#0B2545] text-white p-5 sm:p-7 shadow-xl border border-[#0B2545] ring-2 ring-[#00E08C]/30 transition-all duration-300">
+                  <div className="flex-1 rounded-2xl sm:rounded-3xl bg-[#0B2545] text-white p-5 sm:p-7 shadow-xl border border-[#0B2545] ring-2 ring-[#00E08C]/30 transition-all duration-300">
                       <div className="flex items-start justify-between gap-4">
                         <div className="space-y-1.5 pr-2">
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-rose-400/20 border border-rose-400/40 text-rose-300">
-                            Coercion Defense · Silent Duress Protocol
+                            Scope §5.3 & §6.2 · Decoy Resolution
                           </span>
                           <h3 className="text-base sm:text-lg font-black tracking-wide text-white uppercase leading-snug">
-                            custom secret Duress Code & Decoy
+                            Custom Secret Duress Code & Decoy
                           </h3>
                           <p className="text-xs sm:text-[13px] text-slate-300 font-normal leading-relaxed">
-                            If an aggressor forces you to unlock your phone and cancel your safety alarm, enter your designated custom secret Duress Code. The app immediately displays an innocent &ldquo;Session Closed Safely&rdquo; screen to calm hostility, while silently broadcasting emergency coordinates to on-call peers.
+                            If an aggressor forces you to unlock your phone and cancel your safety alarm, enter your custom secret Duress Code. The app immediately displays an innocent &ldquo;Session Closed Safely&rdquo; screen to calm hostility, while silently broadcasting emergency coordinates to on-call peers.
                           </p>
                         </div>
                         <div className="w-10 h-10 rounded-xl bg-[#00E08C] text-[#0B2545] flex items-center justify-center shrink-0 shadow-md">
@@ -2296,20 +2284,21 @@ export default function EditorialLuxuryPage() {
 
                       {/* Active Expanded Simulation Widget */}
                       <div className="mt-5 pt-4 border-t border-white/10 space-y-3.5">
-                        <div className="rounded-2xl bg-black/40 border border-white/10 p-4 sm:p-5 relative overflow-hidden backdrop-blur-sm space-y-3.5">
-                          {/* Mode Switcher & PIN Display */}
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
-                            <div className="inline-flex p-1 rounded-xl bg-white/5 border border-white/10 self-start sm:self-auto">
+                        <div className="rounded-2xl bg-[#030712] border border-slate-800 p-4 sm:p-5 shadow-2xl space-y-3.5">
+                          {/* Top Segmented Mode Switcher & PIN Display */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800/80">
+                            <div className="inline-flex p-1 rounded-xl bg-slate-900 border border-slate-800 self-start sm:self-auto">
                               <button
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setDuressDemoTab("peaceful");
                                 }}
-                                className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${duressDemoTab === "peaceful"
-                                  ? "bg-[#00E08C] text-[#0B2545] shadow-md"
-                                  : "text-slate-400 hover:text-white"
-                                  }`}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+                                  duressDemoTab === "peaceful"
+                                    ? "bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20"
+                                    : "text-slate-400 hover:text-white"
+                                }`}
                               >
                                 <span>👁️ Aggressor View</span>
                               </button>
@@ -2319,22 +2308,23 @@ export default function EditorialLuxuryPage() {
                                   e.stopPropagation();
                                   setDuressDemoTab("dispatch");
                                 }}
-                                className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${duressDemoTab === "dispatch"
-                                  ? "bg-rose-500 text-white shadow-md"
-                                  : "text-slate-400 hover:text-white"
-                                  }`}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+                                  duressDemoTab === "dispatch"
+                                    ? "bg-rose-500 text-white shadow-md shadow-rose-500/20"
+                                    : "text-slate-400 hover:text-white"
+                                }`}
                               >
-                                <span>🚨 Covert Dispatch</span>
+                                <span>🚨 Police GPS Pack</span>
                               </button>
                             </div>
 
-                            <div className="flex items-center gap-2 self-end sm:self-auto text-xs font-mono">
-                              <span className="text-slate-400 uppercase text-[10px] font-bold">Duress PIN:</span>
+                            <div className="flex items-center gap-2 self-end sm:self-auto">
+                              <span className="text-[10px] font-mono text-slate-400 font-bold uppercase">Secret Duress Code:</span>
                               <div className="flex items-center gap-1">
-                                {["9", "9", "9", "9"].map((digit, i) => (
+                                {["4", "1", "8", "2"].map((digit, i) => (
                                   <span
                                     key={i}
-                                    className="w-6 h-6 rounded-md bg-rose-500/20 border border-rose-500/50 text-rose-300 font-mono text-xs font-black flex items-center justify-center"
+                                    className="w-6 h-6 rounded-md bg-rose-500/20 border border-rose-500/50 text-rose-300 font-mono text-xs font-black flex items-center justify-center shadow-xs"
                                   >
                                     {digit}
                                   </span>
@@ -2345,45 +2335,57 @@ export default function EditorialLuxuryPage() {
 
                           {/* Dual Reality Live Card Preview */}
                           {duressDemoTab === "peaceful" ? (
-                            <div className="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-white space-y-2">
-                              <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-full bg-emerald-500/20 text-[#00E08C] flex items-center justify-center shrink-0">
-                                  <Check className="w-5 h-5 stroke-[3]" />
-                                </div>
-                                <div>
-                                  <div className="text-sm font-bold text-white flex items-center gap-2">
-                                    <span>Session Closed Safely</span>
-                                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono">14:32 GMT</span>
+                            <div className="rounded-xl bg-gradient-to-br from-emerald-950/70 via-[#062419] to-slate-950 border border-emerald-500/40 p-4 sm:p-5 text-white space-y-3.5 shadow-lg">
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/50 text-[#00E08C] flex items-center justify-center shrink-0">
+                                    <Check className="w-5 h-5 stroke-[3]" />
                                   </div>
-                                  <div className="text-xs text-slate-300 mt-0.5">
-                                    Appointment checked out. Innocent exit screen completely calms hostility.
+                                  <div>
+                                    <div className="text-sm font-bold text-white flex items-center gap-2">
+                                      <span>Session Closed Safely</span>
+                                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold">14:32 GMT</span>
+                                    </div>
+                                    <div className="text-xs text-emerald-200/80 mt-0.5 font-normal">
+                                      Appointment checked out. Client verified with zero incident flags.
+                                    </div>
                                   </div>
                                 </div>
                               </div>
-                              <div className="pt-2 text-[11px] font-mono text-emerald-400 flex items-center justify-between border-t border-emerald-900/40">
-                                <span>✓ On-Screen Status: Completely Normal</span>
-                                <span className="text-slate-400">Ref: #CS-8921-OK</span>
+
+                              <div className="p-3 rounded-lg bg-black/40 border border-emerald-900/40 text-[11px] text-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-2 font-mono">
+                                <span className="text-emerald-400">✓ On-screen status: Completely Calm</span>
+                                <span className="text-slate-400">Receipt Ref: #CS-8921-OK</span>
                               </div>
                             </div>
                           ) : (
-                            <div className="p-4 rounded-xl bg-rose-950/40 border border-rose-500/30 text-white space-y-2">
-                              <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0 animate-pulse">
-                                  <AlertTriangle className="w-5 h-5" />
-                                </div>
-                                <div>
-                                  <div className="text-sm font-bold text-white flex items-center gap-2">
-                                    <span>Silent Emergency Broadcast Fired</span>
-                                    <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-mono">PRIORITY 1</span>
+                            <div className="rounded-xl bg-gradient-to-br from-rose-950/80 via-[#260A0E] to-slate-950 border border-rose-500/50 p-4 sm:p-5 text-white space-y-3.5 shadow-lg">
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-full bg-rose-500/20 border border-rose-500/60 text-rose-400 flex items-center justify-center shrink-0 animate-pulse">
+                                    <AlertTriangle className="w-5 h-5" />
                                   </div>
-                                  <div className="text-xs text-slate-300 mt-0.5">
-                                    Live GPS telemetry & emergency audio buffer dispatched to peer network.
+                                  <div>
+                                    <div className="text-sm font-bold text-white flex items-center gap-2">
+                                      <span>Silent Emergency Broadcast Fired</span>
+                                      <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-mono font-bold">PRIORITY 1</span>
+                                    </div>
+                                    <div className="text-xs text-rose-200/90 mt-0.5 font-normal">
+                                      GPS coordinate telemetry and rolling microphone packets relayed to peer network.
+                                    </div>
                                   </div>
                                 </div>
                               </div>
-                              <div className="pt-2 text-[11px] font-mono text-rose-400 flex items-center justify-between border-t border-rose-900/40">
-                                <span>📍 51.5074° N, 0.1278° W (±3m)</span>
-                                <span className="text-emerald-400 font-semibold">3 Peers + 999 Pack Notified</span>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono">
+                                <div className="p-2.5 rounded-lg bg-black/40 border border-rose-900/40 text-slate-300">
+                                  <div className="text-slate-400 text-[10px]">LIVE GPS LOCATION</div>
+                                  <div className="text-rose-400 font-bold mt-0.5">51.5074° N, 0.1278° W (±3m)</div>
+                                </div>
+                                <div className="p-2.5 rounded-lg bg-black/40 border border-rose-900/40 text-slate-300">
+                                  <div className="text-slate-400 text-[10px]">ON-CALL RECIPIENTS</div>
+                                  <div className="text-emerald-400 font-bold mt-0.5">3 Peers + 999 Police Pack</div>
+                                </div>
                               </div>
                             </div>
                           )}
@@ -2395,52 +2397,25 @@ export default function EditorialLuxuryPage() {
                         </div>
                       </div>
                     </div>
-                  ) : (
-                    <div
-                      onClick={() => handleSelectFailsafeStep(1)}
-                      className="flex-1 flex items-center justify-between gap-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer group"
-                    >
-                      <div className="space-y-1 pr-2">
-                        <h3 className="font-extrabold text-xs sm:text-sm text-[#111827] uppercase tracking-wide group-hover:text-[#0B2545] transition">
-                          custom secret Duress Code & Decoy
-                        </h3>
-                        <p className="text-xs text-slate-500 font-normal leading-relaxed line-clamp-2">
-                          Innocent &ldquo;Session Closed Safely&rdquo; exit screen calms hostility while silently broadcasting emergency coordinates.
-                        </p>
-                      </div>
-                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-slate-200 bg-white flex items-center justify-center shrink-0 text-slate-500 group-hover:border-slate-400 group-hover:text-[#0B2545] transition shadow-2xs">
-                        <KeyRound className="w-4 h-4 sm:w-5 sm:h-5" />
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 {/* ------------------------------------------------------------- */}
-                {/* LAYER 03: 1-BAR CELLULAR SMS FALLBACK & SOS                   */}
+                {/* LAYER 03: 1-BAR CELLULAR GSM SATELLITE RELAY                  */}
                 {/* ------------------------------------------------------------- */}
-                <div id="failsafe-step-2" className="relative flex items-start gap-3.5 sm:gap-4 group scroll-mt-4 failsafe-step-reveal">
+                <div id="failsafe-step-2" className="relative flex items-start gap-3.5 sm:gap-4 group scroll-mt-28 failsafe-step-reveal">
                   {/* Continuous Vertical Connecting Line to Step 04 */}
-                  <div className="block absolute left-[17px] sm:left-[19px] top-4 sm:top-5 -bottom-[36px] sm:-bottom-[42px] w-[2px] bg-slate-300 pointer-events-none z-0" />
+                  <div className="block absolute left-[17px] sm:left-[19px] top-6 -bottom-8 w-[2px] bg-slate-200/90 pointer-events-none z-0" />
 
                   {/* Step Node */}
-                  <button
-                    type="button"
-                    onClick={() => handleSelectFailsafeStep(2)}
-                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full font-mono text-xs sm:text-sm font-bold flex items-center justify-center shrink-0 z-10 transition-all duration-200 cursor-pointer ${activeFailsafeStep === 2
-                      ? "bg-[#0B2545] text-[#00E08C] ring-4 ring-emerald-400/20 shadow-md scale-105 border border-[#00E08C]/40"
-                      : "bg-white border-2 border-slate-300 text-slate-600 hover:border-slate-400 shadow-2xs"
-                      }`}
-                  >
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full font-mono text-xs sm:text-sm font-bold flex items-center justify-center shrink-0 z-10 bg-[#0B2545] text-[#00E08C] ring-4 ring-emerald-400/20 shadow-md border border-[#00E08C]/40">
                     03
-                  </button>
+                  </div>
 
-                  {/* Card: Active vs Inactive (CVB Reference Style) */}
-                  {activeFailsafeStep === 2 ? (
-                    <div className="flex-1 rounded-2xl sm:rounded-3xl bg-[#0B2545] text-white p-5 sm:p-7 shadow-xl border border-[#0B2545] ring-2 ring-[#00E08C]/30 transition-all duration-300">
+                  <div className="flex-1 rounded-2xl sm:rounded-3xl bg-[#0B2545] text-white p-5 sm:p-7 shadow-xl border border-[#0B2545] ring-2 ring-[#00E08C]/30 transition-all duration-300">
                       <div className="flex items-start justify-between gap-4">
                         <div className="space-y-1.5 pr-2">
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-blue-400/20 border border-blue-400/40 text-blue-300">
-                            Satellite Sentinel · Zero-Internet Protocol
+                            Scope §5.4 & §6.4 · Zero-Internet Failover
                           </span>
                           <h3 className="text-base sm:text-lg font-black tracking-wide text-white uppercase leading-snug">
                             1-Bar Cellular SMS Fallback & SOS
@@ -2456,94 +2431,50 @@ export default function EditorialLuxuryPage() {
 
                       {/* Active Expanded Simulation Widget */}
                       <div className="mt-5 pt-4 border-t border-white/10 space-y-3.5">
-                        <div className="rounded-2xl bg-black/40 border border-white/10 p-4 sm:p-5 relative overflow-hidden backdrop-blur-sm space-y-4">
-                          {/* Cellular Signal & Status Header */}
-                          <div className="flex items-center justify-between text-xs font-mono text-slate-400 pb-2.5 border-b border-white/10">
-                            <div className="flex items-center gap-2.5">
-                              {/* 4-bar cellular signal gauge */}
-                              <div className="flex items-end gap-0.5 h-3.5" title="1-Bar 2G GSM Reception">
-                                <span className="w-1 h-1.5 bg-blue-400 rounded-2xs animate-pulse" />
-                                <span className="w-1 h-2 bg-slate-700 rounded-2xs" />
-                                <span className="w-1 h-2.5 bg-slate-700 rounded-2xs" />
-                                <span className="w-1 h-3.5 bg-slate-700 rounded-2xs" />
-                              </div>
-                              <span className="font-bold text-white">1-Bar 2G GSM Fallback</span>
+                        <div className="rounded-2xl bg-[#030712] border border-slate-800 p-4 sm:p-5 shadow-2xl space-y-3">
+                          <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 pb-2.5 border-b border-slate-800/80">
+                            <div className="flex items-center gap-2 text-blue-300">
+                              <span className="text-xs">📶</span>
+                              <span className="font-bold">1-Bar 2G GSM Gateway</span>
                             </div>
-                            <span className="text-amber-300 font-bold bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 rounded text-[10px] uppercase tracking-wider">
-                              Zero 4G / Wi-Fi Required
+                            <span className="text-amber-300 font-bold bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 rounded text-[10px]">
+                              Data Offline · SMS Relay Active
                             </span>
                           </div>
 
-                          {/* Authentic Mobile SMS Transmission Thread */}
-                          <div className="space-y-3.5">
-                            {/* Outgoing Worker SMS */}
-                            <div className="flex flex-col items-end gap-1.5">
-                              <div className="text-[10px] font-mono text-slate-400">
-                                To: +44 7700 900142 (Checksafe Virtual Proxy)
-                              </div>
-                              <div className={`px-4 py-2 rounded-2xl rounded-tr-xs font-black text-xs shadow-md transition-all duration-300 ${gsmTransmitted
-                                ? "bg-[#00E08C] text-[#0B2545] scale-105 shadow-[#00E08C]/30 shadow-lg"
-                                : "bg-[#2563EB] text-white"
-                                }`}>
+                          <div className="p-3.5 sm:p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3">
+                            <div className="text-[10px] font-mono text-center text-slate-500 uppercase tracking-wider">
+                              Encrypted Gateway Session · Virtual Line +44 7700 900142
+                            </div>
+
+                            <div className="flex flex-col items-end gap-1">
+                              <div className="bg-blue-600 text-white font-bold text-xs px-4 py-2 rounded-2xl rounded-tr-xs shadow-md">
                                 SOS
                               </div>
-                              <div className="text-[10px] font-mono text-slate-400 flex items-center gap-1.5">
-                                <span>14:31 GMT</span>
-                                <span>·</span>
-                                <span className="text-blue-400 font-bold">Sent via 2G GSM SMS ✓✓ Delivered</span>
-                              </div>
+                              <span className="text-[9px] font-mono text-slate-400">
+                                14:31 GMT · Sent via GSM SMS ✓✓
+                              </span>
                             </div>
 
-                            {/* Incoming Automated Gateway Confirmation */}
-                            <div className="flex flex-col items-start gap-1.5">
-                              <div className="rounded-2xl rounded-tl-xs bg-white/10 border border-white/10 p-3.5 sm:p-4 text-white space-y-2.5 max-w-[95%] sm:max-w-[90%] shadow-lg">
-                                <div className="flex items-center justify-between gap-2">
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-[#00E08C] flex items-center justify-center shrink-0">
-                                      <Check className="w-3.5 h-3.5 stroke-[3]" />
-                                    </div>
-                                    <span className="text-xs sm:text-sm font-bold text-white">Emergency Dispatch Confirmed</span>
-                                  </div>
-                                  <span className="px-2 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30 text-[#00E08C] text-[10px] font-mono font-bold shrink-0">
-                                    Zero-Login
-                                  </span>
+                            <div className="flex flex-col items-start gap-1">
+                              <div className="bg-slate-800/90 border border-slate-700/80 text-slate-200 text-xs p-3.5 rounded-2xl rounded-tl-xs shadow-md space-y-2 max-w-[92%] sm:max-w-[85%]">
+                                <div className="flex items-center gap-1.5 font-bold text-emerald-400 text-xs">
+                                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                  <span>Emergency Acknowledged (Zero-Login)</span>
                                 </div>
-
-                                <p className="text-xs text-slate-300 leading-relaxed font-normal">
-                                  Distress SMS recognized in data deadzone. Live GPS breadcrumbs & 999 response pack dispatched to 3 nominated peers.
+                                <p className="text-[11px] text-slate-300 leading-relaxed font-normal">
+                                  Coordinates and satellite breadcrumbs dispatched to 3 nominated peers and on-call desk.
                                 </p>
-
-                                {/* Live GPS & Latency Row */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-[11px] font-mono">
-                                  <div className="p-2 rounded-lg bg-black/40 border border-white/10 text-slate-300 flex items-center gap-2">
-                                    <MapPin className="w-3.5 h-3.5 text-rose-400 shrink-0" />
-                                    <span className="truncate">51.5074° N, 0.1278° W (±3m)</span>
-                                  </div>
-                                  <div className="p-2 rounded-lg bg-black/40 border border-white/10 text-slate-300 flex items-center justify-between gap-2">
-                                    <span className="text-slate-400">Network Latency:</span>
-                                    <span className="text-[#00E08C] font-bold">18ms GSM Relay</span>
-                                  </div>
+                                <div className="p-2 rounded-lg bg-black/50 border border-slate-800 text-[10px] font-mono text-slate-400 flex items-center justify-between gap-2">
+                                  <span className="truncate">📍 51.5074° N, 0.1278° W</span>
+                                  <span className="text-[#00E08C] shrink-0">Relay: 18ms</span>
                                 </div>
                               </div>
-                              <div className="text-[10px] font-mono text-slate-400 pl-1">
-                                London Cloud eu-west-2 Gateway
-                              </div>
+                              <span className="text-[9px] font-mono text-slate-400">
+                                14:31:02 GMT · London Cloud eu-west-2
+                              </span>
                             </div>
                           </div>
-
-                          {/* Interactive Simulation Trigger Button */}
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setGsmTransmitted(true);
-                              setTimeout(() => setGsmTransmitted(false), 2500);
-                            }}
-                            className="w-full py-2.5 px-4 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/30 text-xs font-bold font-mono transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-[0.99]"
-                          >
-                            <Send className="w-3.5 h-3.5 text-blue-400" />
-                            <span>{gsmTransmitted ? "⚡ GSM SMS Dispatched (18ms Relay Confirmed) ✓" : "Test Simulated 2G 'SOS' Text Dispatch"}</span>
-                          </button>
                         </div>
 
                         <div className="pt-2 flex items-center justify-between text-[11px] font-mono text-slate-300">
@@ -2552,52 +2483,25 @@ export default function EditorialLuxuryPage() {
                         </div>
                       </div>
                     </div>
-                  ) : (
-                    <div
-                      onClick={() => handleSelectFailsafeStep(2)}
-                      className="flex-1 flex items-center justify-between gap-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer group"
-                    >
-                      <div className="space-y-1 pr-2">
-                        <h3 className="font-extrabold text-xs sm:text-sm text-[#111827] uppercase tracking-wide group-hover:text-[#0B2545] transition">
-                          1-Bar Cellular SMS Fallback & SOS
-                        </h3>
-                        <p className="text-xs text-slate-500 font-normal leading-relaxed line-clamp-2">
-                          Zero 4G/Wi-Fi signal required. Checksafe fires emergency dispatch across standard GSM 2G voice & SMS.
-                        </p>
-                      </div>
-                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-slate-200 bg-white flex items-center justify-center shrink-0 text-slate-500 group-hover:border-slate-400 group-hover:text-[#0B2545] transition shadow-2xs">
-                        <Radio className="w-4 h-4 sm:w-5 sm:h-5" />
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 {/* ------------------------------------------------------------- */}
-                {/* LAYER 04: TRUSTED CLIENT VAULT (REPEAT SESSIONS FOR £0)       */}
+                {/* LAYER 04: CS-IDGATE HMAC-SHA256 VAULT                        */}
                 {/* ------------------------------------------------------------- */}
-                <div id="failsafe-step-3" className="relative flex items-start gap-3.5 sm:gap-4 group scroll-mt-4 failsafe-step-reveal">
+                <div id="failsafe-step-3" className="relative flex items-start gap-3.5 sm:gap-4 group scroll-mt-28 failsafe-step-reveal">
                   {/* Continuous Vertical Connecting Line to Step 05 */}
-                  <div className="block absolute left-[17px] sm:left-[19px] top-4 sm:top-5 -bottom-[36px] sm:-bottom-[42px] w-[2px] bg-slate-300 pointer-events-none z-0" />
+                  <div className="block absolute left-[17px] sm:left-[19px] top-6 -bottom-8 w-[2px] bg-slate-200/90 pointer-events-none z-0" />
 
                   {/* Step Node */}
-                  <button
-                    type="button"
-                    onClick={() => handleSelectFailsafeStep(3)}
-                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full font-mono text-xs sm:text-sm font-bold flex items-center justify-center shrink-0 z-10 transition-all duration-200 cursor-pointer ${activeFailsafeStep === 3
-                      ? "bg-[#0B2545] text-[#00E08C] ring-4 ring-emerald-400/20 shadow-md scale-105 border border-[#00E08C]/40"
-                      : "bg-white border-2 border-slate-300 text-slate-600 hover:border-slate-400 shadow-2xs"
-                      }`}
-                  >
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full font-mono text-xs sm:text-sm font-bold flex items-center justify-center shrink-0 z-10 bg-[#0B2545] text-[#00E08C] ring-4 ring-emerald-400/20 shadow-md border border-[#00E08C]/40">
                     04
-                  </button>
+                  </div>
 
-                  {/* Card: Active vs Inactive (CVB Reference Style) */}
-                  {activeFailsafeStep === 3 ? (
-                    <div className="flex-1 rounded-2xl sm:rounded-3xl bg-[#0B2545] text-white p-5 sm:p-7 shadow-xl border border-[#0B2545] ring-2 ring-[#00E08C]/30 transition-all duration-300">
+                  <div className="flex-1 rounded-2xl sm:rounded-3xl bg-[#0B2545] text-white p-5 sm:p-7 shadow-xl border border-[#0B2545] ring-2 ring-[#00E08C]/30 transition-all duration-300">
                       <div className="flex items-start justify-between gap-4">
                         <div className="space-y-1.5 pr-2">
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-emerald-400/20 border border-emerald-400/40 text-emerald-300">
-                            Cryptographic Security · Verified Client Vault
+                            Scope §5.3 · Trusted Client Vault
                           </span>
                           <h3 className="text-base sm:text-lg font-black tracking-wide text-white uppercase leading-snug">
                             Verified Once, Protected Forever. Repeat Sessions for £0.
@@ -2613,32 +2517,32 @@ export default function EditorialLuxuryPage() {
 
                       {/* Active Expanded Simulation Widget */}
                       <div className="mt-5 pt-4 border-t border-white/10 space-y-3.5">
-                        <div className="rounded-2xl bg-black/40 border border-white/10 p-4 sm:p-5 relative overflow-hidden backdrop-blur-sm space-y-3">
-                          <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 font-mono text-xs">
+                        <div className="rounded-2xl bg-[#030712] border border-slate-800 p-4 sm:p-5 shadow-2xl space-y-3.5">
+                          <div className="p-3 sm:p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 font-mono text-xs">
                             <div className="flex items-center gap-2 text-slate-200">
                               <KeyRound className="w-4 h-4 text-[#00E08C] shrink-0" />
                               <span className="truncate">HMAC-SHA256: 7f83b165...e49c</span>
                             </div>
-                            <span className="px-2.5 py-0.5 rounded-full bg-[#00E08C]/15 border border-[#00E08C]/40 text-[#00E08C] font-bold text-[10px] shrink-0 self-start sm:self-auto flex items-center gap-1.5">
+                            <span className="px-3 py-1 rounded-full bg-[#00E08C]/15 border border-[#00E08C]/40 text-[#00E08C] font-bold text-[10px] shrink-0 self-start sm:self-auto flex items-center gap-1.5">
                               <span className="w-1.5 h-1.5 rounded-full bg-[#00E08C] animate-pulse" />
                               <span>£0 Token Fee · Vault Match</span>
                             </span>
                           </div>
 
-                          <div className="grid grid-cols-1 gap-2 text-xs text-slate-200">
-                            <div className="p-2.5 rounded-lg bg-white/5 border border-white/5 flex items-start gap-2.5">
+                          <div className="grid grid-cols-1 gap-2.5 text-xs text-slate-200">
+                            <div className="p-2.5 rounded-lg bg-slate-900/50 border border-slate-800/80 flex items-start gap-2.5">
                               <span className="w-4 h-4 rounded-full bg-emerald-500/20 text-[#00E08C] flex items-center justify-center shrink-0 mt-0.5">
                                 <Check className="w-3 h-3 stroke-[3]" />
                               </span>
                               <span><strong>£0 Repeat Bookings:</strong> Re-enter the client&apos;s phone number to match the hash with zero check tokens deducted.</span>
                             </div>
-                            <div className="p-2.5 rounded-lg bg-white/5 border border-white/5 flex items-start gap-2.5">
+                            <div className="p-2.5 rounded-lg bg-slate-900/50 border border-slate-800/80 flex items-start gap-2.5">
                               <span className="w-4 h-4 rounded-full bg-emerald-500/20 text-[#00E08C] flex items-center justify-center shrink-0 mt-0.5">
                                 <Check className="w-3 h-3 stroke-[3]" />
                               </span>
                               <span><strong>60-Second Zero-Trace Shredder:</strong> Raw passport photos and facial scans are irreversibly destroyed via API within 60s.</span>
                             </div>
-                            <div className="p-2.5 rounded-lg bg-white/5 border border-white/5 flex items-start gap-2.5">
+                            <div className="p-2.5 rounded-lg bg-slate-900/50 border border-slate-800/80 flex items-start gap-2.5">
                               <span className="w-4 h-4 rounded-full bg-emerald-500/20 text-[#00E08C] flex items-center justify-center shrink-0 mt-0.5">
                                 <Check className="w-3 h-3 stroke-[3]" />
                               </span>
@@ -2653,49 +2557,22 @@ export default function EditorialLuxuryPage() {
                         </div>
                       </div>
                     </div>
-                  ) : (
-                    <div
-                      onClick={() => handleSelectFailsafeStep(3)}
-                      className="flex-1 flex items-center justify-between gap-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer group"
-                    >
-                      <div className="space-y-1 pr-2">
-                        <h3 className="font-extrabold text-xs sm:text-sm text-[#111827] uppercase tracking-wide group-hover:text-[#0B2545] transition">
-                          Trusted Client Vault · £0 Repeat Sessions
-                        </h3>
-                        <p className="text-xs text-slate-500 font-normal leading-relaxed line-clamp-2">
-                          Non-reversible HMAC-SHA256 fingerprint registered in private vault. £0 fees for repeat verified clients.
-                        </p>
-                      </div>
-                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-slate-200 bg-white flex items-center justify-center shrink-0 text-slate-500 group-hover:border-slate-400 group-hover:text-[#0B2545] transition shadow-2xs">
-                        <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 {/* ------------------------------------------------------------- */}
-                {/* LAYER 05: GLOBAL SAFETY HASH (CROSS-WORKER COMMUNITY SHIELD)  */}
+                {/* LAYER 05: COLLECTIVE RED-FLAG PROTOCOL (COMMUNITY SHIELD)     */}
                 {/* ------------------------------------------------------------- */}
-                <div id="failsafe-step-4" className="relative flex items-start gap-3.5 sm:gap-4 group scroll-mt-4 failsafe-step-reveal">
-                  {/* Step Node (Terminal Node - No bottom connector) */}
-                  <button
-                    type="button"
-                    onClick={() => handleSelectFailsafeStep(4)}
-                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full font-mono text-xs sm:text-sm font-bold flex items-center justify-center shrink-0 z-10 transition-all duration-200 cursor-pointer ${activeFailsafeStep === 4
-                      ? "bg-[#0B2545] text-[#00E08C] ring-4 ring-emerald-400/20 shadow-md scale-105 border border-[#00E08C]/40"
-                      : "bg-white border-2 border-slate-300 text-slate-600 hover:border-slate-400 shadow-2xs"
-                      }`}
-                  >
+                <div id="failsafe-step-4" className="relative flex items-start gap-3.5 sm:gap-4 group scroll-mt-28 failsafe-step-reveal">
+                  {/* Step Node */}
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full font-mono text-xs sm:text-sm font-bold flex items-center justify-center shrink-0 z-10 bg-[#0B2545] text-[#00E08C] ring-4 ring-emerald-400/20 shadow-md border border-[#00E08C]/40">
                     05
-                  </button>
+                  </div>
 
-                  {/* Card: Active vs Inactive (CVB Reference Style) */}
-                  {activeFailsafeStep === 4 ? (
-                    <div className="flex-1 rounded-2xl sm:rounded-3xl bg-[#0B2545] text-white p-5 sm:p-7 shadow-xl border border-[#0B2545] ring-2 ring-[#00E08C]/30 transition-all duration-300">
+                  <div className="flex-1 rounded-2xl sm:rounded-3xl bg-[#0B2545] text-white p-5 sm:p-7 shadow-xl border border-[#0B2545] ring-2 ring-[#00E08C]/30 transition-all duration-300">
                       <div className="flex items-start justify-between gap-4">
                         <div className="space-y-1.5 pr-2">
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-rose-400/20 border border-rose-400/40 text-rose-300">
-                            Community Shield · Collective Threat Registry
+                            Scope §4 & §5.3 · Global Safety Hash
                           </span>
                           <h3 className="text-base sm:text-lg font-black tracking-wide text-white uppercase leading-snug">
                             Cross-Worker Community Shield. Aggressors Blacklisted Instantly.
@@ -2711,32 +2588,32 @@ export default function EditorialLuxuryPage() {
 
                       {/* Active Expanded Simulation Widget */}
                       <div className="mt-5 pt-4 border-t border-white/10 space-y-3.5">
-                        <div className="rounded-2xl bg-black/40 border border-white/10 p-4 sm:p-5 relative overflow-hidden backdrop-blur-sm space-y-3">
-                          <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 font-mono text-xs">
+                        <div className="rounded-2xl bg-[#030712] border border-slate-800 p-4 sm:p-5 shadow-2xl space-y-3.5">
+                          <div className="p-3 sm:p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 font-mono text-xs">
                             <div className="flex items-center gap-2 text-rose-300">
                               <Shield className="w-4 h-4 text-rose-400 shrink-0" />
                               <span className="truncate">Decentralized Threat Registry · UK Collective</span>
                             </div>
-                            <span className="px-2.5 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/40 text-rose-300 font-bold text-[10px] shrink-0 self-start sm:self-auto flex items-center gap-1.5">
+                            <span className="px-3 py-1 rounded-full bg-rose-500/15 border border-rose-500/40 text-rose-300 font-bold text-[10px] shrink-0 self-start sm:self-auto flex items-center gap-1.5">
                               <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
                               <span>Live Blacklist Shield Active</span>
                             </span>
                           </div>
 
-                          <div className="grid grid-cols-1 gap-2 text-xs text-slate-200">
-                            <div className="p-2.5 rounded-lg bg-rose-950/30 border border-rose-900/30 flex items-start gap-2.5">
+                          <div className="grid grid-cols-1 gap-2.5 text-xs text-slate-200">
+                            <div className="p-2.5 rounded-lg bg-rose-950/30 border border-rose-900/40 flex items-start gap-2.5">
                               <span className="w-4 h-4 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0 mt-0.5 font-bold text-[10px]">
                                 !
                               </span>
                               <span><strong>Severe Safety / Conduct Breach:</strong> Aggressor&apos;s phone hash is permanently locked into the server&apos;s Global Safety Hash.</span>
                             </div>
-                            <div className="p-2.5 rounded-lg bg-amber-950/30 border border-amber-900/30 flex items-start gap-2.5">
+                            <div className="p-2.5 rounded-lg bg-amber-950/30 border border-amber-900/40 flex items-start gap-2.5">
                               <span className="w-4 h-4 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 mt-0.5 font-bold text-[10px]">
                                 !
                               </span>
                               <span><strong>Non-Payment / Financial Fraud:</strong> Flags fraudulent callers attempting to exploit independent lone contractors.</span>
                             </div>
-                            <div className="p-2.5 rounded-lg bg-blue-950/30 border border-blue-900/30 flex items-start gap-2.5">
+                            <div className="p-2.5 rounded-lg bg-blue-950/30 border border-blue-900/40 flex items-start gap-2.5">
                               <span className="w-4 h-4 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 mt-0.5 font-bold text-[10px]">
                                 !
                               </span>
@@ -2751,24 +2628,6 @@ export default function EditorialLuxuryPage() {
                         </div>
                       </div>
                     </div>
-                  ) : (
-                    <div
-                      onClick={() => handleSelectFailsafeStep(4)}
-                      className="flex-1 flex items-center justify-between gap-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer group"
-                    >
-                      <div className="space-y-1 pr-2">
-                        <h3 className="font-extrabold text-xs sm:text-sm text-[#111827] uppercase tracking-wide group-hover:text-[#0B2545] transition">
-                          Global Safety Hash Community Shield
-                        </h3>
-                        <p className="text-xs text-slate-500 font-normal leading-relaxed line-clamp-2">
-                          Cross-worker collective blacklist. Severe conduct breaches and fraudulent callers flagged nationwide.
-                        </p>
-                      </div>
-                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-slate-200 bg-white flex items-center justify-center shrink-0 text-slate-500 group-hover:border-slate-400 group-hover:text-[#0B2545] transition shadow-2xs">
-                        <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" />
-                      </div>
-                    </div>
-                  )}
                 </div>
 
               </div>
@@ -2779,13 +2638,7 @@ export default function EditorialLuxuryPage() {
         </div>
       </section>
 
-      {/* ========================================================================= */}
-      {/* 8. WHAT OUR USERS ARE SAYING (VERTICAL SLIDER TESTIMONIAL REFERENCE MATCH) */}
-      {/* ========================================================================= */}
-      {/* ========================================================================= */}
-      {/* 8. WHAT OUR ACTIVE USERS & SOLO WORKERS ARE SAYING (HARDWARE-ACCELERATED VERTICAL MARQUEE) */}
-      {/* ========================================================================= */}
-      <section id="testimonials" className="py-20 sm:py-28 bg-[#F8FAFC] relative overflow-hidden border-t border-slate-200/60 scroll-mt-20">
+            <section id="testimonials" className="py-20 sm:py-28 bg-[#F8FAFC] relative overflow-hidden border-t border-slate-200/60 scroll-mt-20">
         <div className="w-[96%] max-w-[1400px] mx-auto px-4 sm:px-6">
 
           {/* Section Header */}

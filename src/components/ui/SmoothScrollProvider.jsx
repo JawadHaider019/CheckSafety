@@ -35,7 +35,7 @@ export function SmoothScrollProvider({ children }) {
     gsap.ticker.add(tickerCallback);
     gsap.ticker.lagSmoothing(0);
 
-    // Global reference for anchor links
+    // Global reference for programmatic control
     window.__lenis = lenis;
 
     // Smooth anchor click handling
@@ -47,18 +47,54 @@ export function SmoothScrollProvider({ children }) {
       const hash = href.startsWith("/#") ? href.slice(1) : href;
 
       if (hash && hash !== "#") {
-        const targetElement = document.querySelector(hash);
-        if (targetElement) {
-          e.preventDefault();
-          lenis.scrollTo(targetElement, {
-            offset: -80,
-            duration: 1.2,
-          });
+        const isHomePage =
+          typeof window !== "undefined" &&
+          (window.location.pathname === "/" || window.location.pathname === "");
+
+        if (isHomePage) {
+          const targetElement = document.querySelector(hash);
+          if (targetElement) {
+            e.preventDefault();
+
+            // Calculate precise target scroll position (in pixels)
+            // Navbar is 64px tall (fixed at top: 0, height: 64px)
+            const rect = targetElement.getBoundingClientRect();
+            const currentScroll = window.scrollY || window.pageYOffset;
+
+            // For #sectors (Services):
+            // Header is 64px. Tucking slightly by 56px ensures the hero slide panel
+            // is 100% hidden, framing the white header cleanly (exact Image 1 match).
+            const headerOffset = hash === "#sectors" ? 56 : 64;
+            const targetScroll = Math.max(0, rect.top + currentScroll - headerOffset);
+
+            lenis.scrollTo(targetScroll, {
+              duration: 1.15,
+              easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            });
+
+            if (window.history.pushState) {
+              window.history.pushState(null, "", hash);
+            }
+          }
         }
       }
     };
 
     document.addEventListener("click", handleAnchorClick, { passive: false });
+
+    // Handle initial hash on mount if arriving with hash in URL
+    if (window.location.hash) {
+      setTimeout(() => {
+        const initialTarget = document.querySelector(window.location.hash);
+        if (initialTarget) {
+          const rect = initialTarget.getBoundingClientRect();
+          const currentScroll = window.scrollY || window.pageYOffset;
+          const headerOffset = window.location.hash === "#sectors" ? 56 : 64;
+          const targetScroll = Math.max(0, rect.top + currentScroll - headerOffset);
+          lenis.scrollTo(targetScroll, { immediate: true });
+        }
+      }, 120);
+    }
 
     return () => {
       document.removeEventListener("click", handleAnchorClick);
