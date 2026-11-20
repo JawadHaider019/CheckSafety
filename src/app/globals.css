@@ -85,9 +85,10 @@ body {
 .slide-panel-hero {
   position: relative;
   width: 100%;
-  height: calc(100vh - 64px);
-  min-height: 560px;
-  max-height: 920px;
+  height: 75vh;
+  height: 75svh;
+  min-height: 430px;
+  max-height: 620px;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -95,6 +96,14 @@ body {
   background: #ffffff;
   z-index: 10;
   box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .slide-panel-hero {
+    height: calc(100vh - 64px);
+    min-height: 560px;
+    max-height: 920px;
+  }
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {

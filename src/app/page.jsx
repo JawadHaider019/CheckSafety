@@ -1470,18 +1470,18 @@ export default function EditorialLuxuryPage() {
       {/* ========================================================================= */}
       <section
         ref={heroSectionRef}
-        className="slide-panel-hero w-full h-[calc(100vh-64px)] min-h-[520px] sm:min-h-[560px] max-h-[920px] flex justify-center items-start overflow-hidden bg-white z-10 px-2 sm:px-3 lg:px-4 pt-1 pb-2"
+        className="slide-panel-hero w-full h-[75svh] sm:h-[calc(100vh-64px)] min-h-[430px] sm:min-h-[560px] max-h-[620px] sm:max-h-[920px] flex justify-center items-start overflow-hidden bg-white z-10 px-2.5 sm:px-3 lg:px-4 pt-1 pb-2"
       >
         <div className="w-full h-full flex items-start justify-center">
           {/* Large Rounded Hero Container Card: Flat, No Shadow, Dark Blue, Full Visibility */}
           <div
             ref={heroCardRef}
-            className="w-full h-full relative rounded-[20px] sm:rounded-[32px] lg:rounded-[40px] overflow-hidden bg-[#0B2545] flex items-center will-change-transform shadow-sm"
+            className="w-full h-full relative rounded-[24px] sm:rounded-[32px] lg:rounded-[40px] overflow-hidden bg-[#0B2545] flex items-center justify-center sm:justify-start will-change-transform shadow-sm"
           >
             {/* Multi-layered Living Parallax Background Image */}
             <div
               ref={heroBgRef}
-              className="absolute -inset-10 sm:-inset-16 pointer-events-none will-change-transform overflow-hidden"
+              className="absolute -inset-6 sm:-inset-16 pointer-events-none will-change-transform overflow-hidden"
             >
               <div
                 ref={heroBgMouseRef}
@@ -1489,7 +1489,7 @@ export default function EditorialLuxuryPage() {
               >
                 <div
                   ref={heroBgInnerRef}
-                  className="w-full h-full bg-cover bg-right lg:bg-[center_right_-2rem] scale-110"
+                  className="w-full h-full bg-cover bg-[72%_center] sm:bg-right lg:bg-[center_right_-2rem] scale-110"
                   style={{
                     backgroundImage:
                       "url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1400&q=75')",
@@ -1501,18 +1501,25 @@ export default function EditorialLuxuryPage() {
             {/* Living Ambient Atmospheric Radial Glow */}
             <div className="absolute -top-32 -left-32 w-[600px] h-[600px] rounded-full bg-[#00E08C]/10 blur-[100px] pointer-events-none" />
 
-            {/* Seamless Dark Blue Gradient Mask blending building into left */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0B2545] via-[#0E2A4D]/95 sm:via-[#0E2A4D]/90 to-transparent lg:w-[65%] pointer-events-none" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent sm:hidden pointer-events-none" />
+            {/* 50% Visible / 50% Transparent Gradient Mask (Matches Desktop Split on All Screens) */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0B2545]/90 via-[#0B2545]/50 to-transparent w-full lg:w-[65%] pointer-events-none" />
 
-            {/* Left Column: Clean Atmospheric Headline & Prose (Checksafe Lone-Worker Safety) */}
+            {/* Left Column (Centered on Mobile): Clean Atmospheric Headline & Prose */}
             <div
               ref={heroContentRef}
-              className="relative z-10 p-5 sm:p-10 lg:p-14 xl:p-16 flex flex-col justify-center max-w-2xl text-white"
+              className="relative z-10 w-full px-5 py-6 sm:p-10 lg:p-14 xl:p-16 flex flex-col items-center text-center sm:items-start sm:text-left justify-center max-w-2xl text-white"
             >
+              {/* Mobile Compact Status Pill */}
+              <div className="sm:hidden mb-3.5 inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#00E08C]/15 border border-[#00E08C]/35 backdrop-blur-md">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#00E08C] animate-pulse" />
+                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#00E08C]">
+                  UK Lone-Worker Sentinel
+                </span>
+              </div>
+
               <h1
                 ref={heroTitleRef}
-                className="text-3xl sm:text-5xl lg:text-[68px] font-extrabold tracking-tight text-white leading-[1.08]"
+                className="text-4xl leading-[1.06] sm:text-5xl lg:text-[68px] font-extrabold tracking-tight text-white sm:leading-[1.08]"
               >
                 Protecting Your
                 <br />
@@ -1521,64 +1528,64 @@ export default function EditorialLuxuryPage() {
 
               <p
                 ref={heroSubtitleRef}
-                className="mt-4 sm:mt-5 text-sm sm:text-base lg:text-lg text-white/90 max-w-lg leading-relaxed font-normal"
+                className="mt-3.5 sm:mt-5 text-sm sm:text-base lg:text-lg text-white/90 max-w-md sm:max-w-lg leading-relaxed font-normal"
               >
                 Where Solo Workers Meet Clients with Absolute Peace of Mind. Bank-grade biometric KYC before you meet, ghost proxy numbers, and automated cloud timers.
               </p>
 
-              {/* Dual Buttons */}
+              {/* Dual Buttons - Centered side-by-side on mobile, larger pills on desktop */}
               <div
                 ref={heroButtonsRef}
-                className="mt-6 sm:mt-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4"
+                className="mt-6 sm:mt-10 w-full sm:w-auto grid grid-cols-2 sm:flex sm:flex-row items-center justify-center sm:justify-start gap-2.5 sm:gap-4"
               >
                 <Link
                   href={`/signup?country=${country}`}
-                  className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3.5 sm:py-4 rounded-full bg-white text-[#111827] hover:bg-slate-100 text-sm sm:text-base font-bold transition-all duration-200 shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+                  className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-7 py-3.5 sm:py-4 rounded-full bg-white text-[#111827] hover:bg-slate-100 text-[13px] sm:text-base font-bold transition-all duration-200 shadow-lg hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
                 >
                   <span>Start Protection</span>
-                  <ArrowUpRight className="w-4 h-4 text-[#111827]" />
+                  <ArrowUpRight className="w-4 h-4 text-[#111827] shrink-0" />
                 </Link>
 
                 <a
                   href="#interactive-demo"
-                  className="inline-flex items-center justify-center gap-2.5 px-5 sm:px-6 py-3.5 sm:py-4 rounded-full bg-[#00E08C] hover:bg-[#00f298] text-[#0B2545] text-sm sm:text-base font-bold transition-all duration-200 shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+                  className="inline-flex items-center justify-center gap-1.5 sm:gap-2.5 px-4 sm:px-6 py-3.5 sm:py-4 rounded-full bg-[#00E08C] hover:bg-[#00f298] text-[#0B2545] text-[13px] sm:text-base font-bold transition-all duration-200 shadow-lg hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
                 >
-                  <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#0B2545]/15 text-[#0B2545] flex items-center justify-center text-[10px]">
+                  <span className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-[#0B2545]/15 text-[#0B2545] flex items-center justify-center text-[9px] sm:text-[10px] shrink-0">
                     ▶
                   </span>
-                  <span>Interactive Simulator</span>
+                  <span>Live Simulator</span>
                 </a>
               </div>
 
               {/* Mobile Inline Rating Badge (< 640px) */}
-              <div className="sm:hidden mt-6 inline-flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 w-fit">
+              <div className="sm:hidden mt-5 inline-flex items-center justify-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15">
                 <div className="flex -space-x-1.5 overflow-hidden">
                   <img
                     src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=75"
                     alt="Worker"
-                    width={24}
-                    height={24}
+                    width={22}
+                    height={22}
                     loading="lazy"
                     decoding="async"
-                    className="inline-block h-6 w-6 rounded-full ring-1 ring-white object-cover"
+                    className="inline-block h-5.5 w-5.5 rounded-full ring-1 ring-white object-cover"
                   />
                   <img
                     src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&q=75"
                     alt="Worker"
-                    width={24}
-                    height={24}
+                    width={22}
+                    height={22}
                     loading="lazy"
                     decoding="async"
-                    className="inline-block h-6 w-6 rounded-full ring-1 ring-white object-cover"
+                    className="inline-block h-5.5 w-5.5 rounded-full ring-1 ring-white object-cover"
                   />
                   <img
                     src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=80&q=75"
                     alt="Worker"
-                    width={24}
-                    height={24}
+                    width={22}
+                    height={22}
                     loading="lazy"
                     decoding="async"
-                    className="inline-block h-6 w-6 rounded-full ring-1 ring-white object-cover"
+                    className="inline-block h-5.5 w-5.5 rounded-full ring-1 ring-white object-cover"
                   />
                 </div>
                 <div className="text-[11px] font-bold text-white leading-tight">
