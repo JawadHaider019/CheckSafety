@@ -1,0 +1,199 @@
+@import "tailwindcss";
+
+:root {
+  --background: #FFFFFF;
+  --foreground: #111215;
+  --editorial-bg: #F8F7F5;
+  --editorial-card: #FFFFFF;
+  --editorial-dark: #0D0F14;
+  --editorial-muted: #64676F;
+  --editorial-line: rgba(17, 18, 21, 0.08);
+  --navy: #0F2642;
+  --safe-green: #16A34A;
+  --safe-emerald: #10B981;
+  --alert-red: #DC2626;
+  --grace-yellow: #D97706;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-editorial-bg: var(--editorial-bg);
+  --color-editorial-dark: var(--editorial-dark);
+  --color-navy: var(--navy);
+  --color-safe-green: var(--safe-green);
+  --color-alert-red: var(--alert-red);
+  --color-grace-yellow: var(--grace-yellow);
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+html,
+body {
+  background-color: #FFFFFF;
+  color: #111827;
+  overflow-x: clip;
+  -webkit-tap-highlight-color: transparent;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(11, 37, 69, 0.15);
+  border-radius: 9999px;
+}
+
+/* ========================================================================= */
+/* GSAP HERO PINNED STACKED SLIDE (Hero to Section 2 Transition) */
+/* ========================================================================= */
+.slide-panel-hero {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 64px);
+  min-height: 560px;
+  max-height: 920px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow: hidden;
+  background: #ffffff;
+  z-index: 10;
+  box-sizing: border-box;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(11, 37, 69, 0.35);
+}
+
+::selection {
+  background: #111215;
+  color: #FFFFFF;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Editorial Rotating Circular Stamp Badge */
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spinSlow 20s linear infinite;
+}
+
+/* Editorial Luxury Card Surface */
+.editorial-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(17, 18, 21, 0.08);
+  box-shadow: 0 4px 20px -2px rgba(17, 18, 21, 0.03), 0 1px 3px 0 rgba(17, 18, 21, 0.02);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.editorial-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px -15px rgba(17, 18, 21, 0.08), 0 0 1px 1px rgba(17, 18, 21, 0.04);
+}
+
+/* Editorial Glass Header */
+.editorial-glass {
+  background: rgba(248, 247, 245, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(17, 18, 21, 0.06);
+}
+
+/* Hairline Grid Dividers */
+.hairline-b {
+  border-bottom: 1px solid rgba(17, 18, 21, 0.08);
+}
+
+.hairline-t {
+  border-top: 1px solid rgba(17, 18, 21, 0.08);
+}
+
+.hairline-r {
+  border-right: 1px solid rgba(17, 18, 21, 0.08);
+}
+
+/* Vertical Testimonial Slider Animations */
+@keyframes marquee-vertical {
+  0% {
+    transform: translateY(0%);
+  }
+
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes marquee-vertical-reverse {
+  0% {
+    transform: translateY(-50%);
+  }
+
+  100% {
+    transform: translateY(0%);
+  }
+}
+
+.animate-marquee-vertical {
+  animation: marquee-vertical 32s linear infinite;
+}
+
+.animate-marquee-vertical-slow {
+  animation: marquee-vertical 42s linear infinite;
+}
+
+.animate-marquee-vertical-reverse {
+  animation: marquee-vertical-reverse 36s linear infinite;
+}
+
+.pause-on-hover:hover {
+  animation-play-state: paused;
+}
+
+/* ========================================================================= */
+/* PERFORMANCE OPTIMIZATIONS ACROSS ALL DEVICES */
+/* ========================================================================= */
+
+/* Defer layout & painting of off-screen sections until scrolled into proximity */
+.section-defer {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 850px;
+}
+
+/* Hardware-accelerated GPU layer for smooth 60fps/120fps animations */
+.gpu-accelerate {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* Optimize image rendering and avoid layout shifts */
+img {
+  content-visibility: auto;
+}

@@ -1,0 +1,3704 @@
+"use client";
+import React, { useEffect, useState, useRef } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import {
+  ShieldCheck,
+  PhoneCall,
+  Lock,
+  CheckCircle2,
+  ArrowUpRight,
+  BatteryCharging,
+  ChevronDown,
+  ChevronRight,
+  Check,
+  Menu,
+  X,
+  ExternalLink,
+  Home,
+  GraduationCap,
+  HeartPulse,
+  Briefcase,
+  Clock,
+  MapPin,
+  Sparkles,
+  Shield,
+  Send,
+  AlertTriangle,
+  Radio,
+  Smartphone,
+  RefreshCw,
+  Bell,
+  KeyRound,
+  ArrowDownLeft,
+  Plus,
+  Minus,
+  Users,
+  Zap,
+  ArrowRight,
+  Eye,
+  Layers,
+  Cpu,
+  CreditCard,
+  LayoutDashboard,
+} from "lucide-react";
+import { CheckSafetyLogo, CheckSafetyIcon } from "@/components/ui/CheckSafetyLogo";
+import {
+  RotatingSecurityStamp,
+  RealEstateViewingScene,
+  HealthcareCareScene,
+  SurveyInspectionScene,
+} from "@/components/ui/EditorialScenes";
+import { COMPANY_NAME, PRIMARY_DOMAIN, VERIFY_DOMAIN } from "@/lib/domains";
+import { COUNTRY_LIST, SUPPORTED_COUNTRIES } from "@/lib/countries";
+import { DEFAULT_APP_SETTINGS } from "@/lib/types";
+
+const COUNTRY_FLAGS = {
+  GB: "🇬🇧",
+  IE: "🇮🇪",
+  US: "🇺🇸",
+  CA: "🇨🇦",
+  AU: "🇦🇺",
+  NZ: "🇳🇿",
+  DE: "🇩🇪",
+};
+
+const TESTIMONIALS_COL_1 = [
+  {
+    quote:
+      "CheckSafety completely eliminated the anxiety of meeting unvetted buyers in vacant multi-million pound properties. Clients complete verification on their phones in 60 seconds, and my personal mobile is never compromised.",
+    name: "Eleanor Vance",
+    role: "Prime Residential Partner · Mayfair",
+    tradeTag: "Property & Surveying",
+    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+  },
+  {
+    quote:
+      "This platform helped me streamline my daily inspection protocols in ways I didn't expect, offering a level of clarity and structure that fully supports my solo fieldwork every single day.",
+    name: "Jonathan Reeves",
+    role: "Senior Building Surveyor · Manchester",
+    tradeTag: "Structural Surveying",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+  },
+  {
+    quote:
+      "Working with CheckSafety has improved our operational efficiency and duty-of-care in ways we didn't think possible for solo night site and substation inspections.",
+    name: "David Ross",
+    role: "High-Voltage Infrastructure Lead · Yorkshire",
+    tradeTag: "Engineering & Utilities",
+    avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80",
+  },
+];
+
+const TESTIMONIALS_COL_2 = [
+  {
+    quote:
+      "I appreciate how practical and thoughtfully crafted each safety feature is, making it easier for me to manage private home consultations and extract meaningful peace of mind effectively.",
+    name: "Dr. Marcus Thorne",
+    role: "Consultant Psychologist · Harley St, London",
+    tradeTag: "Clinical Healthcare",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+  },
+  {
+    quote:
+      "The ghost proxy phone shield is non-negotiable. High-value clients never see my WhatsApp or real SIM number, and the triple-tap fake battery screen is the smartest covert escape mechanism.",
+    name: "Ethan Morales",
+    role: "High-Value Asset Valuer · Hatton Garden",
+    tradeTag: "Asset Valuation",
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80",
+  },
+  {
+    quote:
+      "The system is reliable, adaptable, and easy to adopt, even for field team members who are not familiar with complex compliance platforms or modern tools.",
+    name: "Marcus Wright",
+    role: "Domiciliary Operations Supervisor · Birmingham",
+    tradeTag: "Social Care Outreach",
+    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80",
+  },
+];
+
+const TESTIMONIALS_COL_3 = [
+  {
+    quote:
+      "Surveying derelict commercial basements means zero mobile data. The 1-bar cellular SMS fallback and cloud timer ensure someone knows my exact address if I don't check out in time.",
+    name: "Sarah Jenkins",
+    role: "Principal Structural Engineer · Leeds",
+    tradeTag: "Commercial Surveying",
+    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80",
+  },
+  {
+    quote:
+      "Visiting high-conflict households alone is a routine reality. Having the unbranded emergency link on my lockscreen means I can trigger immediate silent help without alerting anyone in the room.",
+    name: "Rachel Adams",
+    role: "Child & Family Outreach Specialist · Bristol",
+    tradeTag: "Child & Family Services",
+    avatar: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=150&auto=format&fit=crop&q=80",
+  },
+  {
+    quote:
+      "Serving contentious court notices often triggers hostility. CheckSafety's silent duress PIN (9999) looks like a harmless exit screen while dispatching emergency GPS packets immediately.",
+    name: "Daniel Hart",
+    role: "Licensed Process Server · Central London",
+    tradeTag: "Legal & Enforcement",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+  },
+];
+
+const TESTIMONIALS = [...TESTIMONIALS_COL_1, ...TESTIMONIALS_COL_2, ...TESTIMONIALS_COL_3];
+
+const TRADE_USE_CASES = [
+  {
+    id: "property",
+    tabLabel: "Property",
+    tabSubtitle: "Estate agents, vacant viewings, surveyors",
+    verticalLabel: "ESTATE AGENTS & SURVEYORS",
+    categoryTag: "Property & Surveying Protocol",
+    emoji: "🏡",
+    icon: Home,
+    tag: "SECTOR 01 · ESTATE AGENTS & SURVEYORS",
+    badge: "Vacant & High-Value Properties",
+    headline: "Unaccompanied Viewings & Vacant Asset Inspections",
+    hazardContext:
+      "Solo estate agents face acute personal vulnerability unlocking vacant residences for unvetted viewers.",
+    description1:
+      "Solo estate agents face acute personal vulnerability when unlocking vacant residences for unknown viewers without an active safety net.",
+    description2:
+      "CheckSafety mandates automated 3D biometric screening before releasing keys. Inquiries route through a virtual Twilio proxy to keep your personal SIM invisible, with an active cloud countdown.",
+    stats: [
+      { value: "60s", label: "Veriff Biometric Purge" },
+      { value: "100%", label: "Personal SIM Privacy" },
+    ],
+    ctaLabel: "Protect Estate Viewings",
+    testimonial: {
+      name: "Eleanor Vance",
+      role: "Prime Residential Partner, Mayfair",
+    },
+    safeguards: [
+      {
+        title: "Pre-Key Biometric Pass",
+        codeBadge: "60s Purge",
+        icon: ShieldCheck,
+        description:
+          "Automated 3D selfie & photo ID screening before property keys or addresses are released. Raw identity data purged within 60s.",
+      },
+      {
+        title: "Dedicated Ghost Proxy Line",
+        codeBadge: "100% Privacy",
+        icon: PhoneCall,
+        description:
+          "Calls, SMS, and WhatsApp exchanges route through a virtual Twilio proxy. Your personal mobile number stays 100% private.",
+      },
+      {
+        title: "Active Viewing Countdown",
+        codeBadge: "BS 8484 Alert",
+        icon: Clock,
+        description:
+          "Configurable viewing countdown. If safe code isn't entered upon exit, automated peer & agency dispatch alerts fire with coordinates.",
+      },
+    ],
+    pwaMockup: {
+      sessionTitle: "Prime Penthouse Viewing",
+      clientName: "David Kensington",
+      clientTag: "Biometrically Cleared (Veriff 60s)",
+      timer: "00:34:12",
+      timerLabel: "Viewing Session Active",
+      proxyNumber: "+44 20 7946 0912",
+      address: "42 Belgrave Square, London SW1X 8PZ",
+      emergencyContact: "Mayfair Agency Fleet Dispatch",
+      specialFeature: "Zero-Knowledge Geolocation Lock",
+    },
+    bgImage:
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=960&q=75",
+  },
+  {
+    id: "tuition",
+    tabLabel: "Private Tuition",
+    tabSubtitle: "In-home tutors, music instructors",
+    verticalLabel: "IN-HOME TUTORS & INSTRUCTORS",
+    categoryTag: "Education & Private Tutoring",
+    emoji: "📚",
+    icon: GraduationCap,
+    tag: "SECTOR 02 · IN-HOME TUTORS & MENTORS",
+    badge: "Domestic Residences & 1-on-1 Sessions",
+    headline: "In-Home Academic Mentoring & Evening Music Lessons",
+    hazardContext:
+      "Independent tutors enter unfamiliar domestic homes, conducting 1-on-1 sessions without institutional back-up.",
+    description1:
+      "Tutors and instructors routinely travel to unfamiliar domestic addresses without reception or check-in visibility.",
+    description2:
+      "CheckSafety issues a single-use identity pass to the parent prior to lesson 1, backed by an automated 60-minute cloud countdown.",
+    stats: [
+      { value: "1-Tap", label: "Parent ID Clearance" },
+      { value: "60m", label: "Automated Cloud Timer" },
+    ],
+    ctaLabel: "Secure In-Home Tutoring",
+    testimonial: {
+      name: "Dr. Julian Hayes",
+      role: "Senior Private STEM Tutor, Surrey",
+    },
+    safeguards: [
+      {
+        title: "Parent Identity Clearance",
+        codeBadge: "HMAC Hash",
+        icon: ShieldCheck,
+        description:
+          "Single-use link verifies parent or guardian identity, cross-checking the Global Safety Hash red-flag registry.",
+      },
+      {
+        title: "Masked Client Communication",
+        codeBadge: "Out-of-Hours Mute",
+        icon: PhoneCall,
+        description:
+          "Dedicated virtual proxy numbers mask your personal phone, preventing personal WhatsApp exposure and out-of-hours harassment.",
+      },
+      {
+        title: "Automated Lesson Check-In",
+        codeBadge: "60m Cloud Timer",
+        icon: Clock,
+        description:
+          "60-minute cloud session timer. Extend with 1 tap or enter your secret 4-digit PIN to safely complete the session.",
+      },
+    ],
+    pwaMockup: {
+      sessionTitle: "Advanced STEM Tutoring",
+      clientName: "Parent: Eleanor Wright",
+      clientTag: "Identity Verified (HMAC Hash)",
+      timer: "00:52:18",
+      timerLabel: "Lesson Timer Running",
+      proxyNumber: "+44 14 8390 1420",
+      address: "18 Richmond Crescent, Surrey KT2 7BB",
+      emergencyContact: "Nominated Peer (Sarah Thompson)",
+      specialFeature: "Auto-Cancel On Safe Code Exit",
+    },
+    bgImage:
+      "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=960&q=75",
+  },
+  {
+    id: "wellness",
+    tabLabel: "Mobile Wellness",
+    tabSubtitle: "Domiciliary care, clinical therapy, mobile massage",
+    verticalLabel: "DOMICILIARY CARE & CLINICAL",
+    categoryTag: "Healthcare & Clinical Practice",
+    emoji: "🩺",
+    icon: HeartPulse,
+    tag: "SECTOR 03 · CLINICAL & DOMICILIARY CARE",
+    badge: "Solo Clinical & Home Patient Care",
+    headline: "Domiciliary Patient Visits & Solo Clinical Consultations",
+    hazardContext:
+      "Mobile clinicians and therapists enter private homes alone where patient volatility requires immediate covert protection.",
+    description1:
+      "Visiting patients in private residences presents lone-worker safety risks. CheckSafety arms mobile clinicians with BS 8484 covert escalation.",
+    description2:
+      "Entering your secret Duress PIN (9999) simulates a normal checkout while silently relaying coordinates. A triple-tap triggers a realistic black Low Battery screen.",
+    stats: [
+      { value: "2-Stage", label: "BS 8484 Escalation" },
+      { value: "9999", label: "Silent Duress PIN" },
+    ],
+    ctaLabel: "Start Protection for Mobile Wellness",
+    testimonial: {
+      name: "Dr. Marcus Thorne",
+      role: "Consultant Clinical Psychologist, Edinburgh",
+    },
+    safeguards: [
+      {
+        title: "BS 8484 2-Stage Escalation",
+        codeBadge: "5-Min Silent Grace",
+        icon: HeartPulse,
+        description:
+          "Discreet 5-minute silent grace window before automated London cloud dispatch transmits address coordinates to your clinical contact.",
+      },
+      {
+        title: "Discreet Duress PIN (9999)",
+        codeBadge: "Zero-Trace Handoff",
+        icon: Lock,
+        description:
+          "Under coercion, silent duress PIN displays an innocent session exit screen while broadcasting coordinates to on-call peers.",
+      },
+      {
+        title: "Covert Low-Battery Blackout",
+        codeBadge: "Covert Black Screen",
+        icon: BatteryCharging,
+        description:
+          "Triple-tap renders an unresponsive black 1% battery shutdown graphic while cloud countdown runs independently.",
+      },
+    ],
+    pwaMockup: {
+      sessionTitle: "Domiciliary Patient Assessment",
+      clientName: "Arthur Vance (Patient Referral)",
+      clientTag: "Clinical Screening Cleared",
+      timer: "00:26:45",
+      timerLabel: "BS 8484 Two-Stage Armed",
+      proxyNumber: "+44 20 7946 0884",
+      address: "74 St John's Way, Islington N19 3RL",
+      emergencyContact: "Clinical Practice On-Call Desk + 999",
+      specialFeature: "Covert Low-Battery Screen Ready",
+    },
+    bgImage:
+      "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=960&q=75",
+  },
+  {
+    id: "independent",
+    tabLabel: "Independent Professionals",
+    tabSubtitle: "Consultants, tradespeople, solo home visits",
+    verticalLabel: "CONSULTANTS & SOLO TRADES",
+    categoryTag: "Engineering & Fieldwork Operations",
+    emoji: "💼",
+    icon: Briefcase,
+    tag: "SECTOR 04 · CONSULTANTS & SITE AUDITS",
+    badge: "Solo Consultations & Field Audits",
+    headline: "Commercial Site Appraisals & Technical Fieldwork",
+    hazardContext:
+      "Engineers and tradespeople operate in basements and industrial facilities where cellular data drops to zero.",
+    description1:
+      "Technical tradespeople operate in basements and remote facilities where 4G/5G cellular data routinely drops to zero.",
+    description2:
+      "CheckSafety operates over 1-bar SMS satellite fallback so cloud timers persist and 'SAFE' codes execute without internet.",
+    stats: [
+      { value: "1-Bar", label: "SMS Satellite Fallback" },
+      { value: "£0", label: "Trusted Client Vault" },
+    ],
+    ctaLabel: "Deploy Fieldwork Sentinel",
+    testimonial: {
+      name: "Sophie Campbell",
+      role: "Head of Safety & Operations, Manchester",
+    },
+    safeguards: [
+      {
+        title: "1-Bar SMS Satellite Fallback",
+        codeBadge: "1-Bar Cellular",
+        icon: Shield,
+        description:
+          "Timers run in the London cloud. Send 'SAFE' or 'SOS' over standard 1-bar SMS without requiring 4G or Wi-Fi.",
+      },
+      {
+        title: "Trusted Client Vault (£0)",
+        codeBadge: "£0 Free Repeat",
+        icon: Lock,
+        description:
+          "Cryptographic vault stores hashed client fingerprints for instant £0 repeat bookings without recurring check fees.",
+      },
+      {
+        title: "Global Red-Flag Threat List",
+        codeBadge: "Zero-Knowledge DB",
+        icon: ShieldCheck,
+        description:
+          "Cross-worker community safety shield immediately red-flags repeat non-payers and hostile aggressors.",
+      },
+    ],
+    pwaMockup: {
+      sessionTitle: "Commercial Plant Inspection",
+      clientName: "Apex Logistics Hub Manager",
+      clientTag: "Trusted Client Vault Token",
+      timer: "01:14:30",
+      timerLabel: "SMS Satellite Sentinel",
+      proxyNumber: "+44 16 1946 0331",
+      address: "Unit 9, Trafford Industrial Park, M17 1EH",
+      emergencyContact: "Central Dispatch & Peer Supervisor",
+      specialFeature: "Works Over 1-Bar Cellular Fallback",
+    },
+    bgImage:
+      "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=960&q=75",
+  },
+];
+
+const NAV_SECTORS = [
+  {
+    id: "property",
+    idx: 0,
+    brandName: "safe.property",
+    label: "Property Viewings",
+    desc: "easy biometric KYC & proxy lines for estate viewings",
+    icon: Home,
+  },
+  {
+    id: "tuition",
+    idx: 1,
+    brandName: "safe.tuition",
+    label: "Private Tuition",
+    desc: "parent verification pass & automated cloud timers",
+    icon: GraduationCap,
+  },
+  {
+    id: "wellness",
+    idx: 2,
+    brandName: "safe.care",
+    label: "Clinical & Care",
+    desc: "silent duress triggers & covert blackout protection",
+    icon: HeartPulse,
+  },
+  {
+    id: "independent",
+    idx: 3,
+    brandName: "safe.field",
+    label: "Field & Industrial",
+    desc: "1-bar cellular fallback for off-grid lone workers",
+    icon: Briefcase,
+  },
+];
+
+export default function EditorialLuxuryPage() {
+  const router = useRouter();
+  const [settings] = useState(DEFAULT_APP_SETTINGS);
+  const [country, setCountry] = useState("GB");
+  const [audience, setAudience] = useState("personal");
+  const [billingCycle, setBillingCycle] = useState("annual");
+  const [agencySeats, setAgencySeats] = useState(5);
+  const [activeTestimonialIdx, setActiveTestimonialIdx] = useState(0);
+  const [activeTradeTab, setActiveTradeTab] = useState(0);
+  const [activeNav, setActiveNav] = useState("home");
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [sectorsOpen, setSectorsOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [footerEmail, setFooterEmail] = useState("");
+  const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
+
+  // GSAP Animation Refs for Hero & Whole Page Scope
+  const pageContainerRef = useRef(null);
+  const heroSectionRef = useRef(null);
+  const heroCardRef = useRef(null);
+  const heroBgRef = useRef(null);
+  const heroBgMouseRef = useRef(null);
+  const heroBgInnerRef = useRef(null);
+  const heroContentRef = useRef(null);
+  const heroTitleRef = useRef(null);
+  const heroSubtitleRef = useRef(null);
+  const heroButtonsRef = useRef(null);
+  const heroNotchRef = useRef(null);
+
+  // Live Simulator States
+  const [simPhoneNumber, setSimPhoneNumber] = useState("+44 7700 900456");
+  const [simVerificationState, setSimVerificationState] = useState("idle");
+  const [simTimerSeconds, setSimTimerSeconds] = useState(2052); // 34m 12s
+  const [simTimerRunning, setSimTimerRunning] = useState(true);
+  const [simTriggerStatus, setSimTriggerStatus] = useState("normal"); // "normal" | "safe_cleared" | "silent_duress" | "grace_warning"
+  const [simFakeBattery, setSimFakeBattery] = useState(false);
+  const [simActiveTab, setSimActiveTab] = useState("normal");
+  const [failsafeBlackout, setFailsafeBlackout] = useState(false);
+  const [duressDemoTab, setDuressDemoTab] = useState("peaceful");
+  const [activeFailsafeStep, setActiveFailsafeStep] = useState(0);
+  const [gsmTransmitted, setGsmTransmitted] = useState(false);
+
+  function handleSelectFailsafeStep(idx) {
+    setActiveFailsafeStep(idx);
+    if (typeof window !== "undefined") {
+      const el = document.getElementById(`failsafe-step-${idx}`);
+      el?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }
+
+  const countryCfg = SUPPORTED_COUNTRIES[country];
+  const activeTestimonial = TESTIMONIALS[activeTestimonialIdx];
+  const currentTrade = TRADE_USE_CASES[activeTradeTab] || TRADE_USE_CASES[0];
+
+  useEffect(() => {
+    let ticking = false;
+    let cachedOffsets = [];
+
+    const calculateOffsets = () => {
+      const sections = [
+        { id: "pricing", name: "pricing" },
+        { id: "failsafes", name: "architecture" },
+        { id: "protocol", name: "protocol" },
+        { id: "sectors", name: "sectors" },
+        { id: "journey", name: "journey" },
+      ];
+      cachedOffsets = sections
+        .map((s) => {
+          const el = document.getElementById(s.id);
+          return el ? { name: s.name, top: el.offsetTop } : null;
+        })
+        .filter(Boolean);
+    };
+
+    calculateOffsets();
+    window.addEventListener("resize", calculateOffsets, { passive: true });
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const sy = window.scrollY;
+          setIsScrolled((prev) => (sy > 15 ? (prev ? prev : true) : prev ? false : false));
+
+          const scrollPos = sy + 200;
+          let matched = false;
+          for (const s of cachedOffsets) {
+            if (scrollPos >= s.top) {
+              setActiveNav((curr) => (curr !== s.name ? s.name : curr));
+              matched = true;
+              break;
+            }
+          }
+          if (!matched && sy < 300) {
+            setActiveNav((curr) => (curr !== "products" && curr !== "home" ? "home" : curr));
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", calculateOffsets);
+    };
+  }, []);
+
+  // GSAP Entrance, Live Parallax & Scroll-Triggered Parallax Animation
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    let removeMouseListeners = () => { };
+
+    const ctx = gsap.context(() => {
+      // 1. Smooth, cinematic entrance animation with intentional breath on reload
+      const entranceTl = gsap.timeline({
+        delay: 0.25, // Gentle breath after reload so the page finishes paint and layout
+        defaults: { ease: "power3.out" },
+      });
+
+      // Prevent any flash of un-animated content on reload
+      gsap.set(
+        [
+          heroTitleRef.current,
+          heroSubtitleRef.current,
+          heroButtonsRef.current,
+          heroNotchRef.current,
+        ],
+        { opacity: 0 }
+      );
+
+      entranceTl
+        .fromTo(
+          heroBgRef.current,
+          { scale: 1.15, opacity: 0.75 },
+          { scale: 1.05, opacity: 1, duration: 1.5, ease: "power2.out" },
+          0
+        )
+        .fromTo(
+          heroTitleRef.current,
+          { y: 38, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1.0 },
+          0.12
+        )
+        .fromTo(
+          heroSubtitleRef.current,
+          { y: 26, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.9 },
+          0.28
+        )
+        .fromTo(
+          heroButtonsRef.current,
+          { y: 22, opacity: 0, scale: 0.96 },
+          { y: 0, opacity: 1, scale: 1, duration: 0.85, ease: "power3.out" },
+          0.42
+        )
+        .fromTo(
+          heroNotchRef.current,
+          { y: 35, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.9, ease: "power3.out" },
+          0.52
+        );
+
+      // 2. Continuous Organic Ambient "Live Camera" Parallax Drift
+      // Subtle multi-axis breathing gives the image life even before mouse or scroll
+      const ambientAnim = gsap.to(heroBgInnerRef.current, {
+        scale: 1.18,
+        xPercent: 1.6,
+        yPercent: -1.4,
+        rotation: 0.35,
+        duration: 8.5,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
+
+      // Pause ambient animation when hero is scrolled out of viewport to preserve mobile GPU/battery
+      if (typeof IntersectionObserver !== "undefined" && heroSectionRef.current) {
+        const heroObserver = new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) {
+              ambientAnim.play();
+            } else {
+              ambientAnim.pause();
+            }
+          },
+          { threshold: 0.05 }
+        );
+        heroObserver.observe(heroSectionRef.current);
+      }
+
+      // 3. Interactive Mouse-Move 3D Depth Parallax
+      // Background and foreground move in counter-perspective when hovering over hero
+      if (window.matchMedia("(hover: hover)").matches && heroCardRef.current) {
+        const bgXTo = gsap.quickTo(heroBgMouseRef.current, "x", {
+          duration: 0.8,
+          ease: "power2.out",
+        });
+        const bgYTo = gsap.quickTo(heroBgMouseRef.current, "y", {
+          duration: 0.8,
+          ease: "power2.out",
+        });
+        const contentXTo = gsap.quickTo(heroContentRef.current, "x", {
+          duration: 0.7,
+          ease: "power2.out",
+        });
+        const contentYTo = gsap.quickTo(heroContentRef.current, "y", {
+          duration: 0.7,
+          ease: "power2.out",
+        });
+
+        const handleMouseMove = (e) => {
+          if (!heroCardRef.current) return;
+          const rect = heroCardRef.current.getBoundingClientRect();
+          // Normalized -0.5 to 0.5 from center of the hero card
+          const relX = (e.clientX - rect.left) / rect.width - 0.5;
+          const relY = (e.clientY - rect.top) / rect.height - 0.5;
+
+          // Background moves away from cursor (deep perspective)
+          bgXTo(relX * -34);
+          bgYTo(relY * -22);
+
+          // Foreground text drifts gently toward cursor (floating layer)
+          contentXTo(relX * 12);
+          contentYTo(relY * 8);
+        };
+
+        const handleMouseLeave = () => {
+          bgXTo(0);
+          bgYTo(0);
+          contentXTo(0);
+          contentYTo(0);
+        };
+
+        const cardEl = heroCardRef.current;
+        cardEl.addEventListener("mousemove", handleMouseMove, { passive: true });
+        cardEl.addEventListener("mouseleave", handleMouseLeave, { passive: true });
+
+        removeMouseListeners = () => {
+          cardEl.removeEventListener("mousemove", handleMouseMove);
+          cardEl.removeEventListener("mouseleave", handleMouseLeave);
+        };
+      }
+
+      // 4. Silky-smooth ScrollTrigger Parallax (scrub: 1.0 for responsive damping)
+      // Background building pans with optical depth
+      const sectorsSection = document.getElementById("sectors");
+      const heroSlide = heroSectionRef.current;
+      if (sectorsSection && heroSlide && heroCardRef.current) {
+        gsap.to(heroBgRef.current, {
+          yPercent: 20,
+          ease: "none",
+          scrollTrigger: {
+            trigger: heroSlide,
+            start: "top 64px",
+            endTrigger: sectorsSection,
+            end: "top 64px",
+            scrub: 1.0,
+            fastScrollEnd: true,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        // Left text content drifts up and eases away
+        gsap.to(heroContentRef.current, {
+          yPercent: -14,
+          opacity: 0.2,
+          ease: "none",
+          scrollTrigger: {
+            trigger: heroSlide,
+            start: "top 64px",
+            endTrigger: sectorsSection,
+            end: "top 64px",
+            scrub: 1.0,
+            fastScrollEnd: true,
+          },
+        });
+
+        // =========================================================================
+        // 4. GSAP HERO-TO-SECTION-2 STACKED SLIDE SCROLL ANIMATION
+        // Fixed header + container pt-16 provides rock-solid viewport coordinates.
+        // Hero pins precisely at top 64px with zero jump on load.
+        // As user scrolls down, Section 2 (#sectors, z-20) glides up over Hero while
+        // Hero card smoothly scales to 0.7 and fades to 0.
+        // =========================================================================
+        gsap.timeline({
+          scrollTrigger: {
+            trigger: heroSlide,
+            start: "top 64px",
+            endTrigger: sectorsSection,
+            end: "top 64px",
+            pin: true,
+            pinSpacing: false,
+            scrub: true,
+            invalidateOnRefresh: true,
+          },
+        })
+          .fromTo(
+            heroCardRef.current,
+            { scale: 1, opacity: 1 },
+            { scale: 0.7, opacity: 0, ease: "none" }
+          );
+      }
+
+      // =========================================================================
+      // 5. TAILORED GSAP SCROLL REVEAL ANIMATIONS FOR ALL SECTIONS
+      // Respect user OS accessibility preference for reduced motion
+      // =========================================================================
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (prefersReducedMotion) return;
+
+      // -------------------------------------------------------------------------
+      // SECTION 1: #sectors (TRADE TABS & USE CASES)
+      // Distinct Animation: 3D Perspective Card Tilt + Tab Blur Clear
+      // -------------------------------------------------------------------------
+      const sectorsHeader = document.querySelector("#sectors .sector-header-reveal");
+      if (sectorsHeader) {
+        gsap.fromTo(
+          sectorsHeader,
+          { y: 40, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.85,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: sectorsHeader,
+              start: "top 86%",
+              once: true,
+            },
+          }
+        );
+      }
+
+      const sectorsTabs = document.querySelector("#sectors .sector-tabs-reveal");
+      if (sectorsTabs) {
+        gsap.fromTo(
+          sectorsTabs,
+          { scale: 0.94, opacity: 0, y: 20 },
+          {
+            scale: 1,
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: sectorsTabs,
+              start: "top 88%",
+              once: true,
+            },
+          }
+        );
+      }
+
+      const sectorsCard = document.querySelector("#sectors .sector-card-reveal");
+      if (sectorsCard) {
+        gsap.fromTo(
+          sectorsCard,
+          { y: 70, opacity: 0, rotationX: 6, transformPerspective: 1200 },
+          {
+            y: 0,
+            opacity: 1,
+            rotationX: 0,
+            duration: 1.05,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: sectorsCard,
+              start: "top 85%",
+              once: true,
+            },
+          }
+        );
+
+        // Stagger inner safeguards cards
+        const innerSafeguards = sectorsCard.querySelectorAll(".sector-safeguard-card");
+        if (innerSafeguards.length > 0) {
+          gsap.fromTo(
+            innerSafeguards,
+            { y: 30, opacity: 0 },
+            {
+              y: 0,
+              opacity: 1,
+              duration: 0.7,
+              stagger: 0.12,
+              ease: "back.out(1.2)",
+              scrollTrigger: {
+                trigger: sectorsCard,
+                start: "top 78%",
+                once: true,
+              },
+            }
+          );
+        }
+      }
+
+      // -------------------------------------------------------------------------
+      // SECTION 2: #protocol (THE 4-STAGE SAFETY PROTOCOL)
+      // Distinct Animation: Cascading Domino Stagger with Rotation & Arc Button Pop
+      // -------------------------------------------------------------------------
+      const protocolHeader = document.querySelector("#protocol .protocol-header-reveal");
+      if (protocolHeader) {
+        gsap.fromTo(
+          protocolHeader,
+          { y: 15, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.75,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: protocolHeader,
+              start: "top 88%",
+              once: true,
+            },
+          }
+        );
+      }
+
+      // -------------------------------------------------------------------------
+      // SECTION 3: #failsafes (IN-FIELD 5-LAYER DEFENSE MATRIX)
+      // Distinct Animation: Split Kinetic Horizon (Left Glides From Left, Right Steps Cascade From Right)
+      // -------------------------------------------------------------------------
+      const failsafesLeft = document.querySelector("#failsafes .failsafes-left-reveal");
+      if (failsafesLeft) {
+        gsap.fromTo(
+          failsafesLeft,
+          { x: -50, opacity: 0 },
+          {
+            x: 0,
+            opacity: 1,
+            duration: 0.95,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: failsafesLeft,
+              start: "top 84%",
+              once: true,
+            },
+          }
+        );
+      }
+
+      const failsafesSteps = document.querySelectorAll("#failsafes .failsafe-step-reveal");
+      if (failsafesSteps.length > 0) {
+        gsap.fromTo(
+          failsafesSteps,
+          { x: 45, opacity: 0 },
+          {
+            x: 0,
+            opacity: 1,
+            duration: 0.75,
+            stagger: 0.15,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: "#failsafes .failsafes-right-reveal",
+              start: "top 82%",
+              once: true,
+            },
+          }
+        );
+      }
+
+      // -------------------------------------------------------------------------
+      // SECTION 4: #testimonials (WHAT OUR USERS ARE SAYING)
+      // Distinct Animation: Multi-Column Wave Parallax Entrance (Col 1 Up, Col 2 Down, Col 3 Up)
+      // -------------------------------------------------------------------------
+      const testimonialsHeader = document.querySelector("#testimonials .testimonials-header-reveal");
+      if (testimonialsHeader) {
+        gsap.fromTo(
+          testimonialsHeader,
+          { y: 30, opacity: 0, filter: "blur(6px)" },
+          {
+            y: 0,
+            opacity: 1,
+            filter: "blur(0px)",
+            duration: 0.9,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: testimonialsHeader,
+              start: "top 86%",
+              once: true,
+            },
+          }
+        );
+      }
+
+      const col1 = document.querySelector("#testimonials .testimonial-col-1");
+      const col2 = document.querySelector("#testimonials .testimonial-col-2");
+      const col3 = document.querySelector("#testimonials .testimonial-col-3");
+
+      if (col1) {
+        gsap.fromTo(
+          col1,
+          { y: 90, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1.0,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: "#testimonials .testimonials-grid-reveal",
+              start: "top 84%",
+              once: true,
+            },
+          }
+        );
+      }
+
+      if (col2) {
+        gsap.fromTo(
+          col2,
+          { y: -60, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1.1,
+            ease: "power3.out",
+            delay: 0.12,
+            scrollTrigger: {
+              trigger: "#testimonials .testimonials-grid-reveal",
+              start: "top 84%",
+              once: true,
+            },
+          }
+        );
+      }
+
+      if (col3) {
+        gsap.fromTo(
+          col3,
+          { y: 110, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1.0,
+            ease: "power3.out",
+            delay: 0.22,
+            scrollTrigger: {
+              trigger: "#testimonials .testimonials-grid-reveal",
+              start: "top 84%",
+              once: true,
+            },
+          }
+        );
+      }
+
+      // -------------------------------------------------------------------------
+      // SECTION 5: #pricing (SIMPLE, TRANSPARENT PRICING)
+      // Distinct Animation: Symmetrical Tri-Fold Convergence (Left -> Center <- Right)
+      // -------------------------------------------------------------------------
+      const pricingHeader = document.querySelector("#pricing .pricing-header-reveal");
+      if (pricingHeader) {
+        gsap.fromTo(
+          pricingHeader,
+          { scale: 0.93, y: 30, opacity: 0 },
+          {
+            scale: 1,
+            y: 0,
+            opacity: 1,
+            duration: 0.85,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: pricingHeader,
+              start: "top 86%",
+              once: true,
+            },
+          }
+        );
+      }
+
+      const pricingControls = document.querySelector("#pricing .pricing-controls-reveal");
+      if (pricingControls) {
+        gsap.fromTo(
+          pricingControls,
+          { scale: 0.9, opacity: 0 },
+          {
+            scale: 1,
+            opacity: 1,
+            duration: 0.7,
+            ease: "back.out(1.5)",
+            scrollTrigger: {
+              trigger: pricingControls,
+              start: "top 88%",
+              once: true,
+            },
+          }
+        );
+      }
+
+      const pricingCardBase = document.querySelector("#pricing .pricing-card-base");
+      const pricingCardPro = document.querySelector("#pricing .pricing-card-pro");
+      const pricingCardEnterprise = document.querySelector("#pricing .pricing-card-enterprise");
+
+      if (pricingCardBase) {
+        gsap.fromTo(
+          pricingCardBase,
+          { x: -40, y: 30, opacity: 0 },
+          {
+            x: 0,
+            y: 0,
+            opacity: 1,
+            duration: 0.9,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: "#pricing .pricing-cards-container",
+              start: "top 82%",
+              once: true,
+            },
+          }
+        );
+      }
+
+      if (pricingCardPro) {
+        gsap.fromTo(
+          pricingCardPro,
+          { y: 65, scale: 0.92, opacity: 0 },
+          {
+            y: 0,
+            scale: 1,
+            opacity: 1,
+            duration: 1.0,
+            ease: "back.out(1.2)",
+            scrollTrigger: {
+              trigger: "#pricing .pricing-cards-container",
+              start: "top 82%",
+              once: true,
+            },
+          }
+        );
+      }
+
+      if (pricingCardEnterprise) {
+        gsap.fromTo(
+          pricingCardEnterprise,
+          { x: 40, y: 30, opacity: 0 },
+          {
+            x: 0,
+            y: 0,
+            opacity: 1,
+            duration: 0.9,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: "#pricing .pricing-cards-container",
+              start: "top 82%",
+              once: true,
+            },
+          }
+        );
+      }
+
+      const pricingAddons = document.querySelectorAll("#pricing .pricing-addon-reveal");
+      if (pricingAddons.length > 0) {
+        gsap.fromTo(
+          pricingAddons,
+          { y: 40, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            stagger: 0.15,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: "#pricing .pricing-addons-container",
+              start: "top 85%",
+              once: true,
+            },
+          }
+        );
+      }
+
+      // -------------------------------------------------------------------------
+      // SECTION 6: FOOTER NEWSLETTER & LINKS
+      // Distinct Animation: Floating Dark Card Optical Elevation & Links Rise
+      // -------------------------------------------------------------------------
+      const footerCard = document.querySelector(".footer-card-reveal");
+      if (footerCard) {
+        gsap.fromTo(
+          footerCard,
+          { y: 60, scale: 0.95, opacity: 0 },
+          {
+            y: 0,
+            scale: 1,
+            opacity: 1,
+            duration: 1.1,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: footerCard,
+              start: "top 88%",
+              once: true,
+            },
+          }
+        );
+      }
+
+      const footerLinks = document.querySelectorAll(".footer-links-reveal");
+      if (footerLinks.length > 0) {
+        gsap.fromTo(
+          footerLinks,
+          { y: 25, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.65,
+            stagger: 0.1,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: ".footer-nav-reveal",
+              start: "top 92%",
+              once: true,
+            },
+          }
+        );
+      }
+    }, pageContainerRef);
+
+    return () => {
+      removeMouseListeners();
+      if (typeof document !== "undefined") {
+        document.querySelectorAll(".slide-panel").forEach((p) => {
+          if (p && p.style) p.style.marginBottom = "";
+        });
+      }
+      ctx.revert();
+    };
+  }, []);
+
+  // Refresh ScrollTrigger when sector trade tab changes
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      ScrollTrigger.refresh();
+    }
+  }, [activeTradeTab]);
+
+  // Simulator ticking
+  useEffect(() => {
+    if (!simTimerRunning || simTriggerStatus === "safe_cleared") return;
+    const interval = setInterval(() => {
+      setSimTimerSeconds((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [simTimerRunning, simTriggerStatus]);
+
+  function formatSimTimer(secs) {
+    const mins = Math.floor(secs / 60);
+    const rem = secs % 60;
+    return `${mins.toString().padStart(2, "0")}:${rem.toString().padStart(2, "0")}`;
+  }
+
+  function handleTriggerDemoLink() {
+    setSimVerificationState("sending");
+    setTimeout(() => {
+      setSimVerificationState("verified");
+    }, 1100);
+  }
+
+  function handleResetSimulator() {
+    setSimTriggerStatus("normal");
+    setSimTimerSeconds(2052);
+    setSimTimerRunning(true);
+    setSimFakeBattery(false);
+    setSimVerificationState("idle");
+    setSimActiveTab("normal");
+  }
+
+  function nextTestimonial() {
+    setActiveTestimonialIdx((prev) => (prev + 1) % TESTIMONIALS.length);
+  }
+
+  function prevTestimonial() {
+    setActiveTestimonialIdx((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
+  }
+
+  function handleNewsletterSubmit(e) {
+    e.preventDefault();
+    if (!footerEmail) return;
+    setNewsletterSubscribed(true);
+  }
+
+  return (
+    <div ref={pageContainerRef} className="min-h-screen bg-white text-[#111215] flex flex-col font-sans antialiased selection:bg-[#111215] selection:text-white pt-16 overflow-x-hidden">
+      {/* ========================================================================= */}
+      {/* 1. CLEAN FLAT WHITE HEADER (SEPARATED FROM HERO, NO SHADOW/BORDER) */}
+      {/* ========================================================================= */}
+      <header
+        onMouseLeave={() => setSectorsOpen(false)}
+        className={`fixed top-0 left-0 right-0 z-50 bg-white transition-all duration-200 ${
+          isScrolled ? "shadow-xs border-b border-slate-100" : "border-b border-slate-100/60"
+        }`}
+      >
+        <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 h-16 flex items-center justify-between gap-4">
+          {/* Left: Real CheckSafety Logo (Icon only on mobile, full text on tablet & desktop) */}
+          <div className="flex items-center gap-3 shrink-0">
+            <Link href="/" aria-label="CheckSafety Home" className="flex items-center hover:opacity-90 transition-opacity">
+              <div className="sm:hidden">
+                <CheckSafetyIcon className="h-8 w-8" />
+              </div>
+              <div className="hidden sm:block">
+                <CheckSafetyLogo darkSurface={false} size="sm" />
+              </div>
+            </Link>
+          </div>
+
+          {/* Center: Clean Text Nav Links with Tight Underline & Wide Mega-Dropdown */}
+          <nav className="hidden lg:flex items-center gap-1 lg:gap-2 xl:gap-3 text-[13px] font-semibold text-slate-600">
+            {/* 1. Products with Wide Bar Dropdown */}
+            <div
+              className="relative h-16 flex items-center"
+              onMouseEnter={() => setSectorsOpen(true)}
+            >
+              <a
+                href="#sectors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActiveNav("products");
+                  setSectorsOpen((prev) => !prev);
+                }}
+                className={`relative h-16 flex items-center gap-1 px-3 transition-colors duration-200 cursor-pointer ${
+                  activeNav === "products" || sectorsOpen
+                    ? "text-[#0B2545] font-bold"
+                    : "text-slate-600 hover:text-[#0B2545]"
+                }`}
+              >
+                <span className="relative inline-block pb-0.5">
+                  <span>products</span>
+                  {(activeNav === "products" || activeNav === "sectors") && (
+                    <span className="absolute -bottom-[2px] left-0 right-0 h-[2px] bg-[#00E08C] rounded-full shadow-[0_0_6px_rgba(0,224,140,0.5)] animate-in fade-in zoom-in-95 duration-150" />
+                  )}
+                </span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+                    sectorsOpen ? "rotate-180 text-slate-900" : ""
+                  }`}
+                />
+              </a>
+            </div>
+
+            {/* 2. How It Works */}
+            <a
+              href="#journey"
+              onClick={() => {
+                setActiveNav("journey");
+                setSectorsOpen(false);
+              }}
+              className={`relative h-16 flex items-center px-3 transition-colors duration-200 cursor-pointer ${
+                activeNav === "journey"
+                  ? "text-[#0B2545] font-bold"
+                  : "text-slate-600 hover:text-[#0B2545]"
+              }`}
+            >
+              <span className="relative inline-block pb-0.5">
+                <span>How It Works</span>
+                {activeNav === "journey" && (
+                  <span className="absolute -bottom-[2px] left-0 right-0 h-[2px] bg-[#00E08C] rounded-full shadow-[0_0_6px_rgba(0,224,140,0.5)] animate-in fade-in zoom-in-95 duration-150" />
+                )}
+              </span>
+            </a>
+
+            {/* 3. Safety Protocol */}
+            <a
+              href="#protocol"
+              onClick={() => {
+                setActiveNav("protocol");
+                setSectorsOpen(false);
+              }}
+              className={`relative h-16 flex items-center px-3 transition-colors duration-200 cursor-pointer ${
+                activeNav === "protocol"
+                  ? "text-[#0B2545] font-bold"
+                  : "text-slate-600 hover:text-[#0B2545]"
+              }`}
+            >
+              <span className="relative inline-block pb-0.5">
+                <span>Protocol</span>
+                {activeNav === "protocol" && (
+                  <span className="absolute -bottom-[2px] left-0 right-0 h-[2px] bg-[#00E08C] rounded-full shadow-[0_0_6px_rgba(0,224,140,0.5)] animate-in fade-in zoom-in-95 duration-150" />
+                )}
+              </span>
+            </a>
+
+            {/* 4. Zero-Trace Tech */}
+            <a
+              href="#architecture"
+              onClick={() => {
+                setActiveNav("architecture");
+                setSectorsOpen(false);
+              }}
+              className={`relative h-16 flex items-center px-3 transition-colors duration-200 cursor-pointer ${
+                activeNav === "architecture"
+                  ? "text-[#0B2545] font-bold"
+                  : "text-slate-600 hover:text-[#0B2545]"
+              }`}
+            >
+              <span className="relative inline-block pb-0.5">
+                <span>Zero-Trace Tech</span>
+                {activeNav === "architecture" && (
+                  <span className="absolute -bottom-[2px] left-0 right-0 h-[2px] bg-[#00E08C] rounded-full shadow-[0_0_6px_rgba(0,224,140,0.5)] animate-in fade-in zoom-in-95 duration-150" />
+                )}
+              </span>
+            </a>
+
+            {/* 5. Pricing */}
+            <a
+              href="#pricing"
+              onClick={() => {
+                setActiveNav("pricing");
+                setSectorsOpen(false);
+              }}
+              className={`relative h-16 flex items-center px-3 transition-colors duration-200 cursor-pointer ${
+                activeNav === "pricing"
+                  ? "text-[#0B2545] font-bold"
+                  : "text-slate-600 hover:text-[#0B2545]"
+              }`}
+            >
+              <span className="relative inline-block pb-0.5">
+                <span>Pricing</span>
+                {activeNav === "pricing" && (
+                  <span className="absolute -bottom-[2px] left-0 right-0 h-[2px] bg-[#00E08C] rounded-full shadow-[0_0_6px_rgba(0,224,140,0.5)] animate-in fade-in zoom-in-95 duration-150" />
+                )}
+              </span>
+            </a>
+
+            {/* 6. Agency Fleet */}
+            <Link
+              href="/agency"
+              className="relative h-16 hidden lg:flex items-center px-3 text-slate-600 hover:text-[#0B2545] transition-colors duration-200"
+            >
+              <span>Agency Fleet</span>
+            </Link>
+
+            {/* 7. Worker Console */}
+            <Link
+              href="/dashboard"
+              className="relative h-16 hidden xl:flex items-center gap-1.5 px-3 text-slate-600 hover:text-[#0B2545] transition-colors duration-200"
+            >
+              <span>Worker Console</span>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-full">
+                Live
+              </span>
+            </Link>
+          </nav>
+
+          {/* Right: Actions */}
+          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+            {/* Country Selector */}
+            <div className="relative inline-flex items-center">
+              <label htmlFor="country-select-checksafe" className="sr-only">
+                Country
+              </label>
+              <select
+                id="country-select-checksafe"
+                value={country}
+                aria-label="Select Operating Jurisdiction"
+                onChange={(e) => setCountry(e.target.value)}
+                className="appearance-none bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-800 text-xs font-semibold rounded-full pl-3 pr-7 py-2 cursor-pointer focus:outline-hidden transition"
+              >
+                {COUNTRY_LIST.map((c) => (
+                  <option key={c.code} value={c.code} className="text-slate-900 bg-white">
+                    {COUNTRY_FLAGS[c.code]} {c.code}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 pointer-events-none" />
+            </div>
+
+            <Link
+              href="/login"
+              className="text-xs font-semibold text-slate-600 hover:text-[#0B2545] px-2 py-2 transition hidden sm:inline-block"
+            >
+              Sign in
+            </Link>
+
+            <Link
+              href={`/signup?country=${country}`}
+              className="hidden sm:inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-full bg-[#0B2545] hover:bg-[#111827] text-white text-xs sm:text-sm font-bold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm"
+            >
+              <span>Start Protection</span>
+              <ArrowUpRight className="w-3.5 h-3.5 text-[#00E08C]" />
+            </Link>
+
+            {/* Mobile & Tablet Menu Hamburger Button */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              aria-label="Toggle Navigation Menu"
+              className="lg:hidden p-2 rounded-full hover:bg-slate-100 text-slate-700 transition"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Full-Width Dropdown Bar */}
+        {sectorsOpen && (
+          <div
+            onMouseEnter={() => setSectorsOpen(true)}
+            onMouseLeave={() => setSectorsOpen(false)}
+            className="absolute top-full left-0 right-0 w-full bg-white border-t border-slate-100 border-b border-slate-200/80 shadow-md z-50 animate-in fade-in slide-in-from-top-1 duration-150"
+          >
+            <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-7 sm:py-8">
+              <div className="flex flex-col lg:flex-row lg:items-start gap-8 lg:gap-14">
+                {/* Far Left: / products */}
+                <div className="shrink-0 lg:w-44 pt-0.5">
+                  <span className="text-xl font-medium text-slate-900 tracking-tight flex items-center">
+                    <span className="text-slate-400 font-light mr-2">/</span>
+                    <span>products</span>
+                  </span>
+                </div>
+
+                {/* 4 Horizontal Columns image */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10 flex-1">
+                  {NAV_SECTORS.map((item) => (
+                    <a
+                      key={item.id}
+                      href="#sectors"
+                      onClick={() => {
+                        setActiveTradeTab(item.idx);
+                        setActiveNav("products");
+                        setSectorsOpen(false);
+                      }}
+                      className="group flex items-start gap-2.5 cursor-pointer"
+                    >
+                      {/* Exact sleek slanted lozenge/pebble mark */}
+                      <span className="inline-block w-2.5 h-2.5 bg-black rounded-[2px] -rotate-12 mt-1 shrink-0 group-hover:bg-[#00E08C] transition-colors" />
+                      <div>
+                        <div className="text-[14px] font-bold text-slate-900 group-hover:text-[#00E08C] transition-colors tracking-tight leading-tight">
+                          {item.brandName}
+                        </div>
+                        <p className="text-[12px] text-slate-500 group-hover:text-slate-700 mt-1 leading-snug transition-colors">
+                          {item.desc}
+                        </p>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Mobile & Tablet Navigation Drawer */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden border-b border-slate-200 bg-white/98 backdrop-blur-md px-5 py-4 space-y-2 animate-in fade-in slide-in-from-top-2 duration-150 shadow-lg">
+            <a
+              href="#journey"
+              onClick={() => {
+                setActiveNav("journey");
+                setMobileMenuOpen(false);
+              }}
+              className={`flex items-center gap-2.5 text-sm py-2 px-3 rounded-xl transition ${
+                activeNav === "journey"
+                  ? "text-[#0B2545] font-bold bg-[#0B2545]/5 border-l-4 border-[#00E08C]"
+                  : "font-semibold text-slate-700 hover:text-black hover:bg-slate-50"
+              }`}
+            >
+              <Layers className="w-4 h-4 text-[#00E08C]" />
+              <span>How It Works</span>
+            </a>
+            <a
+              href="#sectors"
+              onClick={() => {
+                setActiveNav("sectors");
+                setMobileMenuOpen(false);
+              }}
+              className={`flex items-center gap-2.5 text-sm py-2 px-3 rounded-xl transition ${
+                activeNav === "sectors"
+                  ? "text-[#0B2545] font-bold bg-[#0B2545]/5 border-l-4 border-[#00E08C]"
+                  : "font-semibold text-slate-700 hover:text-black hover:bg-slate-50"
+              }`}
+            >
+              <Briefcase className="w-4 h-4 text-[#00E08C]" />
+              <span>Sectors &amp; Use Cases</span>
+            </a>
+            <a
+              href="#protocol"
+              onClick={() => {
+                setActiveNav("protocol");
+                setMobileMenuOpen(false);
+              }}
+              className={`flex items-center gap-2.5 text-sm py-2 px-3 rounded-xl transition ${
+                activeNav === "protocol"
+                  ? "text-[#0B2545] font-bold bg-[#0B2545]/5 border-l-4 border-[#00E08C]"
+                  : "font-semibold text-slate-700 hover:text-black hover:bg-slate-50"
+              }`}
+            >
+              <ShieldCheck className="w-4 h-4 text-[#00E08C]" />
+              <span>Safety Protocol</span>
+            </a>
+            <a
+              href="#architecture"
+              onClick={() => {
+                setActiveNav("architecture");
+                setMobileMenuOpen(false);
+              }}
+              className={`flex items-center gap-2.5 text-sm py-2 px-3 rounded-xl transition ${
+                activeNav === "architecture"
+                  ? "text-[#0B2545] font-bold bg-[#0B2545]/5 border-l-4 border-[#00E08C]"
+                  : "font-semibold text-slate-700 hover:text-black hover:bg-slate-50"
+              }`}
+            >
+              <Cpu className="w-4 h-4 text-[#00E08C]" />
+              <span>Zero-Trace Technology</span>
+            </a>
+            <a
+              href="#pricing"
+              onClick={() => {
+                setActiveNav("pricing");
+                setMobileMenuOpen(false);
+              }}
+              className={`flex items-center gap-2.5 text-sm py-2 px-3 rounded-xl transition ${
+                activeNav === "pricing"
+                  ? "text-[#0B2545] font-bold bg-[#0B2545]/5 border-l-4 border-[#00E08C]"
+                  : "font-semibold text-slate-700 hover:text-black hover:bg-slate-50"
+              }`}
+            >
+              <CreditCard className="w-4 h-4 text-[#00E08C]" />
+              <span>Pricing Plans</span>
+            </a>
+            <Link
+              href="/agency"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2.5 text-sm font-semibold text-slate-700 hover:text-black py-2 px-3 rounded-xl hover:bg-slate-50"
+            >
+              <Users className="w-4 h-4 text-slate-400" />
+              <span>Agency Fleet Desk</span>
+            </Link>
+            <Link
+              href="/dashboard"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center justify-between text-sm font-bold text-emerald-700 hover:text-emerald-800 py-2 px-3 rounded-xl hover:bg-slate-50"
+            >
+              <span className="flex items-center gap-2.5">
+                <LayoutDashboard className="w-4 h-4 text-emerald-600" />
+                <span>Worker Console Demo</span>
+              </span>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-full">
+                Live
+              </span>
+            </Link>
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+              <Link
+                href="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-xs font-semibold text-slate-700 hover:text-black px-2 py-2"
+              >
+                Sign in
+              </Link>
+              <Link
+                href={`/signup?country=${country}`}
+                onClick={() => setMobileMenuOpen(false)}
+                className="inline-flex items-center gap-1 px-4 py-2 rounded-full bg-[#0B2545] text-white text-xs font-bold"
+              >
+                <span>Start Protection</span>
+                <ArrowUpRight className="w-3.5 h-3.5 text-[#00E08C]" />
+              </Link>
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* ========================================================================= */}
+      {/* 1. ROUNDED HERO CONTAINER (PINNED SLIDE 1) */}
+      {/* ========================================================================= */}
+      <section
+        ref={heroSectionRef}
+        className="slide-panel-hero w-full h-[calc(100vh-64px)] min-h-[520px] sm:min-h-[560px] max-h-[920px] flex justify-center items-start overflow-hidden bg-white z-10 px-2 sm:px-3 lg:px-4 pt-1 pb-2"
+      >
+        <div className="w-full h-full flex items-start justify-center">
+          {/* Large Rounded Hero Container Card: Flat, No Shadow, Dark Blue, Full Visibility */}
+          <div
+            ref={heroCardRef}
+            className="w-full h-full relative rounded-[20px] sm:rounded-[32px] lg:rounded-[40px] overflow-hidden bg-[#0B2545] flex items-center will-change-transform shadow-sm"
+          >
+            {/* Multi-layered Living Parallax Background Image */}
+            <div
+              ref={heroBgRef}
+              className="absolute -inset-10 sm:-inset-16 pointer-events-none will-change-transform overflow-hidden"
+            >
+              <div
+                ref={heroBgMouseRef}
+                className="w-full h-full"
+              >
+                <div
+                  ref={heroBgInnerRef}
+                  className="w-full h-full bg-cover bg-right lg:bg-[center_right_-2rem] scale-110"
+                  style={{
+                    backgroundImage:
+                      "url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1400&q=75')",
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Living Ambient Atmospheric Radial Glow */}
+            <div className="absolute -top-32 -left-32 w-[600px] h-[600px] rounded-full bg-[#00E08C]/10 blur-[100px] pointer-events-none" />
+
+            {/* Seamless Dark Blue Gradient Mask blending building into left */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0B2545] via-[#0E2A4D]/95 sm:via-[#0E2A4D]/90 to-transparent lg:w-[65%] pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent sm:hidden pointer-events-none" />
+
+            {/* Left Column: Clean Atmospheric Headline & Prose (CheckSafety Lone-Worker Safety) */}
+            <div
+              ref={heroContentRef}
+              className="relative z-10 p-5 sm:p-10 lg:p-14 xl:p-16 flex flex-col justify-center max-w-2xl text-white"
+            >
+              <h1
+                ref={heroTitleRef}
+                className="text-3xl sm:text-5xl lg:text-[68px] font-extrabold tracking-tight text-white leading-[1.08]"
+              >
+                Protecting Your
+                <br />
+                Next Meeting.
+              </h1>
+
+              <p
+                ref={heroSubtitleRef}
+                className="mt-4 sm:mt-5 text-sm sm:text-base lg:text-lg text-white/90 max-w-lg leading-relaxed font-normal"
+              >
+                Where Solo Workers Meet Clients with Absolute Peace of Mind. Bank-grade biometric KYC before you meet, ghost proxy numbers, and automated cloud timers.
+              </p>
+
+              {/* Dual Buttons */}
+              <div
+                ref={heroButtonsRef}
+                className="mt-6 sm:mt-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4"
+              >
+                <Link
+                  href={`/signup?country=${country}`}
+                  className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3.5 sm:py-4 rounded-full bg-white text-[#111827] hover:bg-slate-100 text-sm sm:text-base font-bold transition-all duration-200 shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <span>Start Protection</span>
+                  <ArrowUpRight className="w-4 h-4 text-[#111827]" />
+                </Link>
+
+                <a
+                  href="#interactive-demo"
+                  className="inline-flex items-center justify-center gap-2.5 px-5 sm:px-6 py-3.5 sm:py-4 rounded-full bg-[#00E08C] hover:bg-[#00f298] text-[#0B2545] text-sm sm:text-base font-bold transition-all duration-200 shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#0B2545]/15 text-[#0B2545] flex items-center justify-center text-[10px]">
+                    ▶
+                  </span>
+                  <span>Interactive Simulator</span>
+                </a>
+              </div>
+
+              {/* Mobile Inline Rating Badge (< 640px) */}
+              <div className="sm:hidden mt-6 inline-flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 w-fit">
+                <div className="flex -space-x-1.5 overflow-hidden">
+                  <img
+                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=75"
+                    alt="Worker"
+                    width={24}
+                    height={24}
+                    loading="lazy"
+                    decoding="async"
+                    className="inline-block h-6 w-6 rounded-full ring-1 ring-white object-cover"
+                  />
+                  <img
+                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&q=75"
+                    alt="Worker"
+                    width={24}
+                    height={24}
+                    loading="lazy"
+                    decoding="async"
+                    className="inline-block h-6 w-6 rounded-full ring-1 ring-white object-cover"
+                  />
+                  <img
+                    src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=80&q=75"
+                    alt="Worker"
+                    width={24}
+                    height={24}
+                    loading="lazy"
+                    decoding="async"
+                    className="inline-block h-6 w-6 rounded-full ring-1 ring-white object-cover"
+                  />
+                </div>
+                <div className="text-[11px] font-bold text-white leading-tight">
+                  <span>2,500+ Lone Workers</span>
+                  <span className="text-amber-400 ml-1">★ 4.9/5</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom-Right Inset Notch (Desktop & Tablet >= 640px) */}
+            <div
+              ref={heroNotchRef}
+              className="hidden sm:flex absolute bottom-0 right-0 bg-white rounded-tl-[32px] sm:rounded-tl-[44px] pt-4 pl-6 pb-3 pr-6 sm:pt-5 sm:pl-8 sm:pb-4 sm:pr-8 items-center gap-3.5 z-20"
+            >
+              {/* Top Concave Fillet */}
+              <svg
+                className="absolute -top-7 right-0 w-7 h-7 text-white fill-current pointer-events-none"
+                viewBox="0 0 28 28"
+                aria-hidden="true"
+              >
+                <path d="M0 28 Q 28 28 28 0 L 28 28 Z" />
+              </svg>
+
+              {/* Left Concave Fillet */}
+              <svg
+                className="absolute -left-7 bottom-0 w-7 h-7 text-white fill-current pointer-events-none"
+                viewBox="0 0 28 28"
+                aria-hidden="true"
+              >
+                <path d="M0 28 Q 28 28 28 0 L 28 28 Z" />
+              </svg>
+
+              {/* Overlapping Real Worker Face Avatars */}
+              <div className="flex -space-x-2.5 overflow-hidden">
+                <img
+                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=75"
+                  alt="Prime Residential Partner"
+                  width={36}
+                  height={36}
+                  decoding="async"
+                  className="inline-block h-8 w-8 sm:h-9 sm:w-9 rounded-full ring-2 ring-white object-cover"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&q=75"
+                  alt="Clinical Psychologist"
+                  width={36}
+                  height={36}
+                  decoding="async"
+                  className="inline-block h-8 w-8 sm:h-9 sm:w-9 rounded-full ring-2 ring-white object-cover"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=80&q=75"
+                  alt="Structural Site Surveyor"
+                  width={36}
+                  height={36}
+                  decoding="async"
+                  className="inline-block h-8 w-8 sm:h-9 sm:w-9 rounded-full ring-2 ring-white object-cover"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=80&q=75"
+                  alt="Independent Consultant"
+                  width={36}
+                  height={36}
+                  decoding="async"
+                  className="inline-block h-8 w-8 sm:h-9 sm:w-9 rounded-full ring-2 ring-white object-cover"
+                />
+              </div>
+
+              {/* Rating & Stats */}
+              <div className="text-left">
+                <div className="text-xs sm:text-sm font-bold text-[#111827]">
+                  2,500+ Active Lone Workers
+                </div>
+                <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-semibold mt-0.5">
+                  <span className="text-amber-500">★★★★★</span>
+                  <span>4.9/5 · BS 8484 Aligned</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 2. TRADE TABS & USE CASES (SECTION 2 - SLIDES OVER HERO, THEN NORMAL FLOW) */}
+      {/* ========================================================================= */}
+      <section
+        id="sectors"
+        className="relative z-20 pt-6 sm:pt-8 pb-8 sm:pb-10 bg-white scroll-mt-24"
+      >
+        <div className="w-[96%] max-w-[1800px] mx-auto px-2 sm:px-4">
+          {/* Header Row */}
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-8 sm:mb-12 gap-8 sector-header-reveal">
+            <div className="max-w-2xl">
+              {/* Badge with Solid Circle Icon */}
+              <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#0B2545]/5 border border-[#0B2545]/20 text-[#0B2545] text-xs font-extrabold tracking-wider uppercase mb-4 shadow-2xs">
+                <div className="w-5 h-5 rounded-full bg-[#0B2545] text-white flex items-center justify-center shrink-0">
+                  <span className="w-2 h-2 rounded-full bg-[#00E08C] animate-pulse" />
+                </div>
+                <span>Trade Use Cases &amp; Sectors</span>
+              </div>
+              {/* Bold Uppercase Heading in Dark Blue & Black */}
+              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-[#0B2545] tracking-tight uppercase leading-[1.08]">
+                Engineered For<br />
+                <span className="text-[#111827]">High-Consequence Lone Work.</span>
+              </h2>
+            </div>
+
+            {/* Right Aligned Descriptive Text Block */}
+            <div className="max-w-md xl:max-w-lg lg:pb-1">
+              <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+                <span className="font-bold text-[#111827]">Specialized threat architectures:</span> Four custom operational configurations designed around the unique threat models of solo visits—from unaccompanied estate viewings to clinical home visits.
+              </p>
+            </div>
+          </div>
+
+          {/* Segmented Controller Tab Bar (4 Tabs) */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 p-1.5 sm:p-2 rounded-2xl sm:rounded-full bg-slate-100/90 border border-slate-200/80 mb-8 sm:mb-10 sector-tabs-reveal">
+            {TRADE_USE_CASES.map((trade, idx) => {
+              const Icon = trade.icon;
+              const isActive = activeTradeTab === idx;
+              return (
+                <button
+                  key={trade.id}
+                  type="button"
+                  onClick={() => setActiveTradeTab(idx)}
+                  className={`flex items-center justify-center sm:justify-start gap-2 sm:gap-2.5 px-3 sm:px-6 py-2.5 sm:py-3.5 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer text-left ${isActive
+                    ? "bg-[#0B2545] text-white shadow-md scale-[1.01]"
+                    : "bg-transparent text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                    }`}
+                >
+                  <span
+                    className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-xs shrink-0 transition ${isActive
+                      ? "bg-[#00E08C] text-[#0B2545]"
+                      : "bg-slate-200/80 text-slate-600"
+                      }`}
+                  >
+                    <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  </span>
+                  <div className="truncate">
+                    <div className="leading-tight truncate flex items-center gap-1.5">
+                      <span>{trade.tabLabel}</span>
+                    </div>
+                    <div
+                      className={`hidden xl:block text-[10px] font-normal truncate mt-0.5 ${isActive ? "text-slate-300" : "text-slate-500"
+                        }`}
+                    >
+                      {trade.tabSubtitle}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Master Showcase Card (Hero Impression: Full BG Photography, Dark Navy Glass Gradient, Split Layout) */}
+          <div className="relative rounded-[20px] sm:rounded-[36px] lg:rounded-[40px] overflow-hidden text-white border border-slate-200/40 shadow-xl p-4 sm:p-7 lg:p-9 xl:p-10 sector-card-reveal">
+            {/* Full High-Resolution Background Photography */}
+            <div
+              className="absolute inset-0 bg-cover bg-center transition-all duration-700 ease-out scale-[1.02]"
+              style={{ backgroundImage: `url('${currentTrade.bgImage}')` }}
+            />
+            {/* Multi-stage High-Contrast Dark Navy / Charcoal Glass Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#07192F]/98 via-[#0B2545]/92 to-[#040D1A]/85 pointer-events-none" />
+            <div className="absolute inset-0 bg-radial from-transparent via-[#0B2545]/40 to-black/60 pointer-events-none" />
+            {/* Ambient Green Security Glow */}
+            <div className="absolute top-1/3 -right-16 w-[400px] h-[400px] rounded-full bg-[#00E08C]/15 blur-[120px] pointer-events-none" />
+
+            {/* Showcase Card Content */}
+            <div className="relative z-10 max-w-4xl space-y-4 sm:space-y-5">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] sm:text-xs font-semibold text-white/90">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00E08C] animate-pulse" />
+                  {currentTrade.badge}
+                </span>
+              </div>
+
+              <div>
+                <div className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#00E08C] font-mono flex items-center gap-2 mb-1.5">
+                  <span>{currentTrade.emoji}</span>
+                  <span>{currentTrade.tabSubtitle}</span>
+                </div>
+                <h3 className="text-xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white leading-[1.14]">
+                  {currentTrade.headline}
+                </h3>
+              </div>
+
+              <p className="text-xs sm:text-sm text-slate-200/95 leading-relaxed max-w-2xl font-normal">
+                {currentTrade.hazardContext}
+              </p>
+
+              {/* 3 Key Safeguards in Glass Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 pt-1">
+                {currentTrade.safeguards.map((item, sIdx) => (
+                  <div
+                    key={sIdx}
+                    className="p-4 sm:p-4.5 rounded-xl sm:rounded-2xl bg-white/[0.08] hover:bg-white/[0.12] border border-white/15 backdrop-blur-md transition-all duration-200 flex flex-col justify-between group shadow-sm hover:border-[#00E08C]/40 sector-safeguard-card"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-2.5">
+                        <div className="w-7 h-7 rounded-lg bg-[#00E08C] text-[#0B2545] font-extrabold flex items-center justify-center text-xs shadow-sm group-hover:scale-105 transition-transform">
+                          0{sIdx + 1}
+                        </div>
+                        {item.codeBadge && (
+                          <span className="text-[10px] font-mono uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-white/10 text-[#00E08C] border border-[#00E08C]/30 backdrop-blur-sm">
+                            {item.codeBadge}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs sm:text-sm font-bold text-white leading-snug group-hover:text-[#00E08C] transition-colors">
+                        {item.title}
+                      </div>
+                      <p className="text-[11px] sm:text-xs text-slate-200/85 leading-relaxed mt-1.5 font-normal">
+                        {item.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Security Compliance Strip */}
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-[11px] sm:text-xs text-slate-300/85 font-mono pt-2 border-t border-white/10">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00E08C] animate-pulse" />
+                  <span>BS 8484:2022 Certified Cloud Engine</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00E08C]" />
+                  <span>Zero-Knowledge Confidentiality</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00E08C]" />
+                  <span>Emergency Relay &lt; 3s</span>
+                </div>
+              </div>
+
+              {/* Dual Action Buttons */}
+              <div className="pt-1.5 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
+                <Link
+                  href={`/signup?country=${country}&trade=${currentTrade.id}`}
+                  className="inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-3 rounded-full bg-[#00E08C] hover:bg-[#00f298] text-[#0B2545] font-bold text-xs sm:text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md cursor-pointer"
+                >
+                  <span>Start Protection for {currentTrade.tabLabel}</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 text-[#0B2545]" />
+                </Link>
+
+                <a
+                  href="#interactive-demo"
+                  className="inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-3 rounded-full bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm transition border border-white/20 backdrop-blur-md cursor-pointer"
+                >
+                  <span className="text-[#00E08C]">▶</span>
+                  <span>Test in Live Simulator</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 3. THE 4-STAGE SAFETY PROTOCOL */}
+      {/* ========================================================================= */}
+      <section
+        id="protocol"
+        className="section-defer pt-8 sm:pt-10 pb-16 sm:pb-24 bg-white scroll-mt-20 relative z-20"
+      >
+        {/* Navigation Anchor Aliases for seamless in-page links */}
+        <div id="journey" className="absolute -top-20 left-0 pointer-events-none" />
+        <div id="interactive-demo" className="absolute -top-20 left-0 pointer-events-none" />
+
+        <div className="w-[96%] max-w-[1800px] mx-auto px-2 sm:px-4">
+          {/* Master 4-Stage Stepper Container (Flat Clean Layout - No Section Rounded / No Shadow) */}
+          <div className="relative bg-white pt-0 pb-4 sm:pb-6">
+
+            {/* Container Header */}
+            <div className="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12 sm:mb-14 protocol-header-reveal">
+              <div className="max-w-2xl">
+                {/* Badge with Solid Circle Icon */}
+                <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#0B2545]/5 border border-[#0B2545]/20 text-[#0B2545] text-xs font-extrabold tracking-wider uppercase mb-4 shadow-2xs">
+                  <div className="w-5 h-5 rounded-full bg-[#0B2545] text-white flex items-center justify-center shrink-0">
+                    <Check className="w-3 h-3 text-[#00E08C] stroke-[3]" />
+                  </div>
+                  <span>End-to-End Operational Lifecycle</span>
+                </div>
+                {/* Bold Uppercase Heading in Dark Blue & Black */}
+                <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-[#0B2545] tracking-tight uppercase leading-[1.08]">
+                  The 4-Stage<br />
+                  <span className="text-[#111827]">Safety Protocol.</span>
+                </h2>
+              </div>
+
+              {/* Right Aligned Descriptive Text Block */}
+              <div className="max-w-md xl:max-w-lg lg:pb-1">
+                <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+                  <span className="font-bold text-[#111827]">Zero data stored, zero personal SIM exposure:</span> From initial client clearance to post-visit departure, certified cloud emergency escalation protects your identity and coordinates at every phase.
+                </p>
+              </div>
+            </div>
+
+            {/* Inset-Notched Cards with Blue-Black Gradient and Brand Green Circles (Zero Card Border) */}
+            <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-7 protocol-cards-grid">
+              {/* Card 01 */}
+              <div className="relative bg-gradient-to-b from-[#0B2545] via-[#07192F] to-[#02060D] rounded-[32px] sm:rounded-[36px] p-6 sm:p-7 min-h-[290px] sm:min-h-[310px] text-white flex flex-col justify-end overflow-hidden group shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 protocol-card-reveal">
+                {/* Generous Scooped Inset Notch Hugging the Floating Circle */}
+                <div className="absolute top-0 right-0 bg-white rounded-bl-[32px] w-20 h-20 flex items-center justify-center z-10">
+                  {/* Left Concave Fillet */}
+                  <svg
+                    className="absolute -left-7 top-0 w-7 h-7 text-white fill-current pointer-events-none"
+                    viewBox="0 0 28 28"
+                  >
+                    <path d="M0 0 L28 0 L28 28 C28 12.54 15.46 0 0 0 Z" />
+                  </svg>
+
+                  {/* Bottom Concave Fillet */}
+                  <svg
+                    className="absolute right-0 -bottom-7 w-7 h-7 text-white fill-current pointer-events-none"
+                    viewBox="0 0 28 28"
+                  >
+                    <path d="M28 28 L28 0 L0 0 C12.54 0 28 15.46 28 28 Z" />
+                  </svg>
+
+                  {/* Circular Button in Vibrant Brand Green with Dark Navy Arrow */}
+                  <div className="w-11 h-11 rounded-full bg-[#00E08C] hover:bg-[#00f298] text-[#0B2545] flex items-center justify-center shadow-md transition-transform duration-200 group-hover:scale-110 cursor-pointer protocol-notch-btn">
+                    <ArrowDownLeft className="w-5 h-5 text-[#0B2545]" />
+                  </div>
+                </div>
+
+                {/* Bottom Content */}
+                <div>
+                  <div className="text-base sm:text-lg font-bold text-white leading-snug">
+                    Single-Use ID Clearance
+                  </div>
+                  <p className="text-xs sm:text-[13px] text-slate-300/90 leading-relaxed mt-2.5 font-normal">
+                    Client verifies via automated 3D selfie & biometric ID scan before keys or doors unlock. Raw documents and selfies shredded in 60s.
+                  </p>
+                  <div className="mt-3.5 pt-2.5 flex items-center gap-1.5 text-[11px] font-mono text-[#00E08C]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#00E08C]" />
+                    <span>Veriff API · HMAC-SHA256</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 02 */}
+              <div className="relative bg-gradient-to-b from-[#0B2545] via-[#07192F] to-[#02060D] rounded-[32px] sm:rounded-[36px] p-6 sm:p-7 min-h-[290px] sm:min-h-[310px] text-white flex flex-col justify-end overflow-hidden group shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 protocol-card-reveal">
+                {/* Generous Scooped Inset Notch */}
+                <div className="absolute top-0 right-0 bg-white rounded-bl-[32px] w-20 h-20 flex items-center justify-center z-10">
+                  <svg
+                    className="absolute -left-7 top-0 w-7 h-7 text-white fill-current pointer-events-none"
+                    viewBox="0 0 28 28"
+                  >
+                    <path d="M0 0 L28 0 L28 28 C28 12.54 15.46 0 0 0 Z" />
+                  </svg>
+                  <svg
+                    className="absolute right-0 -bottom-7 w-7 h-7 text-white fill-current pointer-events-none"
+                    viewBox="0 0 28 28"
+                  >
+                    <path d="M28 28 L28 0 L0 0 C12.54 0 28 15.46 28 28 Z" />
+                  </svg>
+                  <div className="w-11 h-11 rounded-full bg-[#00E08C] hover:bg-[#00f298] text-[#0B2545] flex items-center justify-center shadow-md transition-transform duration-200 group-hover:scale-110 cursor-pointer protocol-notch-btn">
+                    <ArrowDownLeft className="w-5 h-5 text-[#0B2545]" />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-base sm:text-lg font-bold text-white leading-snug">
+                    Ghost Proxy Line
+                  </div>
+                  <p className="text-xs sm:text-[13px] text-slate-300/90 leading-relaxed mt-2.5 font-normal">
+                    All calls and SMS route through dedicated virtual Twilio proxy numbers. Your personal mobile number and private WhatsApp stay hidden.
+                  </p>
+                  <div className="mt-3.5 pt-2.5 flex items-center gap-1.5 text-[11px] font-mono text-[#00E08C]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#00E08C]" />
+                    <span>Twilio Proxy · Auto-Wiped Vault</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 03 */}
+              <div className="relative bg-gradient-to-b from-[#0B2545] via-[#07192F] to-[#02060D] rounded-[32px] sm:rounded-[36px] p-6 sm:p-7 min-h-[290px] sm:min-h-[310px] text-white flex flex-col justify-end overflow-hidden group shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 protocol-card-reveal">
+                {/* Generous Scooped Inset Notch */}
+                <div className="absolute top-0 right-0 bg-white rounded-bl-[32px] w-20 h-20 flex items-center justify-center z-10">
+                  <svg
+                    className="absolute -left-7 top-0 w-7 h-7 text-white fill-current pointer-events-none"
+                    viewBox="0 0 28 28"
+                  >
+                    <path d="M0 0 L28 0 L28 28 C28 12.54 15.46 0 0 0 Z" />
+                  </svg>
+                  <svg
+                    className="absolute right-0 -bottom-7 w-7 h-7 text-white fill-current pointer-events-none"
+                    viewBox="0 0 28 28"
+                  >
+                    <path d="M28 28 L28 0 L0 0 C12.54 0 28 15.46 28 28 Z" />
+                  </svg>
+                  <div className="w-11 h-11 rounded-full bg-[#00E08C] hover:bg-[#00f298] text-[#0B2545] flex items-center justify-center shadow-md transition-transform duration-200 group-hover:scale-110 cursor-pointer protocol-notch-btn">
+                    <ArrowDownLeft className="w-5 h-5 text-[#0B2545]" />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-base sm:text-lg font-bold text-white leading-snug">
+                    Cloud Safety Countdown
+                  </div>
+                  <p className="text-xs sm:text-[13px] text-slate-300/90 leading-relaxed mt-2.5 font-normal">
+                    30-minute to 4-hour countdown executes in the London cloud (eu-west-2) with backup checks. Runs even if your device dies or drops signal.
+                  </p>
+                  <div className="mt-3.5 pt-2.5 flex items-center gap-1.5 text-[11px] font-mono text-[#00E08C]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#00E08C]" />
+                    <span>AWS eu-west-2 · 1-Min Fail-Safe</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 04 */}
+              <div className="relative bg-gradient-to-b from-[#0B2545] via-[#07192F] to-[#02060D] rounded-[32px] sm:rounded-[36px] p-6 sm:p-7 min-h-[290px] sm:min-h-[310px] text-white flex flex-col justify-end overflow-hidden group shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 protocol-card-reveal">
+                {/* Generous Scooped Inset Notch */}
+                <div className="absolute top-0 right-0 bg-white rounded-bl-[32px] w-20 h-20 flex items-center justify-center z-10">
+                  <svg
+                    className="absolute -left-7 top-0 w-7 h-7 text-white fill-current pointer-events-none"
+                    viewBox="0 0 28 28"
+                  >
+                    <path d="M0 0 L28 0 L28 28 C28 12.54 15.46 0 0 0 Z" />
+                  </svg>
+                  <svg
+                    className="absolute right-0 -bottom-7 w-7 h-7 text-white fill-current pointer-events-none"
+                    viewBox="0 0 28 28"
+                  >
+                    <path d="M28 28 L28 0 L0 0 C12.54 0 28 15.46 28 28 Z" />
+                  </svg>
+                  <div className="w-11 h-11 rounded-full bg-[#00E08C] hover:bg-[#00f298] text-[#0B2545] flex items-center justify-center shadow-md transition-transform duration-200 group-hover:scale-110 cursor-pointer protocol-notch-btn">
+                    <ArrowDownLeft className="w-5 h-5 text-[#0B2545]" />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-base sm:text-lg font-bold text-white leading-snug">
+                    2-Stage Escalation & Duress
+                  </div>
+                  <p className="text-xs sm:text-[13px] text-slate-300/90 leading-relaxed mt-2.5 font-normal">
+                    5-minute private vibration grace warning upon timer lapse before SMS dispatch with GPS address. Silent Duress (9999) triggers dispatch instantly.
+                  </p>
+                  <div className="mt-3.5 pt-2.5 flex items-center gap-1.5 text-[11px] font-mono text-[#00E08C]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#00E08C]" />
+                    <span>BS 8484 · Silent 9999 Handoff</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 5. IN-FIELD 5-LAYER DEFENSE MATRIX (DEVELOPER SCOPE §4, §5.3, §5.4, §6.2, §6.4) */}
+      {/* ========================================================================= */}
+      <section id="failsafes" className="section-defer py-20 sm:py-28 bg-[#F8FAFC] scroll-mt-20 border-t border-slate-200/60 relative">
+        {/* Navigation Anchor Aliases */}
+        <div id="architecture" className="absolute -top-20 left-0 pointer-events-none" />
+        <div className="w-[96%] max-w-[1800px] mx-auto px-2 sm:px-4">
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-16">
+
+            {/* ------------------------------------------------------------------- */}
+            {/* LEFT COLUMN: Sticky Anchor & Strategic Overview (Fixed in View)     */}
+            {/* ------------------------------------------------------------------- */}
+            <div className="lg:col-span-5 lg:sticky lg:top-28 lg:self-start space-y-6 failsafes-left-reveal">
+              {/* Badge with Solid Circle Icon style */}
+              <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#0B2545]/5 border border-[#0B2545]/20 text-[#0B2545] text-xs font-extrabold uppercase tracking-wider shadow-2xs">
+                <div className="w-5 h-5 rounded-full bg-[#0B2545] text-white flex items-center justify-center shrink-0">
+                  <Shield className="w-3 h-3 text-[#00E08C]" />
+                </div>
+                <span>BS 8484 Aligned · 5-Layer Defense Architecture</span>
+              </div>
+
+              {/* Bold Uppercase Heading in Dark Blue & Black */}
+              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-[#0B2545] tracking-tight uppercase leading-[1.08]">
+                How CheckSafety<br />Protects When You<br />
+                <span className="text-[#111827]">Cannot Speak.</span>
+              </h2>
+
+              <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+                <span className="font-bold text-[#111827]">Zero-compromise covert defense:</span> Aggressors demand compliance and watch phones closely. CheckSafety replaces loud panic alarms with deceptive covert decoys, zero-internet GSM failovers, and zero-knowledge cryptographic vaults engineered to BS 8484 lone-worker standards.
+              </p>
+
+              {/* Action Buttons */}
+              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <Link
+                  href={`/signup?country=${country}`}
+                  className="inline-flex items-center justify-center gap-3 px-8 py-3.5 rounded-full bg-[#0B2545] hover:bg-[#07192F] text-white text-xs sm:text-sm font-extrabold uppercase tracking-wider shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                >
+                  <span>Start Protection</span>
+                  <ArrowRight className="w-4 h-4 text-[#00E08C]" />
+                </Link>
+
+                <a
+                  href="#interactive-demo"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-bold transition shadow-2xs"
+                >
+                  <span>Interactive Simulator</span>
+                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                </a>
+              </div>
+
+              {/* Verified Architecture Micro-Badges */}
+              <div className="pt-6 border-t border-slate-200/80 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs font-mono text-slate-500">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>London eu-west-2 AWS</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" />
+                  <span>BS 8484 Compliant</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <KeyRound className="w-3.5 h-3.5 text-blue-600" />
+                  <span>HMAC-SHA256 Vault</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Radio className="w-3.5 h-3.5 text-purple-600" />
+                  <span>1-Bar GSM Fallback</span>
+                </div>
+              </div>
+            </div>
+
+            {/* ------------------------------------------------------------------- */}
+            {/* RIGHT COLUMN: Dedicated Scrollable Layer Stack (Right Will Be Scrolled) */}
+            {/* ------------------------------------------------------------------- */}
+            <div className="lg:col-span-7 relative failsafes-right-reveal">
+              {/* Top Micro-Header for the 5-Layer Stack */}
+              <div className="flex items-center justify-between text-[11px] font-mono text-slate-500 pb-2.5 mb-4 border-b border-slate-200/80">
+                <span className="font-bold uppercase tracking-wider text-[#0B2545] flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00E08C] animate-pulse" />
+                  <span>5-Layer Connected Timeline</span>
+                </span>
+                <span className="text-slate-400">Click steps to inspect details · 1–5</span>
+              </div>
+
+              {/* Scrollable Container with Smooth Scrollbar & Height Cap on Desktop */}
+              <div
+                id="failsafes-scroll-container"
+                className="lg:max-h-[660px] xl:max-h-[720px] lg:overflow-y-auto lg:pr-3 xl:pr-4 space-y-4 sm:space-y-5 custom-scrollbar scroll-smooth relative"
+              >
+                {/* ------------------------------------------------------------- */}
+                {/* LAYER 01: TRIPLE-TAP FAKE LOW-BATTERY SCREEN                   */}
+                {/* ------------------------------------------------------------- */}
+                <div id="failsafe-step-0" className="relative flex items-start gap-3.5 sm:gap-4 group scroll-mt-4 failsafe-step-reveal">
+                  {/* Continuous Vertical Connecting Line to Step 02 */}
+                  <div className="block absolute left-[17px] sm:left-[19px] top-4 sm:top-5 -bottom-[36px] sm:-bottom-[42px] w-[2px] bg-slate-300 pointer-events-none z-0" />
+
+                  {/* Step Node */}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectFailsafeStep(0)}
+                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full font-mono text-xs sm:text-sm font-bold flex items-center justify-center shrink-0 z-10 transition-all duration-200 cursor-pointer ${activeFailsafeStep === 0
+                      ? "bg-[#0B2545] text-[#00E08C] ring-4 ring-emerald-400/20 shadow-md scale-105 border border-[#00E08C]/40"
+                      : "bg-white border-2 border-slate-300 text-slate-600 hover:border-slate-400 shadow-2xs"
+                      }`}
+                  >
+                    01
+                  </button>
+
+                  {/* Card: Active vs Inactive (CVB Reference Style) */}
+                  {activeFailsafeStep === 0 ? (
+                    <div className="flex-1 rounded-2xl sm:rounded-3xl bg-[#0B2545] text-white p-5 sm:p-7 shadow-xl border border-[#0B2545] ring-2 ring-[#00E08C]/30 transition-all duration-300">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="space-y-1.5 pr-2">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-amber-400/20 border border-amber-400/40 text-amber-300">
+                            Covert Protection · Screen Disguise Mode
+                          </span>
+                          <h3 className="text-base sm:text-lg font-black tracking-wide text-white uppercase leading-snug">
+                            Triple-Tap Fake Low-Battery Screen
+                          </h3>
+                          <p className="text-xs sm:text-[13px] text-slate-300 font-normal leading-relaxed">
+                            Triple-tap anywhere on the top-left of your screen to immediately show a full-screen, pitch-black &ldquo;1% Low Battery&rdquo; shutdown graphic. Aggressors believe your device powered down, while your countdown keeps executing independently on our London AWS cloud servers.
+                          </p>
+                        </div>
+                        <div className="w-10 h-10 rounded-xl bg-[#00E08C] text-[#0B2545] flex items-center justify-center shrink-0 shadow-md">
+                          <BatteryCharging className="w-5 h-5 stroke-[2.5]" />
+                        </div>
+                      </div>
+
+                      {/* Active Expanded Simulation Widget */}
+                      <div className="mt-5 pt-4 border-t border-white/10 space-y-3.5">
+                        <div className="rounded-2xl bg-black/40 border border-white/10 p-4 sm:p-5 relative overflow-hidden backdrop-blur-sm">
+                          {failsafeBlackout ? (
+                            <div
+                              onClick={() => setFailsafeBlackout(false)}
+                              className="py-10 flex flex-col items-center justify-center text-center cursor-pointer select-none rounded-xl bg-black border border-white/10 group transition"
+                            >
+                              <div className="w-12 h-20 rounded-xl border-2 border-rose-500/80 p-1 flex flex-col justify-end items-center mb-4">
+                                <div className="w-full h-2 bg-rose-500 rounded-xs animate-pulse" />
+                              </div>
+                              <div className="text-sm font-mono font-bold text-slate-200">
+                                Screen Powered Down (Disguise Active)
+                              </div>
+                              <div className="mt-2.5 text-xs text-emerald-400 font-mono font-semibold flex items-center gap-1.5 bg-emerald-950/70 px-3 py-1 rounded-full border border-emerald-500/30">
+                                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                                <span>London AWS Sentinel Running · 34:12 remaining</span>
+                              </div>
+                              <span className="mt-4 text-xs text-slate-400 underline decoration-slate-600 group-hover:text-white transition">
+                                Tap anywhere to exit blackout
+                              </span>
+                            </div>
+                          ) : (
+                            <div className="space-y-4">
+                              {/* Clean Header Bar */}
+                              <div className="flex items-center justify-between text-xs font-mono text-slate-400 pb-2 border-b border-white/10">
+                                <div className="flex items-center gap-2 text-slate-300">
+                                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                                  <span className="font-bold">Covert Low-Battery Screen</span>
+                                </div>
+                                <span className="text-rose-400 font-bold bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">
+                                  1% Critical
+                                </span>
+                              </div>
+
+                              {/* Clean Alert Card */}
+                              <div className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center shrink-0">
+                                  <BatteryCharging className="w-6 h-6 animate-pulse" />
+                                </div>
+                                <div className="space-y-0.5">
+                                  <div className="text-sm font-bold text-white">
+                                    1% Low Battery Shutdown Graphic
+                                  </div>
+                                  <div className="text-xs text-slate-300 leading-relaxed">
+                                    Triple-tap top-left instantly renders the phone dead to an aggressor while countdown keeps executing on London servers.
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Crisp Button */}
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setFailsafeBlackout(true);
+                                }}
+                                className="w-full py-3 px-4 rounded-xl bg-[#00E08C] hover:bg-[#00c77b] text-[#0B2545] font-black text-xs uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-[0.99]"
+                              >
+                                <Sparkles className="w-4 h-4" />
+                                <span>Simulate Covert Blackout Screen</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="pt-2 flex items-center justify-between text-[11px] font-mono text-slate-300">
+                          <span>Activation: 3 Quick Taps</span>
+                          <span className="text-[#00E08C] font-bold">AWS eu-west-2 Persistence ✓</span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => handleSelectFailsafeStep(0)}
+                      className="flex-1 flex items-center justify-between gap-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer group"
+                    >
+                      <div className="space-y-1 pr-2">
+                        <h3 className="font-extrabold text-xs sm:text-sm text-[#111827] uppercase tracking-wide group-hover:text-[#0B2545] transition">
+                          Triple-Tap Fake Low-Battery Screen
+                        </h3>
+                        <p className="text-xs text-slate-500 font-normal leading-relaxed line-clamp-2">
+                          Instant pitch-black 1% shutdown disguise while AWS countdown executes independently in London.
+                        </p>
+                      </div>
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-slate-200 bg-white flex items-center justify-center shrink-0 text-slate-500 group-hover:border-slate-400 group-hover:text-[#0B2545] transition shadow-2xs">
+                        <BatteryCharging className="w-4 h-4 sm:w-5 sm:h-5" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ------------------------------------------------------------- */}
+                {/* LAYER 02: SILENT DURESS PIN (9999) & DECOY RESOLUTION          */}
+                {/* ------------------------------------------------------------- */}
+                <div id="failsafe-step-1" className="relative flex items-start gap-3.5 sm:gap-4 group scroll-mt-4 failsafe-step-reveal">
+                  {/* Continuous Vertical Connecting Line to Step 03 */}
+                  <div className="block absolute left-[17px] sm:left-[19px] top-4 sm:top-5 -bottom-[36px] sm:-bottom-[42px] w-[2px] bg-slate-300 pointer-events-none z-0" />
+
+                  {/* Step Node */}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectFailsafeStep(1)}
+                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full font-mono text-xs sm:text-sm font-bold flex items-center justify-center shrink-0 z-10 transition-all duration-200 cursor-pointer ${activeFailsafeStep === 1
+                      ? "bg-[#0B2545] text-[#00E08C] ring-4 ring-emerald-400/20 shadow-md scale-105 border border-[#00E08C]/40"
+                      : "bg-white border-2 border-slate-300 text-slate-600 hover:border-slate-400 shadow-2xs"
+                      }`}
+                  >
+                    02
+                  </button>
+
+                  {/* Card: Active vs Inactive (CVB Reference Style) */}
+                  {activeFailsafeStep === 1 ? (
+                    <div className="flex-1 rounded-2xl sm:rounded-3xl bg-[#0B2545] text-white p-5 sm:p-7 shadow-xl border border-[#0B2545] ring-2 ring-[#00E08C]/30 transition-all duration-300">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="space-y-1.5 pr-2">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-rose-400/20 border border-rose-400/40 text-rose-300">
+                            Coercion Defense · Silent Duress Protocol
+                          </span>
+                          <h3 className="text-base sm:text-lg font-black tracking-wide text-white uppercase leading-snug">
+                            Silent Duress PIN (9999) & Decoy
+                          </h3>
+                          <p className="text-xs sm:text-[13px] text-slate-300 font-normal leading-relaxed">
+                            If an aggressor forces you to unlock your phone and cancel your safety alarm, enter your designated Silent Duress PIN (9999). The app immediately displays an innocent &ldquo;Session Closed Safely&rdquo; screen to calm hostility, while silently broadcasting emergency coordinates to on-call peers.
+                          </p>
+                        </div>
+                        <div className="w-10 h-10 rounded-xl bg-[#00E08C] text-[#0B2545] flex items-center justify-center shrink-0 shadow-md">
+                          <KeyRound className="w-5 h-5 stroke-[2.5]" />
+                        </div>
+                      </div>
+
+                      {/* Active Expanded Simulation Widget */}
+                      <div className="mt-5 pt-4 border-t border-white/10 space-y-3.5">
+                        <div className="rounded-2xl bg-black/40 border border-white/10 p-4 sm:p-5 relative overflow-hidden backdrop-blur-sm space-y-3.5">
+                          {/* Mode Switcher & PIN Display */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
+                            <div className="inline-flex p-1 rounded-xl bg-white/5 border border-white/10 self-start sm:self-auto">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setDuressDemoTab("peaceful");
+                                }}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${duressDemoTab === "peaceful"
+                                  ? "bg-[#00E08C] text-[#0B2545] shadow-md"
+                                  : "text-slate-400 hover:text-white"
+                                  }`}
+                              >
+                                <span>👁️ Aggressor View</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setDuressDemoTab("dispatch");
+                                }}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${duressDemoTab === "dispatch"
+                                  ? "bg-rose-500 text-white shadow-md"
+                                  : "text-slate-400 hover:text-white"
+                                  }`}
+                              >
+                                <span>🚨 Covert Dispatch</span>
+                              </button>
+                            </div>
+
+                            <div className="flex items-center gap-2 self-end sm:self-auto text-xs font-mono">
+                              <span className="text-slate-400 uppercase text-[10px] font-bold">Duress PIN:</span>
+                              <div className="flex items-center gap-1">
+                                {["9", "9", "9", "9"].map((digit, i) => (
+                                  <span
+                                    key={i}
+                                    className="w-6 h-6 rounded-md bg-rose-500/20 border border-rose-500/50 text-rose-300 font-mono text-xs font-black flex items-center justify-center"
+                                  >
+                                    {digit}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Dual Reality Live Card Preview */}
+                          {duressDemoTab === "peaceful" ? (
+                            <div className="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-white space-y-2">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-full bg-emerald-500/20 text-[#00E08C] flex items-center justify-center shrink-0">
+                                  <Check className="w-5 h-5 stroke-[3]" />
+                                </div>
+                                <div>
+                                  <div className="text-sm font-bold text-white flex items-center gap-2">
+                                    <span>Session Closed Safely</span>
+                                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono">14:32 GMT</span>
+                                  </div>
+                                  <div className="text-xs text-slate-300 mt-0.5">
+                                    Appointment checked out. Innocent exit screen completely calms hostility.
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="pt-2 text-[11px] font-mono text-emerald-400 flex items-center justify-between border-t border-emerald-900/40">
+                                <span>✓ On-Screen Status: Completely Normal</span>
+                                <span className="text-slate-400">Ref: #CS-8921-OK</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="p-4 rounded-xl bg-rose-950/40 border border-rose-500/30 text-white space-y-2">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0 animate-pulse">
+                                  <AlertTriangle className="w-5 h-5" />
+                                </div>
+                                <div>
+                                  <div className="text-sm font-bold text-white flex items-center gap-2">
+                                    <span>Silent Emergency Broadcast Fired</span>
+                                    <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-mono">PRIORITY 1</span>
+                                  </div>
+                                  <div className="text-xs text-slate-300 mt-0.5">
+                                    Live GPS telemetry & emergency audio buffer dispatched to peer network.
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="pt-2 text-[11px] font-mono text-rose-400 flex items-center justify-between border-t border-rose-900/40">
+                                <span>📍 51.5074° N, 0.1278° W (±3m)</span>
+                                <span className="text-emerald-400 font-semibold">3 Peers + 999 Pack Notified</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="pt-2 flex items-center justify-between text-[11px] font-mono text-slate-300">
+                          <span>Display: Peaceful Exit Screen</span>
+                          <span className="text-rose-400 font-bold">Silent Emergency Broadcast ✓</span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => handleSelectFailsafeStep(1)}
+                      className="flex-1 flex items-center justify-between gap-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer group"
+                    >
+                      <div className="space-y-1 pr-2">
+                        <h3 className="font-extrabold text-xs sm:text-sm text-[#111827] uppercase tracking-wide group-hover:text-[#0B2545] transition">
+                          Silent Duress PIN (9999) & Decoy
+                        </h3>
+                        <p className="text-xs text-slate-500 font-normal leading-relaxed line-clamp-2">
+                          Innocent &ldquo;Session Closed Safely&rdquo; exit screen calms hostility while silently broadcasting emergency coordinates.
+                        </p>
+                      </div>
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-slate-200 bg-white flex items-center justify-center shrink-0 text-slate-500 group-hover:border-slate-400 group-hover:text-[#0B2545] transition shadow-2xs">
+                        <KeyRound className="w-4 h-4 sm:w-5 sm:h-5" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ------------------------------------------------------------- */}
+                {/* LAYER 03: 1-BAR CELLULAR SMS FALLBACK & SOS                   */}
+                {/* ------------------------------------------------------------- */}
+                <div id="failsafe-step-2" className="relative flex items-start gap-3.5 sm:gap-4 group scroll-mt-4 failsafe-step-reveal">
+                  {/* Continuous Vertical Connecting Line to Step 04 */}
+                  <div className="block absolute left-[17px] sm:left-[19px] top-4 sm:top-5 -bottom-[36px] sm:-bottom-[42px] w-[2px] bg-slate-300 pointer-events-none z-0" />
+
+                  {/* Step Node */}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectFailsafeStep(2)}
+                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full font-mono text-xs sm:text-sm font-bold flex items-center justify-center shrink-0 z-10 transition-all duration-200 cursor-pointer ${activeFailsafeStep === 2
+                      ? "bg-[#0B2545] text-[#00E08C] ring-4 ring-emerald-400/20 shadow-md scale-105 border border-[#00E08C]/40"
+                      : "bg-white border-2 border-slate-300 text-slate-600 hover:border-slate-400 shadow-2xs"
+                      }`}
+                  >
+                    03
+                  </button>
+
+                  {/* Card: Active vs Inactive (CVB Reference Style) */}
+                  {activeFailsafeStep === 2 ? (
+                    <div className="flex-1 rounded-2xl sm:rounded-3xl bg-[#0B2545] text-white p-5 sm:p-7 shadow-xl border border-[#0B2545] ring-2 ring-[#00E08C]/30 transition-all duration-300">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="space-y-1.5 pr-2">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-blue-400/20 border border-blue-400/40 text-blue-300">
+                            Satellite Sentinel · Zero-Internet Protocol
+                          </span>
+                          <h3 className="text-base sm:text-lg font-black tracking-wide text-white uppercase leading-snug">
+                            1-Bar Cellular SMS Fallback & SOS
+                          </h3>
+                          <p className="text-xs sm:text-[13px] text-slate-300 font-normal leading-relaxed">
+                            Operating in basements, rural estates, or thick concrete with zero 4G/5G data signal? CheckSafety executes across standard GSM 2G voice & SMS networks. A single text &ldquo;SOS&rdquo; to your virtual proxy line or an unbranded home-screen panic link immediately fires emergency dispatch without requiring login.
+                          </p>
+                        </div>
+                        <div className="w-10 h-10 rounded-xl bg-[#00E08C] text-[#0B2545] flex items-center justify-center shrink-0 shadow-md">
+                          <Radio className="w-5 h-5 stroke-[2.5]" />
+                        </div>
+                      </div>
+
+                      {/* Active Expanded Simulation Widget */}
+                      <div className="mt-5 pt-4 border-t border-white/10 space-y-3.5">
+                        <div className="rounded-2xl bg-black/40 border border-white/10 p-4 sm:p-5 relative overflow-hidden backdrop-blur-sm space-y-4">
+                          {/* Cellular Signal & Status Header */}
+                          <div className="flex items-center justify-between text-xs font-mono text-slate-400 pb-2.5 border-b border-white/10">
+                            <div className="flex items-center gap-2.5">
+                              {/* 4-bar cellular signal gauge */}
+                              <div className="flex items-end gap-0.5 h-3.5" title="1-Bar 2G GSM Reception">
+                                <span className="w-1 h-1.5 bg-blue-400 rounded-2xs animate-pulse" />
+                                <span className="w-1 h-2 bg-slate-700 rounded-2xs" />
+                                <span className="w-1 h-2.5 bg-slate-700 rounded-2xs" />
+                                <span className="w-1 h-3.5 bg-slate-700 rounded-2xs" />
+                              </div>
+                              <span className="font-bold text-white">1-Bar 2G GSM Fallback</span>
+                            </div>
+                            <span className="text-amber-300 font-bold bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 rounded text-[10px] uppercase tracking-wider">
+                              Zero 4G / Wi-Fi Required
+                            </span>
+                          </div>
+
+                          {/* Authentic Mobile SMS Transmission Thread */}
+                          <div className="space-y-3.5">
+                            {/* Outgoing Worker SMS */}
+                            <div className="flex flex-col items-end gap-1.5">
+                              <div className="text-[10px] font-mono text-slate-400">
+                                To: +44 7700 900142 (CheckSafety Virtual Proxy)
+                              </div>
+                              <div className={`px-4 py-2 rounded-2xl rounded-tr-xs font-black text-xs shadow-md transition-all duration-300 ${gsmTransmitted
+                                ? "bg-[#00E08C] text-[#0B2545] scale-105 shadow-[#00E08C]/30 shadow-lg"
+                                : "bg-[#2563EB] text-white"
+                                }`}>
+                                SOS
+                              </div>
+                              <div className="text-[10px] font-mono text-slate-400 flex items-center gap-1.5">
+                                <span>14:31 GMT</span>
+                                <span>·</span>
+                                <span className="text-blue-400 font-bold">Sent via 2G GSM SMS ✓✓ Delivered</span>
+                              </div>
+                            </div>
+
+                            {/* Incoming Automated Gateway Confirmation */}
+                            <div className="flex flex-col items-start gap-1.5">
+                              <div className="rounded-2xl rounded-tl-xs bg-white/10 border border-white/10 p-3.5 sm:p-4 text-white space-y-2.5 max-w-[95%] sm:max-w-[90%] shadow-lg">
+                                <div className="flex items-center justify-between gap-2">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-[#00E08C] flex items-center justify-center shrink-0">
+                                      <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                    </div>
+                                    <span className="text-xs sm:text-sm font-bold text-white">Emergency Dispatch Confirmed</span>
+                                  </div>
+                                  <span className="px-2 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30 text-[#00E08C] text-[10px] font-mono font-bold shrink-0">
+                                    Zero-Login
+                                  </span>
+                                </div>
+
+                                <p className="text-xs text-slate-300 leading-relaxed font-normal">
+                                  Distress SMS recognized in data deadzone. Live GPS breadcrumbs & 999 response pack dispatched to 3 nominated peers.
+                                </p>
+
+                                {/* Live GPS & Latency Row */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-[11px] font-mono">
+                                  <div className="p-2 rounded-lg bg-black/40 border border-white/10 text-slate-300 flex items-center gap-2">
+                                    <MapPin className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                                    <span className="truncate">51.5074° N, 0.1278° W (±3m)</span>
+                                  </div>
+                                  <div className="p-2 rounded-lg bg-black/40 border border-white/10 text-slate-300 flex items-center justify-between gap-2">
+                                    <span className="text-slate-400">Network Latency:</span>
+                                    <span className="text-[#00E08C] font-bold">18ms GSM Relay</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-[10px] font-mono text-slate-400 pl-1">
+                                London Cloud eu-west-2 Gateway
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Interactive Simulation Trigger Button */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setGsmTransmitted(true);
+                              setTimeout(() => setGsmTransmitted(false), 2500);
+                            }}
+                            className="w-full py-2.5 px-4 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/30 text-xs font-bold font-mono transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-[0.99]"
+                          >
+                            <Send className="w-3.5 h-3.5 text-blue-400" />
+                            <span>{gsmTransmitted ? "⚡ GSM SMS Dispatched (18ms Relay Confirmed) ✓" : "Test Simulated 2G 'SOS' Text Dispatch"}</span>
+                          </button>
+                        </div>
+
+                        <div className="pt-2 flex items-center justify-between text-[11px] font-mono text-slate-300">
+                          <span>Network: 1-Bar GSM Only</span>
+                          <span className="text-[#00E08C] font-bold">No 4G/5G Data Required ✓</span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => handleSelectFailsafeStep(2)}
+                      className="flex-1 flex items-center justify-between gap-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer group"
+                    >
+                      <div className="space-y-1 pr-2">
+                        <h3 className="font-extrabold text-xs sm:text-sm text-[#111827] uppercase tracking-wide group-hover:text-[#0B2545] transition">
+                          1-Bar Cellular SMS Fallback & SOS
+                        </h3>
+                        <p className="text-xs text-slate-500 font-normal leading-relaxed line-clamp-2">
+                          Zero 4G/Wi-Fi signal required. CheckSafety fires emergency dispatch across standard GSM 2G voice & SMS.
+                        </p>
+                      </div>
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-slate-200 bg-white flex items-center justify-center shrink-0 text-slate-500 group-hover:border-slate-400 group-hover:text-[#0B2545] transition shadow-2xs">
+                        <Radio className="w-4 h-4 sm:w-5 sm:h-5" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ------------------------------------------------------------- */}
+                {/* LAYER 04: TRUSTED CLIENT VAULT (REPEAT SESSIONS FOR £0)       */}
+                {/* ------------------------------------------------------------- */}
+                <div id="failsafe-step-3" className="relative flex items-start gap-3.5 sm:gap-4 group scroll-mt-4 failsafe-step-reveal">
+                  {/* Continuous Vertical Connecting Line to Step 05 */}
+                  <div className="block absolute left-[17px] sm:left-[19px] top-4 sm:top-5 -bottom-[36px] sm:-bottom-[42px] w-[2px] bg-slate-300 pointer-events-none z-0" />
+
+                  {/* Step Node */}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectFailsafeStep(3)}
+                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full font-mono text-xs sm:text-sm font-bold flex items-center justify-center shrink-0 z-10 transition-all duration-200 cursor-pointer ${activeFailsafeStep === 3
+                      ? "bg-[#0B2545] text-[#00E08C] ring-4 ring-emerald-400/20 shadow-md scale-105 border border-[#00E08C]/40"
+                      : "bg-white border-2 border-slate-300 text-slate-600 hover:border-slate-400 shadow-2xs"
+                      }`}
+                  >
+                    04
+                  </button>
+
+                  {/* Card: Active vs Inactive (CVB Reference Style) */}
+                  {activeFailsafeStep === 3 ? (
+                    <div className="flex-1 rounded-2xl sm:rounded-3xl bg-[#0B2545] text-white p-5 sm:p-7 shadow-xl border border-[#0B2545] ring-2 ring-[#00E08C]/30 transition-all duration-300">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="space-y-1.5 pr-2">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-emerald-400/20 border border-emerald-400/40 text-emerald-300">
+                            Cryptographic Security · Verified Client Vault
+                          </span>
+                          <h3 className="text-base sm:text-lg font-black tracking-wide text-white uppercase leading-snug">
+                            Verified Once, Protected Forever. Repeat Sessions for £0.
+                          </h3>
+                          <p className="text-xs sm:text-[13px] text-slate-300 font-normal leading-relaxed">
+                            Never pay twice for dependable repeat clients. When a client passes Veriff 3D biometric screening once, a non-reversible cryptographic HMAC-SHA256 fingerprint is registered in your private vault for £0 repeat sessions.
+                          </p>
+                        </div>
+                        <div className="w-10 h-10 rounded-xl bg-[#00E08C] text-[#0B2545] flex items-center justify-center shrink-0 shadow-md">
+                          <Lock className="w-5 h-5 stroke-[2.5]" />
+                        </div>
+                      </div>
+
+                      {/* Active Expanded Simulation Widget */}
+                      <div className="mt-5 pt-4 border-t border-white/10 space-y-3.5">
+                        <div className="rounded-2xl bg-black/40 border border-white/10 p-4 sm:p-5 relative overflow-hidden backdrop-blur-sm space-y-3">
+                          <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 font-mono text-xs">
+                            <div className="flex items-center gap-2 text-slate-200">
+                              <KeyRound className="w-4 h-4 text-[#00E08C] shrink-0" />
+                              <span className="truncate">HMAC-SHA256: 7f83b165...e49c</span>
+                            </div>
+                            <span className="px-2.5 py-0.5 rounded-full bg-[#00E08C]/15 border border-[#00E08C]/40 text-[#00E08C] font-bold text-[10px] shrink-0 self-start sm:self-auto flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#00E08C] animate-pulse" />
+                              <span>£0 Token Fee · Vault Match</span>
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-1 gap-2 text-xs text-slate-200">
+                            <div className="p-2.5 rounded-lg bg-white/5 border border-white/5 flex items-start gap-2.5">
+                              <span className="w-4 h-4 rounded-full bg-emerald-500/20 text-[#00E08C] flex items-center justify-center shrink-0 mt-0.5">
+                                <Check className="w-3 h-3 stroke-[3]" />
+                              </span>
+                              <span><strong>£0 Repeat Bookings:</strong> Re-enter the client&apos;s phone number to match the hash with zero check tokens deducted.</span>
+                            </div>
+                            <div className="p-2.5 rounded-lg bg-white/5 border border-white/5 flex items-start gap-2.5">
+                              <span className="w-4 h-4 rounded-full bg-emerald-500/20 text-[#00E08C] flex items-center justify-center shrink-0 mt-0.5">
+                                <Check className="w-3 h-3 stroke-[3]" />
+                              </span>
+                              <span><strong>60-Second Zero-Trace Shredder:</strong> Raw passport photos and facial scans are irreversibly destroyed via API within 60s.</span>
+                            </div>
+                            <div className="p-2.5 rounded-lg bg-white/5 border border-white/5 flex items-start gap-2.5">
+                              <span className="w-4 h-4 rounded-full bg-emerald-500/20 text-[#00E08C] flex items-center justify-center shrink-0 mt-0.5">
+                                <Check className="w-3 h-3 stroke-[3]" />
+                              </span>
+                              <span><strong>Bank-Grade RLS Privacy:</strong> Your client records are isolated by Row-Level Security — unreadable even to company staff.</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="pt-2 flex items-center justify-between text-[11px] font-mono text-slate-300">
+                          <span>Cryptographic Standard: HMAC-SHA256</span>
+                          <span className="text-[#00E08C] font-bold">Zero Raw ID Stored on Disk ✓</span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => handleSelectFailsafeStep(3)}
+                      className="flex-1 flex items-center justify-between gap-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer group"
+                    >
+                      <div className="space-y-1 pr-2">
+                        <h3 className="font-extrabold text-xs sm:text-sm text-[#111827] uppercase tracking-wide group-hover:text-[#0B2545] transition">
+                          Trusted Client Vault · £0 Repeat Sessions
+                        </h3>
+                        <p className="text-xs text-slate-500 font-normal leading-relaxed line-clamp-2">
+                          Non-reversible HMAC-SHA256 fingerprint registered in private vault. £0 fees for repeat verified clients.
+                        </p>
+                      </div>
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-slate-200 bg-white flex items-center justify-center shrink-0 text-slate-500 group-hover:border-slate-400 group-hover:text-[#0B2545] transition shadow-2xs">
+                        <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ------------------------------------------------------------- */}
+                {/* LAYER 05: GLOBAL SAFETY HASH (CROSS-WORKER COMMUNITY SHIELD)  */}
+                {/* ------------------------------------------------------------- */}
+                <div id="failsafe-step-4" className="relative flex items-start gap-3.5 sm:gap-4 group scroll-mt-4 failsafe-step-reveal">
+                  {/* Step Node (Terminal Node - No bottom connector) */}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectFailsafeStep(4)}
+                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full font-mono text-xs sm:text-sm font-bold flex items-center justify-center shrink-0 z-10 transition-all duration-200 cursor-pointer ${activeFailsafeStep === 4
+                      ? "bg-[#0B2545] text-[#00E08C] ring-4 ring-emerald-400/20 shadow-md scale-105 border border-[#00E08C]/40"
+                      : "bg-white border-2 border-slate-300 text-slate-600 hover:border-slate-400 shadow-2xs"
+                      }`}
+                  >
+                    05
+                  </button>
+
+                  {/* Card: Active vs Inactive (CVB Reference Style) */}
+                  {activeFailsafeStep === 4 ? (
+                    <div className="flex-1 rounded-2xl sm:rounded-3xl bg-[#0B2545] text-white p-5 sm:p-7 shadow-xl border border-[#0B2545] ring-2 ring-[#00E08C]/30 transition-all duration-300">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="space-y-1.5 pr-2">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-rose-400/20 border border-rose-400/40 text-rose-300">
+                            Community Shield · Collective Threat Registry
+                          </span>
+                          <h3 className="text-base sm:text-lg font-black tracking-wide text-white uppercase leading-snug">
+                            Cross-Worker Community Shield. Aggressors Blacklisted Instantly.
+                          </h3>
+                          <p className="text-xs sm:text-[13px] text-slate-300 font-normal leading-relaxed">
+                            Protecting lone workers across the UK from repeat predatory behavior. If a practitioner experiences an incident, the aggressor is reported in 3 confidential categories and permanently blacklisted across our network.
+                          </p>
+                        </div>
+                        <div className="w-10 h-10 rounded-xl bg-[#00E08C] text-[#0B2545] flex items-center justify-center shrink-0 shadow-md">
+                          <ShieldCheck className="w-5 h-5 stroke-[2.5]" />
+                        </div>
+                      </div>
+
+                      {/* Active Expanded Simulation Widget */}
+                      <div className="mt-5 pt-4 border-t border-white/10 space-y-3.5">
+                        <div className="rounded-2xl bg-black/40 border border-white/10 p-4 sm:p-5 relative overflow-hidden backdrop-blur-sm space-y-3">
+                          <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 font-mono text-xs">
+                            <div className="flex items-center gap-2 text-rose-300">
+                              <Shield className="w-4 h-4 text-rose-400 shrink-0" />
+                              <span className="truncate">Decentralized Threat Registry · UK Collective</span>
+                            </div>
+                            <span className="px-2.5 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/40 text-rose-300 font-bold text-[10px] shrink-0 self-start sm:self-auto flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
+                              <span>Live Blacklist Shield Active</span>
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-1 gap-2 text-xs text-slate-200">
+                            <div className="p-2.5 rounded-lg bg-rose-950/30 border border-rose-900/30 flex items-start gap-2.5">
+                              <span className="w-4 h-4 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0 mt-0.5 font-bold text-[10px]">
+                                !
+                              </span>
+                              <span><strong>Severe Safety / Conduct Breach:</strong> Aggressor&apos;s phone hash is permanently locked into the server&apos;s Global Safety Hash.</span>
+                            </div>
+                            <div className="p-2.5 rounded-lg bg-amber-950/30 border border-amber-900/30 flex items-start gap-2.5">
+                              <span className="w-4 h-4 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 mt-0.5 font-bold text-[10px]">
+                                !
+                              </span>
+                              <span><strong>Non-Payment / Financial Fraud:</strong> Flags fraudulent callers attempting to exploit independent lone contractors.</span>
+                            </div>
+                            <div className="p-2.5 rounded-lg bg-blue-950/30 border border-blue-900/30 flex items-start gap-2.5">
+                              <span className="w-4 h-4 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 mt-0.5 font-bold text-[10px]">
+                                !
+                              </span>
+                              <span><strong>Instant High-Risk Warning:</strong> If that individual attempts to verify with any other CheckSafety worker, a High-Risk alert fires immediately.</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="pt-2 flex items-center justify-between text-[11px] font-mono text-slate-300">
+                          <span>Server-Side Red-Flag Database</span>
+                          <span className="text-rose-400 font-bold">Cross-Worker Collective Shield ✓</span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => handleSelectFailsafeStep(4)}
+                      className="flex-1 flex items-center justify-between gap-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer group"
+                    >
+                      <div className="space-y-1 pr-2">
+                        <h3 className="font-extrabold text-xs sm:text-sm text-[#111827] uppercase tracking-wide group-hover:text-[#0B2545] transition">
+                          Global Safety Hash Community Shield
+                        </h3>
+                        <p className="text-xs text-slate-500 font-normal leading-relaxed line-clamp-2">
+                          Cross-worker collective blacklist. Severe conduct breaches and fraudulent callers flagged nationwide.
+                        </p>
+                      </div>
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-slate-200 bg-white flex items-center justify-center shrink-0 text-slate-500 group-hover:border-slate-400 group-hover:text-[#0B2545] transition shadow-2xs">
+                        <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 8. WHAT OUR USERS ARE SAYING (VERTICAL SLIDER TESTIMONIAL REFERENCE MATCH) */}
+      {/* ========================================================================= */}
+      <section id="testimonials" className="section-defer py-20 sm:py-28 bg-[#F8FAFC] relative overflow-hidden border-t border-slate-200/60 scroll-mt-20">
+        <div className="w-[96%] max-w-[1800px] mx-auto px-2 sm:px-4">
+
+          {/* Section Header */}
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 sm:gap-12 mb-12 sm:mb-16 testimonials-header-reveal">
+            <div className="max-w-2xl">
+              {/* Badge with Solid Circle Icon */}
+              <div className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-[#0B2545]/5 border border-[#0B2545]/20 text-[#0B2545] text-xs font-extrabold tracking-wider uppercase mb-4 shadow-2xs">
+                <div className="w-5 h-5 rounded-full bg-[#0B2545] text-white flex items-center justify-center shrink-0">
+                  <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24">
+                    <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                  </svg>
+                </div>
+                <span>In-Field Lone Worker Reviews</span>
+              </div>
+
+              {/* Bold Uppercase Heading in Dark Blue & Black */}
+              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-[#0B2545] tracking-tight uppercase leading-[1.08]">
+                What Our Active Users &amp;<br />
+                <span className="text-[#111827]">Solo Workers Are Saying.</span>
+              </h2>
+            </div>
+
+            {/* Right Aligned Descriptive Text Block */}
+            <div className="max-w-md xl:max-w-lg lg:pb-1">
+              <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+                <span className="font-bold text-[#111827]">Consistent, measurable field protection:</span> Lone workers, healthcare professionals, and solo practitioners across the UK rely on CheckSafety&apos;s covert failovers and automated dispatch when seconds count.
+              </p>
+            </div>
+          </div>
+
+          {/* 3-Column Vertical Slider Marquee */}
+          <div className="relative h-[520px] sm:h-[640px] lg:h-[700px] overflow-hidden">
+            {/* Top and Bottom Gradient Fade Masks */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-20 sm:h-36 bg-gradient-to-b from-[#F8FAFC] via-[#F8FAFC]/95 to-transparent z-20" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 sm:h-36 bg-gradient-to-t from-[#F8FAFC] via-[#F8FAFC]/95 to-transparent z-20" />
+
+            {/* Grid of Animated Columns (1 on mobile, 2 on tablet, 3 on desktop) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7 h-full testimonials-grid-reveal">
+
+              {/* Column 1: Upward Marquee */}
+              <div className="relative overflow-hidden h-full testimonial-col-1">
+                <div className="flex flex-col gap-6 animate-marquee-vertical hover:[animation-play-state:paused] cursor-pointer gpu-accelerate">
+                  {[...TESTIMONIALS_COL_1, ...TESTIMONIALS_COL_1].map((item, idx) => (
+                    <div
+                      key={`col1-${idx}`}
+                      className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-7 border border-slate-100 shadow-[0_2px_16px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_rgba(11,37,69,0.08)] hover:border-[#0B2545]/30 transition-all duration-300 group flex flex-col justify-between"
+                    >
+                      <div>
+                        {/* Dark Blue Quote Icon ("99" Style matching CheckSafety brand) */}
+                        <div className="text-[#0B2545] select-none mb-3.5">
+                          <svg className="w-8 h-8 fill-current" viewBox="0 0 24 24">
+                            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                          </svg>
+                        </div>
+
+                        {/* Testimonial Quote */}
+                        <p className="text-slate-600 text-xs sm:text-[14px] leading-relaxed font-normal mb-6">
+                          &ldquo;{item.quote}&rdquo;
+                        </p>
+                      </div>
+
+                      {/* Author Row (Avatar + Name & Role image) */}
+                      <div className="flex items-center gap-3.5 pt-2">
+                        <img
+                          src={item.avatar}
+                          alt={item.name}
+                          width={44}
+                          height={44}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover shrink-0 ring-1 ring-slate-200/80 shadow-2xs"
+                        />
+                        <div>
+                          <div className="text-sm font-bold text-[#111827] leading-tight">
+                            {item.name}
+                          </div>
+                          <div className="text-xs text-slate-500 font-normal leading-tight mt-0.5">
+                            {item.role}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Column 2: Downward Reverse Marquee */}
+              <div className="relative overflow-hidden h-full hidden md:block testimonial-col-2">
+                <div className="flex flex-col gap-6 animate-marquee-vertical-reverse hover:[animation-play-state:paused] cursor-pointer gpu-accelerate">
+                  {[...TESTIMONIALS_COL_2, ...TESTIMONIALS_COL_2].map((item, idx) => (
+                    <div
+                      key={`col2-${idx}`}
+                      className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-7 border border-slate-100 shadow-[0_2px_16px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_rgba(11,37,69,0.08)] hover:border-[#0B2545]/30 transition-all duration-300 group flex flex-col justify-between"
+                    >
+                      <div>
+                        {/* Dark Blue Quote Icon ("99" Style matching CheckSafety brand) */}
+                        <div className="text-[#0B2545] select-none mb-3.5">
+                          <svg className="w-8 h-8 fill-current" viewBox="0 0 24 24">
+                            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                          </svg>
+                        </div>
+
+                        {/* Testimonial Quote */}
+                        <p className="text-slate-600 text-xs sm:text-[14px] leading-relaxed font-normal mb-6">
+                          &ldquo;{item.quote}&rdquo;
+                        </p>
+                      </div>
+
+                      {/* Author Row (Avatar + Name & Role image) */}
+                      <div className="flex items-center gap-3.5 pt-2">
+                        <img
+                          src={item.avatar}
+                          alt={item.name}
+                          width={44}
+                          height={44}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover shrink-0 ring-1 ring-slate-200/80 shadow-2xs"
+                        />
+                        <div>
+                          <div className="text-sm font-bold text-[#111827] leading-tight">
+                            {item.name}
+                          </div>
+                          <div className="text-xs text-slate-500 font-normal leading-tight mt-0.5">
+                            {item.role}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Column 3: Slower Upward Marquee (Desktop only) */}
+              <div className="relative overflow-hidden h-full hidden lg:block testimonial-col-3">
+                <div className="flex flex-col gap-6 animate-marquee-vertical-slow hover:[animation-play-state:paused] cursor-pointer gpu-accelerate">
+                  {[...TESTIMONIALS_COL_3, ...TESTIMONIALS_COL_3].map((item, idx) => (
+                    <div
+                      key={`col3-${idx}`}
+                      className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-7 border border-slate-100 shadow-[0_2px_16px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_rgba(11,37,69,0.08)] hover:border-[#0B2545]/30 transition-all duration-300 group flex flex-col justify-between"
+                    >
+                      <div>
+                        {/* Dark Blue Quote Icon ("99" Style matching CheckSafety brand) */}
+                        <div className="text-[#0B2545] select-none mb-3.5">
+                          <svg className="w-8 h-8 fill-current" viewBox="0 0 24 24">
+                            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                          </svg>
+                        </div>
+
+                        {/* Testimonial Quote */}
+                        <p className="text-slate-600 text-xs sm:text-[14px] leading-relaxed font-normal mb-6">
+                          &ldquo;{item.quote}&rdquo;
+                        </p>
+                      </div>
+
+                      {/* Author Row (Avatar + Name & Role image) */}
+                      <div className="flex items-center gap-3.5 pt-2">
+                        <img
+                          src={item.avatar}
+                          alt={item.name}
+                          width={44}
+                          height={44}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover shrink-0 ring-1 ring-slate-200/80 shadow-2xs"
+                        />
+                        <div>
+                          <div className="text-sm font-bold text-[#111827] leading-tight">
+                            {item.name}
+                          </div>
+                          <div className="text-xs text-slate-500 font-normal leading-tight mt-0.5">
+                            {item.role}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 8. SIMPLE, TRANSPARENT PRICING (MATCHING EXACT REFERENCE IMAGE)           */}
+      {/* ========================================================================= */}
+      <section id="pricing" className="section-defer py-20 sm:py-28 bg-[#F7F9FD] scroll-mt-20">
+        <div className="w-[96%] max-w-[1400px] mx-auto px-4 sm:px-6">
+
+          {/* Centered Header image */}
+          <div className="text-center max-w-xl mx-auto mb-12 sm:mb-16 pricing-header-reveal">
+            <h2 className="text-3xl sm:text-5xl font-extrabold text-[#111827] tracking-tight">
+              Simple, transparent pricing
+            </h2>
+            <p className="mt-3 text-slate-500 text-sm sm:text-base font-normal">
+              No contracts. No surprise fees.
+            </p>
+
+            {/* Operating Country Selector + Monthly / Yearly Pill Toggle */}
+            <div className="mt-7 inline-flex flex-wrap items-center justify-center gap-3 pricing-controls-reveal">
+              {/* Operating Country Dropdown */}
+              <div className="relative inline-flex items-center">
+                <label htmlFor="pricing-country-select" className="sr-only">Select Operating Country</label>
+                <select
+                  id="pricing-country-select"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  className="appearance-none bg-white font-bold text-xs text-[#111827] pl-3.5 pr-8 py-2.5 rounded-full border border-slate-200/80 cursor-pointer shadow-xs focus:outline-hidden focus:ring-2 focus:ring-[#00E08C] transition"
+                >
+                  {COUNTRY_LIST.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {COUNTRY_FLAGS[c.code]} {c.name} ({c.currency} · {c.symbol})
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 pointer-events-none" />
+              </div>
+
+              {/* Monthly / Yearly Switcher (Matching Same Blue-Black Gradient) */}
+              <div className="bg-white p-1 rounded-full border border-slate-200/80 shadow-xs inline-flex items-center">
+                <button
+                  type="button"
+                  onClick={() => setBillingCycle("monthly")}
+                  className={`px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition cursor-pointer ${billingCycle === "monthly"
+                    ? "bg-gradient-to-r from-[#0B2545] via-[#07192F] to-[#02060D] text-white shadow-xs"
+                    : "text-slate-500 hover:text-slate-900"
+                    }`}
+                >
+                  Monthly
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBillingCycle("annual")}
+                  className={`px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1.5 ${billingCycle === "annual"
+                    ? "bg-gradient-to-r from-[#0B2545] via-[#07192F] to-[#02060D] text-white shadow-xs"
+                    : "text-slate-500 hover:text-slate-900"
+                    }`}
+                >
+                  <span>Yearly</span>
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${billingCycle === "annual" ? "bg-[#00E08C] text-[#0B2545]" : "bg-emerald-100 text-emerald-800"
+                    }`}>
+                    -20%
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* 3 Pricing Cards: Base (Left), Elevated Pro (Center with Blue/Black Gradient & Generous Width), Enterprise (Right) */}
+          <div className="w-full max-w-[1550px] mx-auto pricing-cards-container">
+            {/* White Rounded Container Box */}
+            <div className="bg-white rounded-[28px] sm:rounded-[44px] shadow-[0_20px_60px_rgba(80,108,240,0.06)] border border-slate-100/90 p-5 sm:p-10 lg:p-14">
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr_1fr] gap-6 lg:gap-10 items-center">
+
+                {/* Card 1: Base (Core Worker) */}
+                <div className="flex flex-col justify-between h-full py-4 lg:py-6 pricing-card-base">
+                  <div>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-4xl sm:text-5xl font-extrabold text-[#111827] tracking-tight">
+                        {countryCfg.symbol}{billingCycle === "annual" ? Math.round(settings.core_price_gbp * 0.8) : settings.core_price_gbp}
+                      </span>
+                      <span className="text-xs sm:text-sm font-medium text-slate-400">/month</span>
+                    </div>
+
+                    <h3 className="text-2xl font-bold text-[#111827] mt-5">Base</h3>
+                    <p className="text-xs sm:text-sm text-slate-500 mt-2 font-normal leading-relaxed">
+                      For solo practitioners requiring dedicated ghost proxy phone masking.
+                    </p>
+
+                    {/* Checklist */}
+                    <div className="mt-8 space-y-3.5 text-xs sm:text-sm text-slate-600 font-medium">
+                      <div className="flex items-center gap-3">
+                        <span className="w-5 h-5 rounded-full bg-[#0B2545]/8 text-[#0B2545] flex items-center justify-center shrink-0">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </span>
+                        <span className="sm:whitespace-nowrap">1 Dedicated Ghost Proxy Line</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="w-5 h-5 rounded-full bg-[#0B2545]/8 text-[#0B2545] flex items-center justify-center shrink-0">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </span>
+                        <span className="sm:whitespace-nowrap">Automated 2-Stage Cloud Timer</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="w-5 h-5 rounded-full bg-[#0B2545]/8 text-[#0B2545] flex items-center justify-center shrink-0">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </span>
+                        <span className="sm:whitespace-nowrap">1-Bar Cellular SMS Fallback</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="w-5 h-5 rounded-full bg-[#0B2545]/8 text-[#0B2545] flex items-center justify-center shrink-0">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </span>
+                        <span className="sm:whitespace-nowrap">Discreet Duress PIN (9999)</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="w-5 h-5 rounded-full bg-[#0B2545]/8 text-[#0B2545] flex items-center justify-center shrink-0">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </span>
+                        <span className="sm:whitespace-nowrap">3 Emergency Peer Contacts</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-10">
+                    <Link
+                      href={`/signup?plan=core&country=${country}`}
+                      className="w-full inline-flex items-center justify-center py-3.5 rounded-full bg-slate-100 hover:bg-slate-200 text-[#0B2545] text-xs font-bold uppercase tracking-wider transition"
+                    >
+                      Downgrade
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Card 2: Pro (Elevated Floating Centerpiece with Blue/Black Gradient & Generous Width) */}
+                <div className="relative bg-gradient-to-b from-[#0B2545] via-[#07192F] to-[#02060D] text-white rounded-[32px] sm:rounded-[36px] p-8 sm:p-10 lg:p-12 shadow-[0_25px_60px_rgba(11,37,69,0.45)] lg:-my-14 lg:py-16 flex flex-col justify-between z-20 transition-transform duration-300 hover:scale-[1.02] border border-white/10 pricing-card-pro">
+                  {/* Most Popular Pill */}
+                  <div className="absolute top-6 right-6 sm:top-8 sm:right-8">
+                    <span className="px-3.5 py-1 rounded-full bg-white/15 border border-[#00E08C]/40 text-[#00E08C] text-[10px] font-black uppercase tracking-wider backdrop-blur-xs flex items-center gap-1.5 shadow-xs">
+                      <Sparkles className="w-3 h-3 text-[#00E08C]" />
+                      <span>MOST POPULAR</span>
+                    </span>
+                  </div>
+
+                  <div>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
+                        {countryCfg.symbol}{billingCycle === "annual" ? Math.round(settings.pro_price_gbp * 0.8) : settings.pro_price_gbp}
+                      </span>
+                      <span className="text-xs sm:text-sm font-medium text-white/70">/month</span>
+                    </div>
+
+                    <h3 className="text-2xl font-bold text-white mt-5">Pro</h3>
+                    <p className="text-xs sm:text-sm text-slate-300 mt-2 font-normal leading-relaxed">
+                      For most businesses that want to verify clients and automate lone-worker safety.
+                    </p>
+
+                    {/* Checklist with no line wrapping */}
+                    <div className="mt-8 space-y-3.5 text-xs sm:text-sm text-white font-medium">
+                      <div className="flex items-center gap-3">
+                        <span className="w-5 h-5 rounded-full bg-[#00E08C] text-[#0B2545] flex items-center justify-center shrink-0">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </span>
+                        <span className="sm:whitespace-nowrap">15 Biometric Veriff Checks / mo</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="w-5 h-5 rounded-full bg-[#00E08C] text-[#0B2545] flex items-center justify-center shrink-0">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </span>
+                        <span className="sm:whitespace-nowrap">2 Dedicated Ghost Proxy Numbers</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="w-5 h-5 rounded-full bg-[#00E08C] text-[#0B2545] flex items-center justify-center shrink-0">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </span>
+                        <span className="sm:whitespace-nowrap">Fake 1% Low-Battery Screen</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="w-5 h-5 rounded-full bg-[#00E08C] text-[#0B2545] flex items-center justify-center shrink-0">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </span>
+                        <span className="sm:whitespace-nowrap">Silent Duress PIN + Evidence Pack</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="w-5 h-5 rounded-full bg-[#00E08C] text-[#0B2545] flex items-center justify-center shrink-0">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </span>
+                        <span className="sm:whitespace-nowrap">Unbranded cs-idgate.com Client Links</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="w-5 h-5 rounded-full bg-[#00E08C] text-[#0B2545] flex items-center justify-center shrink-0">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </span>
+                        <span className="sm:whitespace-nowrap">Priority London AWS Queue (eu-west-2)</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-10">
+                    <Link
+                      href={`/signup?plan=pro&country=${country}`}
+                      className="w-full inline-flex items-center justify-center py-3.5 rounded-full bg-white hover:bg-slate-100 text-[#0B2545] text-xs font-black uppercase tracking-wider transition shadow-md hover:scale-[1.02]"
+                    >
+                      Upgrade
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Card 3: Enterprise (Elite Agency) */}
+                <div className="flex flex-col justify-between h-full py-4 lg:py-6 pricing-card-enterprise">
+                  <div>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-4xl sm:text-5xl font-extrabold text-[#111827] tracking-tight">
+                        {countryCfg.symbol}{billingCycle === "annual" ? Math.round(settings.elite_price_gbp * 0.8) : settings.elite_price_gbp}
+                      </span>
+                      <span className="text-xs sm:text-sm font-medium text-slate-400">/month</span>
+                    </div>
+
+                    <h3 className="text-2xl font-bold text-[#111827] mt-5">Enterprise</h3>
+                    <p className="text-xs sm:text-sm text-slate-500 mt-2 font-normal leading-relaxed">
+                      For agencies and firms managing multi-worker fleet safeguarding.
+                    </p>
+
+                    {/* Checklist */}
+                    <div className="mt-8 space-y-3.5 text-xs sm:text-sm text-slate-600 font-medium">
+                      <div className="flex items-center gap-3">
+                        <span className="w-5 h-5 rounded-full bg-[#0B2545]/8 text-[#0B2545] flex items-center justify-center shrink-0">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </span>
+                        <span className="sm:whitespace-nowrap">50 Biometric Veriff Checks / mo</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="w-5 h-5 rounded-full bg-[#0B2545]/8 text-[#0B2545] flex items-center justify-center shrink-0">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </span>
+                        <span className="sm:whitespace-nowrap">5 Dedicated Ghost Proxy Lines</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="w-5 h-5 rounded-full bg-[#0B2545]/8 text-[#0B2545] flex items-center justify-center shrink-0">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </span>
+                        <span className="sm:whitespace-nowrap">Live Fleet Safeguarding Map</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="w-5 h-5 rounded-full bg-[#0B2545]/8 text-[#0B2545] flex items-center justify-center shrink-0">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </span>
+                        <span className="sm:whitespace-nowrap">Automated BS 8484 Audit Exports</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="w-5 h-5 rounded-full bg-[#0B2545]/8 text-[#0B2545] flex items-center justify-center shrink-0">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </span>
+                        <span className="sm:whitespace-nowrap">Priority 24/7 Telephone Response SLA</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-10">
+                    <Link
+                      href={`/signup?plan=elite&country=${country}`}
+                      className="w-full inline-flex items-center justify-center py-3.5 rounded-full bg-slate-100 hover:bg-slate-200 text-[#0B2545] text-xs font-bold uppercase tracking-wider transition"
+                    >
+                      Upgrade
+                    </Link>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          {/* Supplementary Ecosystem Addons (Hibernation, Top-Ups & Agency Fleet) */}
+          <div className="mt-16 sm:mt-20 max-w-6xl mx-auto space-y-8 pricing-addons-container">
+
+            {/* Hibernation Mode Banner */}
+            <div className="bg-white rounded-[32px] p-6 sm:p-8 border border-slate-200/80 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6 pricing-addon-reveal">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
+                  <Clock className="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="text-lg font-bold text-[#111827]">Taking Time Off or Parental Leave?</h4>
+                  <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-xl">
+                    Switch to Hibernation Mode ({countryCfg.symbol}{settings.hibernation_1_price_gbp}/mo Base · {countryCfg.symbol}{settings.hibernation_2_price_gbp}/mo Pro · {countryCfg.symbol}{settings.hibernation_5_price_gbp}/mo Enterprise) to keep your dedicated proxy numbers active so callers never reach a disconnected line.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setBillingCycle("monthly")}
+                className="px-5 py-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold shrink-0 transition"
+              >
+                Learn More
+              </button>
+            </div>
+
+            {/* Token Top-Ups & Multi-Seat Agency Calculator Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+
+              {/* Left 6 Cols: Verification Token Top-Up Packs */}
+              <div className="lg:col-span-6 bg-white rounded-[32px] p-6 sm:p-8 border border-slate-200/80 shadow-xs flex flex-col justify-between pricing-addon-reveal">
+                <div>
+                  <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-[#0B2545]">
+                    <Zap className="w-4 h-4 text-[#00E08C]" />
+                    <span>Instant Biometric KYC Top-Ups</span>
+                  </div>
+                  <h4 className="text-xl font-bold text-[#111827] mt-2">
+                    Need extra client screenings?
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Monthly Veriff tokens roll over automatically. Top up with instant credits anytime.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 mt-6">
+                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 text-center">
+                      <div className="text-[11px] text-slate-400 font-bold uppercase">5 Checks</div>
+                      <div className="text-lg font-black text-[#111827] mt-1">{countryCfg.symbol}{settings.topup_5_price_gbp}</div>
+                      <Link href={`/signup?topup=5&country=${country}`} className="mt-2 block text-[10px] font-bold text-[#0B2545] hover:text-[#00E08C]">Buy →</Link>
+                    </div>
+                    <div className="p-3.5 rounded-2xl bg-white border-2 border-[#00E08C] text-center relative shadow-xs">
+                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-[#00E08C] text-[#0B2545] text-[8px] font-black rounded-full uppercase">POPULAR</span>
+                      <div className="text-[11px] text-[#0B2545] font-bold uppercase">15 Checks</div>
+                      <div className="text-lg font-black text-[#0B2545] mt-1">{countryCfg.symbol}{settings.topup_15_price_gbp}</div>
+                      <Link href={`/signup?topup=15&country=${country}`} className="mt-2 block text-[10px] font-bold text-[#0B2545] hover:text-[#00E08C]">Buy →</Link>
+                    </div>
+                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 text-center">
+                      <div className="text-[11px] text-slate-400 font-bold uppercase">50 Checks</div>
+                      <div className="text-lg font-black text-[#111827] mt-1">{countryCfg.symbol}{settings.topup_50_price_gbp}</div>
+                      <Link href={`/signup?topup=50&country=${country}`} className="mt-2 block text-[10px] font-bold text-[#0B2545] hover:text-[#00E08C]">Buy →</Link>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center gap-2 text-[11px] text-slate-400">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>60s Biometric Shredder · Certified UK-GDPR</span>
+                </div>
+              </div>
+
+              {/* Right 6 Cols: Agency Multi-Seat Fleet Calculator */}
+              <div className="lg:col-span-6 bg-white rounded-[32px] p-6 sm:p-8 border border-slate-200/80 shadow-xs flex flex-col justify-between pricing-addon-reveal">
+                <div>
+                  <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
+                    <Users className="w-4 h-4 text-[#00E08C]" />
+                    <span>Multi-Seat Agency Fleet Desk</span>
+                  </div>
+                  <h4 className="text-xl font-bold text-[#111827] mt-2">
+                    Firm Safeguarding Calculator
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Equip 5 to 500+ workers with centralized live map and consolidated billing.
+                  </p>
+
+                  <div className="mt-6 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div className="flex items-center justify-between text-xs text-slate-600 font-medium">
+                      <span>Protected Worker Seats:</span>
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setAgencySeats((prev) => Math.max(5, prev - 1))}
+                          disabled={agencySeats <= 5}
+                          className="w-7 h-7 rounded-full bg-white shadow-xs border border-slate-200 flex items-center justify-center text-slate-700 disabled:opacity-40"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="text-base font-black text-[#0B2545] w-8 text-center font-mono">{agencySeats}</span>
+                        <button
+                          type="button"
+                          onClick={() => setAgencySeats((prev) => prev + 1)}
+                          className="w-7 h-7 rounded-full bg-white shadow-xs border border-slate-200 flex items-center justify-center text-slate-700"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 pt-3 border-t border-slate-200/60 flex items-baseline justify-between">
+                      <div className="text-[11px] text-slate-400">
+                        {agencySeats} seats × {countryCfg.symbol}{settings.agency_seat_price_gbp}/seat
+                      </div>
+                      <div className="text-xl font-black text-[#111827]">
+                        {countryCfg.symbol}{agencySeats * settings.agency_seat_price_gbp}
+                        <span className="text-xs font-normal text-slate-400">/mo</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6">
+                  <Link
+                    href="/agency"
+                    className="w-full inline-flex items-center justify-center py-3 rounded-full bg-gradient-to-r from-[#0B2545] via-[#07192F] to-[#02060D] hover:bg-black text-white text-xs font-bold uppercase tracking-wider transition shadow-sm"
+                  >
+                    Deploy Agency Fleet Desk →
+                  </Link>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 9. PAYABLE-INSPIRED FOOTER (FLOATING DARK CARD + CLEAN MINIMALIST COLUMNS) */}
+      {/* ========================================================================= */}
+      <footer className="section-defer bg-white text-[#111215] pt-10 sm:pt-16 pb-16 sm:pb-24 border-t border-slate-100">
+        <div className="w-[96%] max-w-[1800px] mx-auto px-2 sm:px-4">
+          {/* Top Floating Dark Rounded Card (Width & Rounded Corners Matching Hero) */}
+          <div className="relative rounded-[28px] sm:rounded-[44px] lg:rounded-[48px] bg-gradient-to-r from-[#0B2545] via-[#07192F] to-[#02050A] text-white p-6 sm:p-14 lg:p-20 xl:p-24 mb-16 sm:mb-28 shadow-xl min-h-[320px] sm:min-h-[420px] flex items-center footer-card-reveal">
+            <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center justify-between">
+              {/* Left Column: 2-Line Bold Headline + Subtitle */}
+              <div className="lg:col-span-6 space-y-4">
+                <h2 className="text-2xl sm:text-4xl lg:text-[46px] xl:text-[52px] font-extrabold tracking-tight text-white leading-[1.08]">
+                  Subscribe our
+                  <br />
+                  safety bulletin
+                </h2>
+                <p className="text-sm sm:text-base text-white/75 max-w-lg leading-relaxed font-normal">
+                  Subscribe to our newsletter and be the first to receive insights, protocol updates, and expert tips on optimizing your lone-worker security.
+                </p>
+              </div>
+
+              {/* Right Column: "Stay up to date" + Pill Input & Button */}
+              <div className="lg:col-span-6 flex flex-col items-start lg:items-end">
+                <div className="w-full max-w-lg">
+                  <div className="text-xs sm:text-sm text-white/75 font-semibold mb-3">
+                    Stay up to date
+                  </div>
+
+                  <form
+                    onSubmit={handleNewsletterSubmit}
+                    className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
+                  >
+                    <div className="relative flex-1">
+                      <input
+                        type="email"
+                        value={footerEmail}
+                        onChange={(e) => setFooterEmail(e.target.value)}
+                        placeholder="Enter your email"
+                        className="w-full px-6 py-3.5 sm:py-4 rounded-full bg-white/10 hover:bg-white/15 focus:bg-white/15 text-white placeholder-white/50 text-sm sm:text-base border border-transparent focus:border-white/30 focus:outline-hidden transition"
+                        required
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="inline-flex items-center justify-center px-7 sm:px-8 py-3.5 sm:py-4 rounded-full bg-[#00E08C] hover:bg-[#00f298] text-[#0B2545] font-bold text-sm sm:text-base transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shrink-0 cursor-pointer shadow-xs"
+                    >
+                      {newsletterSubscribed ? "Subscribed ✓" : "Subscribe"}
+                    </button>
+                  </form>
+
+                  <div className="mt-3 text-xs text-white/60">
+                    By subscribing you agree to our{" "}
+                    <a
+                      href="#journey"
+                      className="text-white underline hover:text-[#00E08C] transition"
+                    >
+                      Privacy Policy
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Minimalist Navigation Row */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-10 lg:gap-12 items-start justify-between footer-nav-reveal">
+            {/* Left Column: Brand Logo + Motto */}
+            <div className="md:col-span-4 space-y-3.5 footer-links-reveal">
+              <Link href="/" aria-label="CheckSafety Home">
+                <CheckSafetyLogo darkSurface={false} size="sm" />
+              </Link>
+              <p className="text-xs text-slate-500 max-w-[220px] leading-relaxed font-normal">
+                Make your complicated lone-worker safety more simple.
+              </p>
+              <div className="pt-2 text-[11px] text-slate-400">
+                © 2026 {COMPANY_NAME}. All rights reserved.
+              </div>
+            </div>
+
+            {/* Right Link Columns */}
+            <div className="md:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-8 footer-links-reveal">
+              {/* Features Column */}
+              <div className="space-y-3">
+                <div className="text-xs font-bold text-slate-900">Features</div>
+                <ul className="space-y-2.5 text-xs text-slate-500 font-normal">
+                  <li>
+                    <a href="#interactive-demo" className="hover:text-slate-900 transition">
+                      Biometric Pass
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#architecture" className="hover:text-slate-900 transition">
+                      Ghost Number
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#architecture" className="hover:text-slate-900 transition">
+                      Cloud Sentinel
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#architecture" className="hover:text-slate-900 transition">
+                      Silent Duress
+                    </a>
+                  </li>
+                  <li>
+                    <Link href="/dashboard" className="hover:text-slate-900 transition">
+                      Live Console
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Sectors Column */}
+              <div className="space-y-3">
+                <div className="text-xs font-bold text-slate-900">Sectors</div>
+                <ul className="space-y-2.5 text-xs text-slate-500 font-normal">
+                  <li>
+                    <a href="#sectors" className="hover:text-slate-900 transition">
+                      Real Estate
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#sectors" className="hover:text-slate-900 transition">
+                      Healthcare
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#sectors" className="hover:text-slate-900 transition">
+                      Surveying
+                    </a>
+                  </li>
+                  <li>
+                    <Link href="/agency" className="hover:text-slate-900 transition">
+                      Agency Fleet
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Support Column */}
+              <div className="space-y-3">
+                <div className="text-xs font-bold text-slate-900">Support</div>
+                <ul className="space-y-2.5 text-xs text-slate-500 font-normal">
+                  <li>
+                    <a href="#journey" className="hover:text-slate-900 transition">
+                      How It Works
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#journey" className="hover:text-slate-900 transition">
+                      BS 8484 Standard
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#journey" className="hover:text-slate-900 transition">
+                      Suzy Lamplugh
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#journey" className="hover:text-slate-900 transition">
+                      Help & FAQ
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Legal Column */}
+              <div className="space-y-3">
+                <div className="text-xs font-bold text-slate-900">Legal</div>
+                <ul className="space-y-2.5 text-xs text-slate-500 font-normal">
+                  <li>
+                    <a href="#journey" className="hover:text-slate-900 transition">
+                      Privacy Policy
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#journey" className="hover:text-slate-900 transition">
+                      Terms of Services
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#journey" className="hover:text-slate-900 transition">
+                      Cookies
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#architecture" className="hover:text-slate-900 transition">
+                      Security Policy
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>);
+}
