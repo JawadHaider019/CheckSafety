@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { CheckSafetyLogo } from "@/components/ui/CheckSafetyLogo";
+import { CheckSafeLogo } from "@/components/ui/CheckSafeLogo";
 import { COUNTRY_LIST, SUPPORTED_COUNTRIES } from "@/lib/countries";
 import { useToast } from "@/components/ui/ToastProvider";
 export default function SignupPage() {
@@ -32,7 +32,7 @@ export default function SignupPage() {
       <div className="w-full max-w-[420px] space-y-6">
         <div className="text-center">
           <Link href="/" className="inline-flex items-center">
-            <CheckSafetyLogo darkSurface={false} size="md"/>
+            <CheckSafeLogo darkSurface={false} size="md"/>
           </Link>
         </div>
 

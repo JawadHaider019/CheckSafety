@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { CheckSafetyLogo } from "@/components/ui/CheckSafetyLogo";
+import { CheckSafeLogo } from "@/components/ui/CheckSafeLogo";
 import { useToast } from "@/components/ui/ToastProvider";
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -27,7 +27,7 @@ export default function LoginPage() {
       <div className="w-full max-w-[400px] space-y-6">
         <div className="text-center">
           <Link href="/" className="inline-flex items-center">
-            <CheckSafetyLogo darkSurface={false} size="md"/>
+            <CheckSafeLogo darkSurface={false} size="md"/>
           </Link>
         </div>
 
@@ -67,7 +67,7 @@ export default function LoginPage() {
           </form>
 
           <p className="mt-6 text-xs text-center text-slate-600">
-            New to CheckSafety?{" "}
+            New to Checksafe?{" "}
             <Link href="/signup" className="font-bold text-[#111827] underline">
               Create an account
             </Link>

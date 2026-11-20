@@ -1,6 +1,6 @@
-export const COMPANY_NAME = "CheckSafety Software Ltd";
-export const BRAND_NAME = "CheckSafety";
-export const PRIMARY_DOMAIN = "checksafetyapp.com";
+export const COMPANY_NAME = "Checksafe Software Ltd";
+export const BRAND_NAME = "Checksafe";
+export const PRIMARY_DOMAIN = "checksafeapp.com";
 export const VERIFY_DOMAIN = "cs-idgate.com";
 
 /**

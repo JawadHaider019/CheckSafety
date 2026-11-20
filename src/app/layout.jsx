@@ -1,6 +1,7 @@
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/ui/ToastProvider";
+import { SmoothScrollProvider } from "@/components/ui/SmoothScrollProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -15,28 +16,28 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata = {
-  metadataBase: new URL("https://checksafetyapp.com"),
-  title: "CheckSafety — Client Screening • Masked Numbers • Solo Worker Safety",
+  metadataBase: new URL("https://checksafeapp.com"),
+  title: "Checksafe — Client Screening • Masked Numbers • Solo Worker Safety",
   description:
-    "Zero-knowledge client ID screening, masked phone numbers, and automated cloud safety timers by CheckSafety Software Ltd.",
+    "Zero-knowledge client ID screening, masked phone numbers, and automated cloud safety timers by Checksafe Software Ltd.",
   manifest: "/manifest.json",
   icons: {
     icon: "/icon-192.svg",
     apple: "/icon-192.svg",
   },
   openGraph: {
-    title: "CheckSafety — Client Screening • Masked Numbers • Solo Worker Safety",
+    title: "Checksafe — Client Screening • Masked Numbers • Solo Worker Safety",
     description:
       "Verify clients before you attend, mask your personal mobile number, and run an automated cloud safety timer.",
-    url: "https://checksafetyapp.com",
-    siteName: "CheckSafety",
+    url: "https://checksafeapp.com",
+    siteName: "Checksafe",
     locale: "en_GB",
     type: "website",
   },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "CheckSafety",
+    title: "Checksafe",
   },
   formatDetection: {
     telephone: false,
@@ -63,7 +64,9 @@ export default function RootLayout({ children }) {
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
       </head>
       <body className="min-h-full bg-white text-[#111827] font-sans flex flex-col">
-        <ToastProvider>{children}</ToastProvider>
+        <SmoothScrollProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </SmoothScrollProvider>
       </body>
     </html>
   );

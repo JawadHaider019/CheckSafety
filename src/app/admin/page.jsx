@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Save, Users, Info } from "lucide-react";
-import { CheckSafetyLogo } from "@/components/ui/CheckSafetyLogo";
+import { CheckSafeLogo } from "@/components/ui/CheckSafeLogo";
 import { useToast } from "@/components/ui/ToastProvider";
 import { DEFAULT_APP_SETTINGS } from "@/lib/types";
 export default function OwnerAdminPage() {
@@ -49,7 +49,7 @@ export default function OwnerAdminPage() {
       <header className="editorial-glass sticky top-0 z-30">
         <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="inline-flex items-center">
-            <CheckSafetyLogo darkSurface={false} size="sm"/>
+            <CheckSafeLogo darkSurface={false} size="sm"/>
           </Link>
           <span className="text-xs text-slate-500 font-mono">Owner Admin Panel</span>
         </div>

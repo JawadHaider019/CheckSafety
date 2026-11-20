@@ -11,7 +11,7 @@ export function CheckSafeIcon({
   return (
     <img
       src={src}
-      alt="CheckSafety Shield"
+      alt="Checksafe Shield"
       className={`${className} object-contain inline-block shrink-0`}
       loading="eager"
     />
@@ -58,12 +58,12 @@ export function CheckSafeLogo({
       <div className="inline-flex items-center gap-2.5">
         <img
           src={src}
-          alt="CheckSafety"
+          alt="Checksafe"
           className={`${iconHeight} object-contain shrink-0`}
           loading="eager"
         />
         <span className={`font-black tracking-tight ${textSize} ${darkSurface ? "text-white" : "text-[#0B2545]"}`}>
-          Check<span className="text-[#00E08C]">Safety</span>
+          Check<span className="text-[#00E08C]">safe</span>
         </span>
       </div>
 
@@ -80,5 +80,3 @@ export function CheckSafeLogo({
   );
 }
 
-export const CheckSafetyLogo = CheckSafeLogo;
-export const CheckSafetyIcon = CheckSafeIcon;

@@ -5,7 +5,7 @@ import React from "react";
  */
 export function RotatingSecurityStamp({
   className = "w-28 h-28",
-  text = "CHECKSAFETY VERIFIED • BS 8484 ALIGNED • ZERO KNOWLEDGE • ",
+  text = "CHECKSAFE VERIFIED • LONE WORKER SENTINEL • ZERO KNOWLEDGE • ",
 }) {
   return (
     <div className={`relative flex items-center justify-center ${className}`}>
@@ -151,7 +151,7 @@ export function HealthcareCareScene({ className = "" }) {
           Independent Clinical Consultation
         </div>
         <p className="text-xs text-slate-200/80 mt-1 max-w-sm">
-          Silent duress PIN (9999) simulates smooth checkout while quietly dispatching GPS coordinates
+          Custom secret Duress Code simulates smooth checkout while quietly dispatching GPS coordinates
           to emergency on-call clinicians.
         </p>
       </div>

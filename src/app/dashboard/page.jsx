@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { MapPin, BatteryLow, Plus, Phone, MessageSquareWarning, Flag, RotateCcw, Loader2, AlertTriangle, Copy, PauseCircle, Timer, Shield, CreditCard, Smartphone, Clock, X, } from "lucide-react";
 import { useToast } from "@/components/ui/ToastProvider";
-import { CheckSafetyLogo } from "@/components/ui/CheckSafetyLogo";
+import { CheckSafeLogo } from "@/components/ui/CheckSafeLogo";
 import { buildVerifyUrl } from "@/lib/domains";
 import { HibernationModal } from "@/components/modals/HibernationModal";
 import { DEFAULT_APP_SETTINGS, } from "@/lib/types";
@@ -263,8 +263,8 @@ export default function WorkerDashboardPage() {
       {/* Top Header (Icon + text-only logo, no tagline) */}
       <header className="bg-[#111827] text-white sticky top-0 z-30">
         <div className="max-w-[390px] mx-auto px-4 h-14 flex items-center justify-between">
-          <Link href="/" aria-label="CheckSafety home" className="inline-flex items-center">
-            <CheckSafetyLogo darkSurface size="sm"/>
+          <Link href="/" aria-label="Checksafe home" className="inline-flex items-center">
+            <CheckSafeLogo darkSurface size="sm"/>
           </Link>
           <div className="flex items-center gap-2">
             <button type="button" onClick={() => setShowSosGuideModal(true)} className="px-2.5 py-1 rounded-full bg-white/10 text-[11px] font-semibold text-slate-200 hover:bg-white/20 cursor-pointer">
@@ -388,7 +388,7 @@ export default function WorkerDashboardPage() {
                   <label htmlFor="duress-code" className="block text-xs font-medium text-slate-700 mb-1">
                     Silent Duress Code
                   </label>
-                  <input id="duress-code" type="password" inputMode="numeric" value={duressCode} onChange={(e) => setDuressCode(e.target.value)} placeholder="e.g. 9999" className="w-full h-12 px-3 rounded-xl border border-slate-300 bg-[#F9FAFB] text-sm focus:outline-none focus:ring-2 focus:ring-[#111827]"/>
+                  <input id="duress-code" type="password" inputMode="numeric" value={duressCode} onChange={(e) => setDuressCode(e.target.value)} placeholder="e.g. 4-digit code" className="w-full h-12 px-3 rounded-xl border border-slate-300 bg-[#F9FAFB] text-sm focus:outline-none focus:ring-2 focus:ring-[#111827]"/>
                 </div>
               </div>
 

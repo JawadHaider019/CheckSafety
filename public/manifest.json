@@ -1,7 +1,7 @@
 {
-  "name": "CheckSafety",
-  "short_name": "CheckSafety",
-  "description": "Client screening, masked numbers, and solo worker safety by CheckSafety Software Ltd.",
+  "name": "Checksafe",
+  "short_name": "Checksafe",
+  "description": "Client screening, masked numbers, and solo worker safety by Checksafe Software Ltd.",
   "start_url": "/dashboard",
   "display": "standalone",
   "orientation": "portrait",
