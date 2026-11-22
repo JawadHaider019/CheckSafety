@@ -3,7 +3,7 @@ import React, { useMemo, useState } from "react";
 import { Loader2, Lock, LogOut, Info, RefreshCw, ArrowRight, Users, Moon, Building2, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { CheckSafeLogo } from "@/components/ui/CheckSafeLogo";
 import { useToast } from "@/components/ui/ToastProvider";
-import { AppHeader, SectionLabel } from "@/components/ui/AppShell";
+import { AppHeader, SectionLabel, Sheet, SheetHeader } from "@/components/ui/AppShell";
 import { DEFAULT_APP_SETTINGS } from "@/lib/types";
 
 const MOCK_COUNTS = { core: 0, pro: 0, elite: 0, hibernation: 0, agencySeats: 0 };
@@ -128,6 +128,7 @@ export default function OwnerAdminPage() {
   const [settings, setSettings] = useState(DEFAULT_APP_SETTINGS);
   const [migrateExisting, setMigrateExisting] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showSignOutModal, setShowSignOutModal] = useState(false);
 
   const changedKeys = useMemo(() => Object.keys(settings).filter((k) => settings[k] !== saved[k]), [settings, saved]);
   const priceChanged = changedKeys.some((k) => k.endsWith("_gbp"));
@@ -168,7 +169,7 @@ export default function OwnerAdminPage() {
         </span>
         <button
           type="button"
-          onClick={() => setAuthed(false)}
+          onClick={() => setShowSignOutModal(true)}
           className="cs-press h-9 px-3 rounded-full bg-slate-100 border border-slate-200 text-slate-600 hover:bg-slate-200 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
         >
           <LogOut className="w-3.5 h-3.5" />
@@ -369,6 +370,37 @@ export default function OwnerAdminPage() {
           </div>
         </div>
       </div>
+      <Sheet open={showSignOutModal} onClose={() => setShowSignOutModal(false)} labelledBy="owner-signout-title">
+        <SheetHeader
+          id="owner-signout-title"
+          eyebrow="Owner admin"
+          title="Sign out of owner panel?"
+          subtitle="Any unsaved price or landing copy changes will be discarded."
+          icon={LogOut}
+          onClose={() => setShowSignOutModal(false)}
+        />
+        <div className="space-y-2">
+          <button
+            type="button"
+            onClick={() => {
+              setShowSignOutModal(false);
+              setAuthed(false);
+              showToast("Signed out of owner admin.", "info");
+            }}
+            className="cs-press w-full min-h-[52px] rounded-full bg-[#0B2545] hover:bg-[#123461] text-white font-bold text-sm flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <LogOut className="w-4 h-4 text-[#00E08C]" />
+            <span>Confirm sign out</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowSignOutModal(false)}
+            className="cs-press w-full min-h-[48px] rounded-full text-sm font-semibold text-slate-600 hover:bg-slate-100 cursor-pointer"
+          >
+            Stay signed in
+          </button>
+        </div>
+      </Sheet>
     </div>
   );
 }

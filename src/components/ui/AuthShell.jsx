@@ -11,7 +11,7 @@ const PILLARS = [
 
 export function AuthShell({ eyebrow, title, subtitle, children, footer }) {
   return (
-    <div className="min-h-screen bg-[#F9FAFB] lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+    <div className="min-h-screen bg-[#F9FAFB] lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:h-screen lg:overflow-hidden">
       <aside className="hidden lg:flex navy-grid text-white relative overflow-hidden flex-col justify-between p-12 xl:p-16">
         <Link href="/" className="cs-rise inline-flex w-fit hover:opacity-90 transition-opacity">
           <CheckSafeLogo darkSurface size="md" />
@@ -45,7 +45,7 @@ export function AuthShell({ eyebrow, title, subtitle, children, footer }) {
         </p>
       </aside>
 
-      <main className="flex flex-col items-center justify-center px-4 py-10 sm:py-16 min-h-screen lg:min-h-0">
+      <main className="flex flex-col items-center justify-center px-4 py-10 sm:py-16 min-h-screen lg:min-h-0 lg:h-full lg:overflow-y-auto">
         <div className="w-full max-w-[420px]">
           <Link href="/" className="cs-rise lg:hidden flex justify-center mb-8">
             <CheckSafeLogo darkSurface={false} size="md" />

@@ -140,7 +140,7 @@ export default function SignupPage() {
         </>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-3.5">
         <fieldset>
           <legend className="text-xs font-semibold text-slate-700 mb-1.5">Plan</legend>
           <div className="grid grid-cols-4 gap-1 p-1 rounded-2xl bg-slate-100">
@@ -236,7 +236,7 @@ export default function SignupPage() {
           />
         </div>
 
-        <div className="pt-1 space-y-4">
+        <div className="pt-1 space-y-3 lg:space-y-2.5">
           <p className="text-[10px] font-mono font-bold tracking-[0.2em] uppercase text-slate-400">Safety contacts</p>
           <PhoneField
             id="signup-mobile"

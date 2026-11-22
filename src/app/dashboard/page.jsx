@@ -250,6 +250,7 @@ function WorkerDashboard() {
   const [verifyingRepeat, setVerifyingRepeat] = useState(false);
   const [showHibernationModal, setShowHibernationModal] = useState(false);
   const [showSosGuideModal, setShowSosGuideModal] = useState(false);
+  const [showSignOutModal, setShowSignOutModal] = useState(false);
   const [buyingPack, setBuyingPack] = useState(null);
 
   const timerSectionRef = useRef(null);
@@ -340,12 +341,6 @@ function WorkerDashboard() {
     sections.forEach(([, el]) => el && observer.observe(el));
     return () => observer.disconnect();
   }, []);
-
-  function handleUserCountryChange(code) {
-    setCountry(code);
-    setNewClientPhoneCountry(code);
-    setRepeatPhoneCountry(code);
-  }
 
   function selectPresetDuration(mins) {
     setDurationMins(mins);
@@ -620,18 +615,6 @@ function WorkerDashboard() {
       )}
 
       <AppHeader maxWidth="max-w-[390px] md:max-w-3xl lg:max-w-[1200px]">
-        <select
-          aria-label="Operating country"
-          value={country}
-          onChange={(e) => handleUserCountryChange(e.target.value)}
-          className="h-9 bg-slate-100 border border-slate-200 text-slate-800 text-xs font-semibold rounded-full px-2.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#0B2545]/20"
-        >
-          {COUNTRY_LIST.map((c) => (
-            <option key={c.code} value={c.code}>
-              {COUNTRY_FLAGS[c.code]} {c.code}
-            </option>
-          ))}
-        </select>
         <button
           type="button"
           onClick={() => setShowSosGuideModal(true)}
@@ -702,13 +685,10 @@ function WorkerDashboard() {
 
         {/* 1. Safety countdown */}
         <section ref={timerSectionRef} className="cs-rise cs-d1 app-card rounded-[28px] p-5 lg:p-7 scroll-mt-20 min-w-0">
-          <div className="flex items-start justify-between gap-3 mb-4">
-            <div>
-              <SectionLabel index="01">Safety timer</SectionLabel>
-              <h1 className="mt-1 text-2xl font-extrabold text-[#0B2545] tracking-tight">Safety Countdown</h1>
-            </div>
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <h1 className="text-2xl font-extrabold text-[#0B2545] tracking-tight">Safety Countdown</h1>
             {sessionState === "IDLE" && (
-              <span className="mt-1 text-[10px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-500">Ready</span>
+              <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-500">Ready</span>
             )}
           </div>
 
@@ -1042,8 +1022,7 @@ function WorkerDashboard() {
         <div className="space-y-4 lg:space-y-6 min-w-0">
         {/* 2. Trusted Client Vault */}
         <section ref={vaultSectionRef} className="cs-rise cs-d2 app-card rounded-[28px] p-5 lg:p-7 scroll-mt-20">
-          <SectionLabel index="02">Client vault</SectionLabel>
-          <h2 className="mt-1 text-2xl font-extrabold text-[#0B2545] tracking-tight">Trusted Client Vault</h2>
+          <h2 className="text-2xl font-extrabold text-[#0B2545] tracking-tight">Trusted Client Vault</h2>
           <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
             <Fingerprint className="w-3.5 h-3.5 text-emerald-700" />
             Encrypted fingerprints only · verified clients repeat at £0
@@ -1166,8 +1145,7 @@ function WorkerDashboard() {
 
         {/* 3. Checks & top-ups */}
         <section ref={creditsSectionRef} className="cs-rise cs-d3 app-card rounded-[28px] p-5 lg:p-7 scroll-mt-20">
-          <SectionLabel index="03">ID checks &amp; top-ups</SectionLabel>
-          <div className="mt-1 flex items-end justify-between gap-3">
+          <div className="flex items-end justify-between gap-3">
             <div>
               <h2 className="text-2xl font-extrabold text-[#0B2545] tracking-tight">ID Checks</h2>
               <p className="text-xs text-slate-500 mt-1">Single-use client verification links</p>
@@ -1232,37 +1210,37 @@ function WorkerDashboard() {
         </section>
         </div>
 
-        <section className="cs-rise cs-d4 lg:col-span-2 pt-1 pb-2 flex flex-wrap items-center justify-between gap-2">
+        <section className="cs-rise cs-d4 app-card rounded-[24px] p-3.5 sm:p-4 lg:col-span-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
           {ACCOUNT.isAgencyAdmin ? (
             <Link
               href="/agency"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-[#0B2545] py-2 transition"
+              className="cs-press min-h-[44px] px-4 rounded-xl bg-[#0B2545] hover:bg-[#123461] text-white text-xs font-bold inline-flex items-center justify-center gap-2 shadow-xs transition"
             >
-              <Users className="w-3.5 h-3.5" />
-              Manage team seats
+              <Users className="w-4 h-4 text-[#00E08C] shrink-0" />
+              <span>Manage team seats</span>
+              <ArrowRight className="w-3.5 h-3.5 text-[#00E08C] shrink-0" />
             </Link>
           ) : (
-            <span />
+            <span className="hidden sm:block" />
           )}
-          <button
-            type="button"
-            onClick={() => {
-              signOut();
-              showToast("Signed out.", "info");
-            }}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-[#0B2545] py-2 cursor-pointer transition"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            Sign out
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowHibernationModal(true)}
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-[#DC2626] py-2 cursor-pointer transition"
-          >
-            <PauseCircle className="w-3.5 h-3.5" />
-            Cancel subscription
-          </button>
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowSignOutModal(true)}
+              className="cs-press min-h-[44px] px-4 rounded-xl bg-slate-100 hover:bg-slate-200/80 border border-slate-200/80 text-xs font-bold text-[#0B2545] inline-flex items-center justify-center gap-1.5 cursor-pointer transition"
+            >
+              <LogOut className="w-3.5 h-3.5 shrink-0" />
+              <span>Sign out</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowHibernationModal(true)}
+              className="cs-press min-h-[44px] px-4 rounded-xl bg-red-50/70 hover:bg-red-100/80 border border-red-200 text-xs font-bold text-[#DC2626] inline-flex items-center justify-center gap-1.5 cursor-pointer transition"
+            >
+              <PauseCircle className="w-3.5 h-3.5 shrink-0" />
+              <span>Cancel subscription</span>
+            </button>
+          </div>
         </section>
       </main>
 
@@ -1504,6 +1482,47 @@ function WorkerDashboard() {
             </>
           )}
         </form>
+      </Sheet>
+
+      {/* Sign out confirmation */}
+      <Sheet open={showSignOutModal} onClose={() => setShowSignOutModal(false)} labelledBy="signout-title">
+        <SheetHeader
+          id="signout-title"
+          eyebrow="Account"
+          title="Sign out of Checksafe?"
+          subtitle="You will need to sign back in to start new timers or manage your Trusted Client Vault."
+          icon={LogOut}
+          onClose={() => setShowSignOutModal(false)}
+        />
+        {isLive && (
+          <div className="mb-4 p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-950 flex items-start gap-2.5 leading-relaxed">
+            <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+            <span>
+              <strong>Active timer running ({formatClock(secondsLeft)}):</strong> Your countdown continues in the London cloud even if you sign out, and your private SOS shortcut remains active.
+            </span>
+          </div>
+        )}
+        <div className="space-y-2">
+          <button
+            type="button"
+            onClick={() => {
+              setShowSignOutModal(false);
+              signOut();
+              showToast("Signed out.", "info");
+            }}
+            className="cs-press w-full min-h-[52px] rounded-full bg-[#0B2545] hover:bg-[#123461] text-white font-bold text-sm flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <LogOut className="w-4 h-4 text-[#00E08C]" />
+            <span>Confirm sign out</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowSignOutModal(false)}
+            className="cs-press w-full min-h-[48px] rounded-full text-sm font-semibold text-slate-600 hover:bg-slate-100 cursor-pointer"
+          >
+            Stay signed in
+          </button>
+        </div>
       </Sheet>
 
       <HibernationModal
