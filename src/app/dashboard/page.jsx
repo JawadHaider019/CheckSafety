@@ -26,6 +26,7 @@ import {
   Fingerprint,
   Link2,
   BellRing,
+  LogOut,
 } from "lucide-react";
 import { useToast } from "@/components/ui/ToastProvider";
 import { AppHeader, SectionLabel, Sheet, SheetHeader } from "@/components/ui/AppShell";
@@ -34,6 +35,8 @@ import { HibernationModal } from "@/components/modals/HibernationModal";
 import { DEFAULT_APP_SETTINGS } from "@/lib/types";
 import { COUNTRY_LIST, SUPPORTED_COUNTRIES, COUNTRY_FLAGS } from "@/lib/countries";
 import { useClientValue, useSearchString } from "@/lib/useClientSnapshot";
+import { RequireAuth } from "@/components/ui/RequireAuth";
+import { signOut } from "@/lib/demoAuth";
 
 function readGreeting() {
   const h = new Date().getHours();
@@ -187,6 +190,14 @@ function PhoneInput({ country, onCountry, value, onChange, label }) {
 }
 
 export default function WorkerDashboardPage() {
+  return (
+    <RequireAuth>
+      <WorkerDashboard />
+    </RequireAuth>
+  );
+}
+
+function WorkerDashboard() {
   const { showToast } = useToast();
   const settings = DEFAULT_APP_SETTINGS;
   const [activeTab, setActiveTab] = useState("timer");
@@ -589,7 +600,7 @@ export default function WorkerDashboardPage() {
   const activeTabIndex = tabs.findIndex((t) => t.tab === activeTab);
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] text-[#111827] pb-28 overflow-x-clip">
+    <div className="min-h-screen bg-[#F9FAFB] text-[#111827] pb-28 lg:pb-12 overflow-x-clip">
       <button
         type="button"
         onClick={handleCornerTap}
@@ -608,7 +619,7 @@ export default function WorkerDashboardPage() {
         </div>
       )}
 
-      <AppHeader>
+      <AppHeader maxWidth="max-w-[390px] md:max-w-3xl lg:max-w-[1200px]">
         <select
           aria-label="Operating country"
           value={country}
@@ -637,9 +648,9 @@ export default function WorkerDashboardPage() {
         </Link>
       </AppHeader>
 
-      <main className="max-w-[390px] mx-auto px-4 pt-5 space-y-4">
+      <main className="max-w-[390px] md:max-w-3xl lg:max-w-[1200px] mx-auto px-4 md:px-6 pt-5 lg:pt-8 grid gap-4 lg:gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] items-start">
         {billingStatus === "GRACE_PERIOD" && (
-          <div className="cs-rise bg-[#FEF08A] border border-amber-300 text-[#713F12] rounded-[22px] p-4 flex items-start gap-3">
+          <div className="cs-rise lg:col-span-2 bg-[#FEF08A] border border-amber-300 text-[#713F12] rounded-[22px] p-4 flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
             <div className="text-xs leading-relaxed min-w-0">
               <strong className="block text-sm font-bold">Payment failed · 7-day grace period</strong>
@@ -660,11 +671,11 @@ export default function WorkerDashboardPage() {
         )}
 
         {/* Account summary */}
-        <section className="cs-rise navy-grid text-white rounded-[28px] p-5 overflow-hidden">
-          <div className="flex items-start justify-between gap-3">
+        <section className="cs-rise navy-gradient text-white rounded-[28px] p-5 lg:p-7 overflow-hidden lg:col-span-2 lg:flex lg:items-center lg:justify-between lg:gap-10">
+          <div className="flex items-start justify-between gap-3 lg:flex-1 lg:items-center">
             <div>
               <p className="text-xs text-slate-300">{greeting}</p>
-              <p className="mt-0.5 text-xl font-extrabold tracking-tight">{ACCOUNT.plan} plan</p>
+              <p className="mt-0.5 text-xl lg:text-3xl font-extrabold tracking-tight">{ACCOUNT.plan} plan</p>
             </div>
             <span
               className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide ${
@@ -675,14 +686,14 @@ export default function WorkerDashboardPage() {
               {isLive ? "SESSION LIVE" : billingStatus === "GRACE_PERIOD" ? "GRACE PERIOD" : "PROTECTED"}
             </span>
           </div>
-          <div className="mt-5 grid grid-cols-3 gap-2">
+          <div className="mt-5 lg:mt-0 grid grid-cols-3 gap-2 lg:gap-3 lg:w-[480px] lg:shrink-0">
             {[
               { label: "Masked lines", value: activeLines.length },
               { label: "ID checks", value: tokens },
               { label: "Verified", value: verifiedClients.length },
             ].map(({ label, value }) => (
-              <div key={label} className="rounded-2xl bg-white/[0.07] border border-white/10 px-3 py-2.5">
-                <p className="text-xl font-black tabular-nums">{value}</p>
+              <div key={label} className="rounded-2xl bg-white/[0.07] border border-white/10 px-3 py-2.5 lg:px-4 lg:py-3.5">
+                <p className="text-xl lg:text-3xl font-black tabular-nums">{value}</p>
                 <p className="text-[10px] text-slate-300 mt-0.5">{label}</p>
               </div>
             ))}
@@ -690,7 +701,7 @@ export default function WorkerDashboardPage() {
         </section>
 
         {/* 1. Safety countdown */}
-        <section ref={timerSectionRef} className="cs-rise cs-d1 app-card rounded-[28px] p-5 scroll-mt-20">
+        <section ref={timerSectionRef} className="cs-rise cs-d1 app-card rounded-[28px] p-5 lg:p-7 scroll-mt-20 min-w-0">
           <div className="flex items-start justify-between gap-3 mb-4">
             <div>
               <SectionLabel index="01">Safety timer</SectionLabel>
@@ -1028,8 +1039,9 @@ export default function WorkerDashboardPage() {
           )}
         </section>
 
+        <div className="space-y-4 lg:space-y-6 min-w-0">
         {/* 2. Trusted Client Vault */}
-        <section ref={vaultSectionRef} className="cs-rise cs-d2 app-card rounded-[28px] p-5 scroll-mt-20">
+        <section ref={vaultSectionRef} className="cs-rise cs-d2 app-card rounded-[28px] p-5 lg:p-7 scroll-mt-20">
           <SectionLabel index="02">Client vault</SectionLabel>
           <h2 className="mt-1 text-2xl font-extrabold text-[#0B2545] tracking-tight">Trusted Client Vault</h2>
           <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
@@ -1153,7 +1165,7 @@ export default function WorkerDashboardPage() {
         </section>
 
         {/* 3. Checks & top-ups */}
-        <section ref={creditsSectionRef} className="cs-rise cs-d3 app-card rounded-[28px] p-5 scroll-mt-20">
+        <section ref={creditsSectionRef} className="cs-rise cs-d3 app-card rounded-[28px] p-5 lg:p-7 scroll-mt-20">
           <SectionLabel index="03">ID checks &amp; top-ups</SectionLabel>
           <div className="mt-1 flex items-end justify-between gap-3">
             <div>
@@ -1218,8 +1230,9 @@ export default function WorkerDashboardPage() {
             </div>
           </div>
         </section>
+        </div>
 
-        <section className="cs-rise cs-d4 pt-1 pb-2 flex items-center justify-between gap-2">
+        <section className="cs-rise cs-d4 lg:col-span-2 pt-1 pb-2 flex flex-wrap items-center justify-between gap-2">
           {ACCOUNT.isAgencyAdmin ? (
             <Link
               href="/agency"
@@ -1231,6 +1244,17 @@ export default function WorkerDashboardPage() {
           ) : (
             <span />
           )}
+          <button
+            type="button"
+            onClick={() => {
+              signOut();
+              showToast("Signed out.", "info");
+            }}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-[#0B2545] py-2 cursor-pointer transition"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            Sign out
+          </button>
           <button
             type="button"
             onClick={() => setShowHibernationModal(true)}
@@ -1245,7 +1269,7 @@ export default function WorkerDashboardPage() {
       {/* Bottom tab bar */}
       <nav
         aria-label="Dashboard sections"
-        className="fixed bottom-0 left-0 right-0 z-30 bg-white/90 backdrop-blur-md border-t border-slate-100 pb-[env(safe-area-inset-bottom)]"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/90 backdrop-blur-md border-t border-slate-100 pb-[env(safe-area-inset-bottom)]"
       >
         <div className="relative max-w-[390px] mx-auto px-4 h-[68px] grid grid-cols-3 items-center">
           <span

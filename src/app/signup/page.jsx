@@ -1,11 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2, Users, ArrowRight, Eye, EyeOff, Minus, Plus } from "lucide-react";
 import { COUNTRY_LIST, SUPPORTED_COUNTRIES, COUNTRY_FLAGS } from "@/lib/countries";
 import { DEFAULT_APP_SETTINGS } from "@/lib/types";
 import { useSearchString } from "@/lib/useClientSnapshot";
+import { startSession, useSession } from "@/lib/demoAuth";
 import { useToast } from "@/components/ui/ToastProvider";
 import { AuthShell, PrimaryButton } from "@/components/ui/AuthShell";
 
@@ -75,6 +76,11 @@ export default function SignupPage() {
   const { showToast } = useToast();
   const router = useRouter();
   const settings = DEFAULT_APP_SETTINGS;
+  const session = useSession();
+
+  useEffect(() => {
+    if (session.status === "in" && !loading) router.replace("/dashboard");
+  }, [session.status, loading, router]);
 
   const search = useSearchString();
   const [appliedSearch, setAppliedSearch] = useState("");
@@ -115,6 +121,7 @@ export default function SignupPage() {
     }
     setLoading(true);
     await new Promise((r) => setTimeout(r, 700));
+    startSession(email);
     showToast("Account created. Check your inbox to confirm your email.", "success");
     router.push("/dashboard");
   }

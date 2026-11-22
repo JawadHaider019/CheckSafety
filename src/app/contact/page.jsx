@@ -13,7 +13,7 @@ export const metadata = {
 const FAQS = [
   {
     q: "How quickly can a team get started?",
-    a: "The same day. Checksafe runs in the browser and installs to the home screen, so there's no app store step. An agency admin invites staff by email and each person sets up their own Safe Code and emergency contact.",
+    a: "The same day. Checksafe runs in the browser, so there's nothing to download. An agency admin invites staff by email and each person sets up their own Safe Code and emergency contact.",
   },
   {
     q: "Do clients need to download anything to be verified?",
@@ -121,8 +121,8 @@ export default function ContactPage() {
       </section>
 
       <section className="py-16 sm:py-28 bg-[#F8F7F5]">
-        <div className={`${WRAP} grid lg:grid-cols-[0.8fr_1.2fr] gap-10 lg:gap-20`}>
-          <div className="mk-reveal">
+        <div className={`${WRAP} grid lg:grid-cols-[0.8fr_1.2fr] gap-10 lg:gap-20 items-start`}>
+          <div className="mk-reveal lg:sticky lg:top-28">
             <Eyebrow>Before you write</Eyebrow>
             <h2 className={`${H2} mt-4`}>
               Common <Accent>questions.</Accent>

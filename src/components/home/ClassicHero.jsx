@@ -93,7 +93,7 @@ export function ClassicHero() {
                 ))}
               </div>
               <div className="text-[11px] font-bold text-white leading-tight">
-                <span>Zero-Install PWA</span>
+                <span>No app download</span>
                 <span className="text-[#00E08C] ml-1.5">• Lone Worker Protection</span>
               </div>
             </div>

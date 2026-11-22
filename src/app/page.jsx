@@ -87,7 +87,7 @@ const FAQS = [
   },
   {
     q: "Do I need to download an app?",
-    a: "No app store needed. Checksafe installs from your browser to your home screen on iPhone and Android, and runs full screen like a native app.",
+    a: "No. Checksafe works in your phone's browser on iPhone and Android, and on any computer. Just sign in, there's nothing to install.",
   },
   {
     q: "Can I pause instead of cancelling?",
@@ -348,7 +348,7 @@ function Safeguards() {
 
         <ul className="mk-stagger mt-12 sm:mt-16 grid grid-cols-1 md:grid-cols-6 gap-4 sm:gap-5">
           <Bento
-            className="md:col-span-3"
+            className="fx-auto md:col-span-3"
             wide
             dark
             title="Silent Duress Code"
@@ -370,7 +370,7 @@ function Safeguards() {
             </div>
           </Bento>
           <Bento
-            className="md:col-span-3"
+            className="fx-auto md:col-span-3"
             wide
             title="Fake low-battery screen"
             body="Triple-tap the top-left corner and your phone shows a dead battery. Your timer keeps running in the cloud."
@@ -618,7 +618,7 @@ function GetStarted() {
             </h2>
             <ul className="mk-stagger mt-8 space-y-4 text-base text-slate-300">
               {[
-                [Smartphone, "No app store: install from your browser to your home screen"],
+                [Smartphone, "Nothing to download: works in your phone's browser"],
                 [KeyRound, "Set your Safe Code and emergency contact in minutes"],
                 [Moon, "Cancel or switch to Hibernation Mode anytime"],
               ].map(([Icon, text]) => (
@@ -646,8 +646,8 @@ function Faq() {
   };
   return (
     <section id="faq" className="py-16 sm:py-28">
-      <div className={`${WRAP} grid lg:grid-cols-[0.8fr_1.2fr] gap-10 lg:gap-20`}>
-        <div className="mk-reveal">
+      <div className={`${WRAP} grid lg:grid-cols-[0.8fr_1.2fr] gap-10 lg:gap-20 items-start`}>
+        <div className="mk-reveal lg:sticky lg:top-28">
           <Eyebrow>FAQ</Eyebrow>
           <h2 className={`${H2} mt-4 text-[#0B2545]`}>
             Questions, <span className="mk-accent font-serif italic font-normal">answered.</span>

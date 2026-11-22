@@ -5,6 +5,7 @@ import { Users, UserPlus, UserX, X, Loader2, CheckCircle2, AlertTriangle, Shield
 import { useToast } from "@/components/ui/ToastProvider";
 import { AppHeader, SectionLabel, Sheet, SheetHeader } from "@/components/ui/AppShell";
 import { DEFAULT_APP_SETTINGS } from "@/lib/types";
+import { RequireAuth } from "@/components/ui/RequireAuth";
 
 const MIN_SEATS = 5;
 const SEAT_PRICE_GBP = DEFAULT_APP_SETTINGS.agency_seat_price_gbp;
@@ -40,6 +41,14 @@ function initials(name) {
 }
 
 export default function AgencyAdminPage() {
+  return (
+    <RequireAuth>
+      <AgencyAdmin />
+    </RequireAuth>
+  );
+}
+
+function AgencyAdmin() {
   const { showToast } = useToast();
   const [seats, setSeats] = useState(INITIAL_SEATS);
   const [showInviteModal, setShowInviteModal] = useState(false);

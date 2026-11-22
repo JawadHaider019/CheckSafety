@@ -529,6 +529,15 @@ img {
 .mk-faq[open] .mk-faq-icon { transform: rotate(45deg); }
 .mk-faq[open] .mk-faq-body { animation: cs-rise 420ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 
+@keyframes fx-wave {
+  0%, 45%, 100% { translate: 0 0; }
+  15% { translate: 0 -8px; }
+  30% { translate: 0 0; }
+}
+
+.fx-auto .fx-dot { animation: fx-wave 1.8s ease-in-out infinite; animation-delay: calc(var(--i, 0) * 120ms); }
+.fx-auto .fx-blink { animation: cs-blink 1.4s ease-in-out infinite; }
+
 /* Interactive cards: pointer tilt, cursor spotlight, lift (pointer vars set by CardFx) */
 [data-fx] {
   position: relative;

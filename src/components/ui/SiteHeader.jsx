@@ -1,9 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, Menu, X } from "lucide-react";
+import { ArrowUpRight, LayoutDashboard, LogOut, Menu, X } from "lucide-react";
+import { signOut, useSession } from "@/lib/demoAuth";
 import { CheckSafeLogo, CheckSafeIcon } from "@/components/ui/CheckSafeLogo";
-import { COUNTRY_LIST, COUNTRY_FLAGS } from "@/lib/countries";
 import { useClientValue } from "@/lib/useClientSnapshot";
 
 const readScrolled = () => window.scrollY > 8;
@@ -21,9 +21,9 @@ const NAV = [
   { id: "contact", label: "Contact", href: "/contact" },
 ];
 
-export function SiteHeader({ activePage = "", onCountryChange }) {
-  const [country, setCountry] = useState("GB");
+export function SiteHeader({ activePage = "" }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const signedIn = useSession().status === "in";
   const scrolled = useClientValue(readScrolled, false, subscribeScroll);
 
   useEffect(() => {
@@ -38,27 +38,6 @@ export function SiteHeader({ activePage = "", onCountryChange }) {
       window.removeEventListener("keydown", onKey);
     };
   }, [menuOpen]);
-
-  function handleCountry(code) {
-    setCountry(code);
-    onCountryChange?.(code);
-  }
-
-  const countrySelect = (id, extra = "") => (
-    <select
-      id={id}
-      value={country}
-      aria-label="Operating country"
-      onChange={(e) => handleCountry(e.target.value)}
-      className={`h-9 rounded-full bg-slate-100/80 hover:bg-slate-100 border border-slate-200/80 text-slate-700 text-xs font-semibold px-2.5 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0B2545]/30 transition ${extra}`}
-    >
-      {COUNTRY_LIST.map((c) => (
-        <option key={c.code} value={c.code}>
-          {COUNTRY_FLAGS[c.code]} {c.code}
-        </option>
-      ))}
-    </select>
-  );
 
   return (
     <header
@@ -98,18 +77,29 @@ export function SiteHeader({ activePage = "", onCountryChange }) {
         </nav>
 
         <div className="flex items-center gap-2 shrink-0">
-          {countrySelect("country-select-nav", "hidden md:block")}
-          <Link href="/login" className="hidden sm:inline-flex px-3 py-2 text-[13px] font-semibold text-slate-600 hover:text-[#0B2545] transition">
-            Sign in
-          </Link>
-          <Link
-            href={`/signup?country=${country}`}
-            className="cs-press group inline-flex items-center gap-1.5 h-10 pl-4 pr-3 rounded-full bg-[#0B2545] hover:bg-[#123461] text-white text-[13px] font-semibold shadow-[0_8px_20px_-10px_rgba(11,37,69,0.7)]"
-          >
-            <span className="sm:hidden">Get protected</span>
-            <span className="hidden sm:inline">Start protection</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-[#00E08C] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </Link>
+          {signedIn ? (
+            <Link
+              href="/dashboard"
+              className="cs-press group inline-flex items-center gap-2 h-10 pl-3 pr-4 rounded-full bg-[#0B2545] hover:bg-[#123461] text-white text-[13px] font-semibold shadow-[0_8px_20px_-10px_rgba(11,37,69,0.7)]"
+            >
+              <LayoutDashboard className="w-4 h-4 text-[#00E08C]" />
+              Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link href="/login" className="hidden sm:inline-flex px-3 py-2 text-[13px] font-semibold text-slate-600 hover:text-[#0B2545] transition">
+                Sign in
+              </Link>
+              <Link
+                href="/signup"
+                className="cs-press group inline-flex items-center gap-1.5 h-10 pl-4 pr-3 rounded-full bg-[#0B2545] hover:bg-[#123461] text-white text-[13px] font-semibold shadow-[0_8px_20px_-10px_rgba(11,37,69,0.7)]"
+              >
+                <span className="sm:hidden">Get protected</span>
+                <span className="hidden sm:inline">Start protection</span>
+                <ArrowUpRight className="w-3.5 h-3.5 text-[#00E08C] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </Link>
+            </>
+          )}
           <button
             type="button"
             onClick={() => setMenuOpen((v) => !v)}
@@ -141,27 +131,45 @@ export function SiteHeader({ activePage = "", onCountryChange }) {
                 <ArrowUpRight className="w-5 h-5 text-slate-300" />
               </Link>
             ))}
-            <div className="cs-rise cs-d5 mt-8 flex items-center gap-3">
-              <label htmlFor="country-select-mobile" className="text-sm font-medium text-slate-500">
-                Country
-              </label>
-              {countrySelect("country-select-mobile")}
-            </div>
-            <div className="cs-rise cs-d6 mt-6 grid grid-cols-2 gap-3">
-              <Link
-                href="/login"
-                onClick={() => setMenuOpen(false)}
-                className="cs-press h-12 rounded-full border border-slate-200 flex items-center justify-center text-sm font-semibold text-[#0B2545]"
-              >
-                Sign in
-              </Link>
-              <Link
-                href={`/signup?country=${country}`}
-                onClick={() => setMenuOpen(false)}
-                className="cs-press h-12 rounded-full bg-[#0B2545] text-white flex items-center justify-center gap-1.5 text-sm font-semibold"
-              >
-                Start protection <ArrowUpRight className="w-4 h-4 text-[#00E08C]" />
-              </Link>
+            <div className="cs-rise cs-d6 mt-8 grid grid-cols-2 gap-3">
+              {signedIn ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      signOut();
+                      setMenuOpen(false);
+                    }}
+                    className="cs-press h-12 rounded-full border border-slate-200 flex items-center justify-center gap-1.5 text-sm font-semibold text-[#0B2545] cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4" /> Sign out
+                  </button>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMenuOpen(false)}
+                    className="cs-press h-12 rounded-full bg-[#0B2545] text-white flex items-center justify-center gap-1.5 text-sm font-semibold"
+                  >
+                    <LayoutDashboard className="w-4 h-4 text-[#00E08C]" /> Dashboard
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={() => setMenuOpen(false)}
+                    className="cs-press h-12 rounded-full border border-slate-200 flex items-center justify-center text-sm font-semibold text-[#0B2545]"
+                  >
+                    Sign in
+                  </Link>
+                  <Link
+                    href="/signup"
+                    onClick={() => setMenuOpen(false)}
+                    className="cs-press h-12 rounded-full bg-[#0B2545] text-white flex items-center justify-center gap-1.5 text-sm font-semibold"
+                  >
+                    Start protection <ArrowUpRight className="w-4 h-4 text-[#00E08C]" />
+                  </Link>
+                </>
+              )}
             </div>
           </nav>
         </div>

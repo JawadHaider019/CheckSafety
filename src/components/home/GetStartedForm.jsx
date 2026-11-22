@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { COUNTRY_LIST, COUNTRY_FLAGS } from "@/lib/countries";
+import { isLoggedIn } from "@/lib/demoAuth";
 
 const field =
   "w-full h-14 px-4 rounded-2xl bg-white/[0.06] border border-white/15 text-white text-[15px] placeholder:text-slate-400 focus:outline-none focus:border-[#00E08C] focus:bg-white/[0.09] focus:ring-4 focus:ring-[#00E08C]/15 transition";
@@ -17,6 +18,10 @@ export function GetStartedForm({ plans }) {
   function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
+    if (isLoggedIn()) {
+      router.push("/dashboard");
+      return;
+    }
     const params = new URLSearchParams({ email: email.trim(), country, plan });
     router.push(`/signup?${params}`);
   }

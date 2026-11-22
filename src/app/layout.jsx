@@ -3,6 +3,7 @@ import "./globals.css";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 import { SmoothScrollProvider } from "@/components/ui/SmoothScrollProvider";
 import { CardFx } from "@/components/ui/CardFx";
+import { AuthLinks } from "@/components/ui/AuthLinks";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -31,7 +32,6 @@ export const metadata = {
   title: "Checksafe — Client Screening • Masked Numbers • Solo Worker Safety",
   description:
     "Zero-knowledge client ID screening, masked phone numbers, and automated cloud safety timers by Checksafe Software Ltd.",
-  manifest: "/manifest.json",
   icons: {
     icon: "/icon-192.svg",
     apple: "/icon-192.svg",
@@ -45,11 +45,6 @@ export const metadata = {
     locale: "en_GB",
     type: "website",
   },
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "Checksafe",
-  },
   formatDetection: {
     telephone: false,
   },
@@ -58,8 +53,6 @@ export const metadata = {
 export const viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   themeColor: "#FFFFFF",
   viewportFit: "cover",
 };
@@ -78,6 +71,7 @@ export default function RootLayout({ children }) {
         <SmoothScrollProvider>
           <ToastProvider>{children}</ToastProvider>
           <CardFx />
+          <AuthLinks />
         </SmoothScrollProvider>
       </body>
     </html>

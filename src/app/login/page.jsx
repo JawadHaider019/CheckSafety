@@ -1,25 +1,43 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Loader2, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Loader2, Eye, EyeOff, ArrowRight, AlertCircle, KeyRound } from "lucide-react";
 import { useToast } from "@/components/ui/ToastProvider";
 import { AuthShell, PrimaryButton } from "@/components/ui/AuthShell";
+import { DEMO_USER, safeNext, signIn, useSession } from "@/lib/demoAuth";
+import { useSearchString } from "@/lib/useClientSnapshot";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [shake, setShake] = useState(false);
   const { showToast } = useToast();
   const router = useRouter();
+  const session = useSession();
+  const next = safeNext(new URLSearchParams(useSearchString()).get("next"));
+
+  useEffect(() => {
+    if (session.status === "in" && !loading) router.replace(next);
+  }, [session.status, loading, next, router]);
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setError("");
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 600));
+    await new Promise((r) => setTimeout(r, 500));
+    if (!signIn(email, password)) {
+      setLoading(false);
+      setError("That email and password don't match an account.");
+      setShake(true);
+      setTimeout(() => setShake(false), 400);
+      return;
+    }
     showToast("Signed in to your worker console.", "success");
-    router.push("/dashboard");
+    router.push(next);
   }
 
   return (
@@ -36,7 +54,15 @@ export default function LoginPage() {
         </>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="mb-5 flex items-start gap-3 p-3.5 rounded-2xl bg-[#F8F7F5] border border-slate-200 text-xs text-slate-600">
+        <KeyRound className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+        <p>
+          Demo account: <strong className="font-mono text-[#0B2545]">{DEMO_USER.email}</strong> · password{" "}
+          <strong className="font-mono text-[#0B2545]">{DEMO_USER.password}</strong>
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className={`space-y-4 ${shake ? "cs-shake" : ""}`} noValidate>
         <div>
           <label htmlFor="login-email" className="block text-xs font-semibold text-slate-700 mb-1.5">
             Email address
@@ -47,9 +73,13 @@ export default function LoginPage() {
             required
             autoComplete="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setError("");
+            }}
             placeholder="alex@example.co.uk"
-            className="cs-input"
+            aria-invalid={!!error}
+            className={`cs-input ${error ? "!border-[#DC2626]" : ""}`}
           />
         </div>
 
@@ -69,9 +99,14 @@ export default function LoginPage() {
               required
               autoComplete="current-password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setError("");
+              }}
               placeholder="••••••••"
-              className="cs-input pr-12"
+              aria-invalid={!!error}
+              aria-describedby={error ? "login-error" : undefined}
+              className={`cs-input pr-12 ${error ? "!border-[#DC2626]" : ""}`}
             />
             <button
               type="button"
@@ -84,7 +119,14 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <PrimaryButton type="submit" loading={loading} className="!mt-6">
+        {error && (
+          <p id="login-error" role="alert" className="cs-rise flex items-center gap-2 text-sm font-medium text-[#DC2626]">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            {error}
+          </p>
+        )}
+
+        <PrimaryButton type="submit" loading={loading || !email || !password} className="!mt-6">
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
