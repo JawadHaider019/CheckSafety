@@ -1,6 +1,17 @@
+export const COUNTRY_FLAGS = {
+  GB: "🇬🇧",
+  IE: "🇮🇪",
+  US: "🇺🇸",
+  CA: "🇨🇦",
+  AU: "🇦🇺",
+  NZ: "🇳🇿",
+  DE: "🇩🇪",
+};
+
 export const SUPPORTED_COUNTRIES = {
   GB: {
     code: "GB",
+    flag: "🇬🇧",
     name: "United Kingdom",
     currency: "GBP",
     symbol: "£",
@@ -8,10 +19,11 @@ export const SUPPORTED_COUNTRIES = {
     emergencyNumber: "999",
     emergencyInstruction:
       "Call 999 (or 112) immediately and ask for Police. Share the appointment address above.",
-    phonePlaceholder: "+44 7700 900123",
+    phonePlaceholder: "7700 900123",
   },
   IE: {
     code: "IE",
+    flag: "🇮🇪",
     name: "Ireland",
     currency: "EUR",
     symbol: "€",
@@ -19,10 +31,11 @@ export const SUPPORTED_COUNTRIES = {
     emergencyNumber: "999 / 112",
     emergencyInstruction:
       "Call 999 or 112 immediately and request An Garda Síochána. Share the appointment address above.",
-    phonePlaceholder: "+353 87 123 4567",
+    phonePlaceholder: "87 123 4567",
   },
   US: {
     code: "US",
+    flag: "🇺🇸",
     name: "United States",
     currency: "USD",
     symbol: "$",
@@ -30,10 +43,11 @@ export const SUPPORTED_COUNTRIES = {
     emergencyNumber: "911",
     emergencyInstruction:
       "Call 911 immediately and request local police dispatch to the appointment address above.",
-    phonePlaceholder: "+1 555 234 5678",
+    phonePlaceholder: "555 234 5678",
   },
   CA: {
     code: "CA",
+    flag: "🇨🇦",
     name: "Canada",
     currency: "CAD",
     symbol: "CA$",
@@ -41,10 +55,11 @@ export const SUPPORTED_COUNTRIES = {
     emergencyNumber: "911",
     emergencyInstruction:
       "Call 911 immediately and request police dispatch to the appointment address above.",
-    phonePlaceholder: "+1 416 555 0199",
+    phonePlaceholder: "416 555 0199",
   },
   AU: {
     code: "AU",
+    flag: "🇦🇺",
     name: "Australia",
     currency: "AUD",
     symbol: "A$",
@@ -52,10 +67,11 @@ export const SUPPORTED_COUNTRIES = {
     emergencyNumber: "000",
     emergencyInstruction:
       "Call 000 immediately and request Police. Share the appointment address above.",
-    phonePlaceholder: "+61 412 345 678",
+    phonePlaceholder: "412 345 678",
   },
   NZ: {
     code: "NZ",
+    flag: "🇳🇿",
     name: "New Zealand",
     currency: "NZD",
     symbol: "NZ$",
@@ -63,10 +79,11 @@ export const SUPPORTED_COUNTRIES = {
     emergencyNumber: "111",
     emergencyInstruction:
       "Call 111 immediately and request Police. Share the appointment address above.",
-    phonePlaceholder: "+64 21 123 4567",
+    phonePlaceholder: "21 123 4567",
   },
   DE: {
     code: "DE",
+    flag: "🇩🇪",
     name: "Germany",
     currency: "EUR",
     symbol: "€",
@@ -74,7 +91,7 @@ export const SUPPORTED_COUNTRIES = {
     emergencyNumber: "110 / 112",
     emergencyInstruction:
       "Call 110 (Polizei) or 112 immediately and share the appointment address above.",
-    phonePlaceholder: "+49 170 1234567",
+    phonePlaceholder: "170 1234567",
   },
 };
 

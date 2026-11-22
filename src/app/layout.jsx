@@ -1,7 +1,8 @@
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 import { SmoothScrollProvider } from "@/components/ui/SmoothScrollProvider";
+import { CardFx } from "@/components/ui/CardFx";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -13,6 +14,16 @@ const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
   display: "swap",
+  preload: false,
+});
+
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument",
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  display: "swap",
+  preload: false,
 });
 
 export const metadata = {
@@ -57,7 +68,7 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en-GB"
-      className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${jetbrainsMono.variable} ${instrumentSerif.variable} h-full antialiased`}
     >
       <head>
         <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
@@ -66,6 +77,7 @@ export default function RootLayout({ children }) {
       <body className="min-h-full bg-white text-[#111827] font-sans flex flex-col">
         <SmoothScrollProvider>
           <ToastProvider>{children}</ToastProvider>
+          <CardFx />
         </SmoothScrollProvider>
       </body>
     </html>

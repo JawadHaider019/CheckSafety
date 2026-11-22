@@ -1,661 +1,1497 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { MapPin, BatteryLow, Plus, Phone, MessageSquareWarning, Flag, RotateCcw, Loader2, AlertTriangle, Copy, PauseCircle, Timer, Shield, CreditCard, Smartphone, Clock, X, } from "lucide-react";
+import {
+  MapPin,
+  BatteryLow,
+  Plus,
+  Phone,
+  MessageSquareWarning,
+  Flag,
+  RotateCcw,
+  Loader2,
+  AlertTriangle,
+  Copy,
+  PauseCircle,
+  Timer,
+  Shield,
+  CreditCard,
+  Smartphone,
+  Clock,
+  CheckCircle2,
+  Lock,
+  Undo2,
+  Users,
+  ArrowRight,
+  Fingerprint,
+  Link2,
+  BellRing,
+} from "lucide-react";
 import { useToast } from "@/components/ui/ToastProvider";
-import { CheckSafeLogo } from "@/components/ui/CheckSafeLogo";
+import { AppHeader, SectionLabel, Sheet, SheetHeader } from "@/components/ui/AppShell";
 import { buildVerifyUrl } from "@/lib/domains";
 import { HibernationModal } from "@/components/modals/HibernationModal";
-import { DEFAULT_APP_SETTINGS, } from "@/lib/types";
+import { DEFAULT_APP_SETTINGS } from "@/lib/types";
+import { COUNTRY_LIST, SUPPORTED_COUNTRIES, COUNTRY_FLAGS } from "@/lib/countries";
+import { useClientValue, useSearchString } from "@/lib/useClientSnapshot";
+
+function readGreeting() {
+  const h = new Date().getHours();
+  return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+}
+
+const ACCOUNT = { plan: "Pro", isAgencyAdmin: true };
+const GRACE_WINDOW_SECS = 300;
+const REPORT_CATEGORIES = ["Severe Safety / Conduct Breach", "Non-Payment / Fraud", "Minor Late Cancellation"];
+
 const INITIAL_PROXY_NUMBERS = [
-    {
-        id: "proxy-1",
-        User_ID: "demo-user",
-        Twilio_Number: "+44 7700 900412",
-        Country_Code: "GB",
-        Assigned_Order: 1,
-        Status: "ACTIVE",
-    },
-    {
-        id: "proxy-2",
-        User_ID: "demo-user",
-        Twilio_Number: "+44 7700 900889",
-        Country_Code: "GB",
-        Assigned_Order: 2,
-        Status: "ACTIVE",
-    },
+  { id: "proxy-1", User_ID: "demo-user", Twilio_Number: "+44 7700 900412", Country_Code: "GB", Assigned_Order: 1, Status: "ACTIVE" },
+  { id: "proxy-2", User_ID: "demo-user", Twilio_Number: "+44 7700 900889", Country_Code: "GB", Assigned_Order: 2, Status: "ACTIVE" },
 ];
+
 const INITIAL_VAULT = [
-    {
-        id: "tok-1",
-        Provider_ID: "demo-user",
-        Client_Alias_Name: "Kensington Flat Viewing — J.M.",
-        Client_Phone_Hashed: "demo-hash-1",
-        SHA256_Fingerprint: "fp_9f8a2c11d4e7",
-        Global_Verify_Status: "ACTIVE",
-        Link_Used_Status: "USED",
-        created_at: "2026-11-18T10:15:00Z",
-    },
-    {
-        id: "tok-2",
-        Provider_ID: "demo-user",
-        Client_Alias_Name: "Chelsea A-Level Tuition — R.S.",
-        Client_Phone_Hashed: "demo-hash-2",
-        SHA256_Fingerprint: "fp_4b12e900a1c3",
-        Global_Verify_Status: "PENDING",
-        Link_Used_Status: "UNUSED",
-        created_at: "2026-11-19T08:30:00Z",
-    },
+  {
+    id: "tok-1",
+    Client_Alias_Name: "Kensington Flat Viewing — J.M.",
+    SHA256_Fingerprint: "fp_9f8a2c11d4e7",
+    Global_Verify_Status: "ACTIVE",
+    Link_Used_Status: "USED",
+    reportLocked: false,
+  },
+  {
+    id: "tok-2",
+    Client_Alias_Name: "Soho Evening Viewing — K.T.",
+    SHA256_Fingerprint: "fp_7c31b804e9d2",
+    Global_Verify_Status: "FLAGGED / HIGH RISK",
+    Link_Used_Status: "USED",
+    reportCategory: "Severe Safety / Conduct Breach",
+    reportLocked: true,
+  },
+  {
+    id: "tok-3",
+    Client_Alias_Name: "Chelsea A-Level Tuition — R.S.",
+    SHA256_Fingerprint: "",
+    Global_Verify_Status: "PENDING",
+    Link_Used_Status: "UNUSED",
+    reportLocked: false,
+  },
 ];
+
+function formatClock(totalSecs) {
+  const h = Math.floor(totalSecs / 3600);
+  const m = String(Math.floor((totalSecs % 3600) / 60)).padStart(2, "0");
+  const s = String(totalSecs % 60).padStart(2, "0");
+  return h > 0 ? `${h}:${m}:${s}` : `${m}:${s}`;
+}
+
+function formatDurationLabel(mins) {
+  if (!mins || mins < 30) return "Min 30m";
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  if (h === 0) return `${m} min`;
+  if (m === 0) return `${h} h`;
+  return `${h} h ${m} min`;
+}
+
+function timeOfDay(d) {
+  return d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+}
+
+function CountdownRing({ progress, color, children }) {
+  const r = 100;
+  const c = 2 * Math.PI * r;
+  return (
+    <div className="relative w-[232px] h-[232px] mx-auto">
+      <svg viewBox="0 0 232 232" className="w-full h-full -rotate-90" aria-hidden="true">
+        <circle cx="116" cy="116" r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="10" />
+        <circle
+          className="cs-ring-track"
+          cx="116"
+          cy="116"
+          r={r}
+          fill="none"
+          stroke={color}
+          strokeWidth="10"
+          strokeLinecap="round"
+          strokeDasharray={c}
+          strokeDashoffset={c * (1 - progress)}
+          style={{ filter: `drop-shadow(0 0 8px ${color}66)` }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center">{children}</div>
+    </div>
+  );
+}
+
+function StageTracker({ stage }) {
+  const steps = ["Timer", "Warning SMS", "5 min grace", "Contact alerted"];
+  return (
+    <ol className="grid grid-cols-4 gap-1.5" aria-label="Alert stages">
+      {steps.map((label, i) => {
+        const done = i < stage;
+        const active = i === stage;
+        return (
+          <li key={label} className="min-w-0">
+            <span
+              className={`block h-1 rounded-full transition-colors duration-500 ${
+                done ? "bg-[#00E08C]" : active ? (i >= 1 ? "bg-amber-400" : "bg-white") : "bg-white/15"
+              }`}
+            />
+            <span className={`mt-1.5 block text-[9px] font-semibold truncate ${active ? "text-white" : "text-slate-400"}`}>
+              {label}
+            </span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+function FieldLabel({ htmlFor, children, aside }) {
+  return (
+    <div className="flex items-center justify-between mb-1.5">
+      <label htmlFor={htmlFor} className="text-xs font-semibold text-slate-700">
+        {children}
+      </label>
+      {aside}
+    </div>
+  );
+}
+
+function PhoneInput({ country, onCountry, value, onChange, label }) {
+  return (
+    <div className="flex gap-2">
+      <select
+        aria-label={`${label} country code`}
+        value={country}
+        onChange={(e) => onCountry(e.target.value)}
+        className="cs-input !w-auto !px-2.5 text-xs font-semibold shrink-0 cursor-pointer"
+      >
+        {COUNTRY_LIST.map((c) => (
+          <option key={c.code} value={c.code}>
+            {COUNTRY_FLAGS[c.code]} {c.dialCode}
+          </option>
+        ))}
+      </select>
+      <input
+        type="tel"
+        required
+        aria-label={label}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={(SUPPORTED_COUNTRIES[country] || SUPPORTED_COUNTRIES.GB).phonePlaceholder}
+        className="cs-input flex-1 min-w-0"
+      />
+    </div>
+  );
+}
+
 export default function WorkerDashboardPage() {
-    const { showToast } = useToast();
-    const [settings, setSettings] = useState(DEFAULT_APP_SETTINGS);
-    const [activeTab, setActiveTab] = useState("timer");
-    // Worker state
-    const [billingStatus, setBillingStatus] = useState("ACTIVE");
-    const [tokens, setTokens] = useState(3);
-    const [proxyNumbers, setProxyNumbers] = useState(INITIAL_PROXY_NUMBERS);
-    const [selectedProxy, setSelectedProxy] = useState(INITIAL_PROXY_NUMBERS[0].Twilio_Number);
-    const [vault, setVault] = useState(INITIAL_VAULT);
-    // Safety Timer state
-    const [selectedClientId, setSelectedClientId] = useState("");
-    const [address, setAddress] = useState("");
-    const [locating, setLocating] = useState(false);
-    const [durationMins, setDurationMins] = useState(60);
-    const [totalSessionSecs, setTotalSessionSecs] = useState(3600);
-    const [safeCode, setSafeCode] = useState("");
-    const [duressCode, setDuressCode] = useState("");
-    const [sessionState, setSessionState] = useState("IDLE");
-    const [secondsLeft, setSecondsLeft] = useState(0);
-    const [codeInput, setCodeInput] = useState("");
-    const [startingSession, setStartingSession] = useState(false);
-    // Fake low-battery disguise (triple-tap top-left corner)
-    const [lowBatteryMode, setLowBatteryMode] = useState(false);
-    const tapTimestamps = useRef([]);
-    // Modals
-    const [showCreateLinkModal, setShowCreateLinkModal] = useState(false);
-    const [newAlias, setNewAlias] = useState("");
-    const [newClientPhone, setNewClientPhone] = useState("");
-    const [generatedVerifyUrl, setGeneratedVerifyUrl] = useState(null);
-    const [reportTarget, setReportTarget] = useState(null);
-    const [reportCategory, setReportCategory] = useState("Severe Safety / Conduct Breach");
-    const [repeatTarget, setRepeatTarget] = useState(null);
-    const [repeatPhone, setRepeatPhone] = useState("");
-    const [showHibernationModal, setShowHibernationModal] = useState(false);
-    const [showSosGuideModal, setShowSosGuideModal] = useState(false);
-    const timerSectionRef = useRef(null);
-    const vaultSectionRef = useRef(null);
-    const creditsSectionRef = useRef(null);
-    useEffect(() => {
-        fetch("/api/settings")
-            .then((r) => (r.ok ? r.json() : null))
-            .then((data) => {
-            if (data)
-                setSettings(data);
-        })
-            .catch(() => { });
-    }, []);
-    // Countdown tick
-    useEffect(() => {
-        if (sessionState !== "RUNNING")
-            return;
-        const interval = setInterval(() => {
-            setSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0));
-        }, 1000);
-        return () => clearInterval(interval);
-    }, [sessionState]);
-    function jumpToTab(tab) {
-        setActiveTab(tab);
-        const target = tab === "timer"
-            ? timerSectionRef.current
-            : tab === "vault"
-                ? vaultSectionRef.current
-                : creditsSectionRef.current;
-        target?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-    function handleCornerTap() {
-        const now = Date.now();
-        tapTimestamps.current = [...tapTimestamps.current.filter((t) => now - t < 700), now];
-        if (tapTimestamps.current.length >= 3) {
-            tapTimestamps.current = [];
-            setLowBatteryMode((prev) => !prev);
-        }
-    }
-    function handleGeolocate() {
-        if (!navigator.geolocation) {
-            showToast("Geolocation is not supported on this device.", "error");
-            return;
-        }
-        setLocating(true);
-        navigator.geolocation.getCurrentPosition((pos) => {
-            const coords = `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
-            setAddress(`GPS: ${coords}`);
-            setLocating(false);
-            showToast("Current location added to appointment address.", "success");
-        }, () => {
-            setLocating(false);
-            showToast("Location permission denied. Please enter the address manually.", "error");
-        }, { enableHighAccuracy: true, timeout: 8000 });
-    }
-    async function handleStartSession(e) {
-        e.preventDefault();
-        if (!address.trim()) {
-            showToast("Please enter the appointment address.", "error");
-            return;
-        }
-        if (durationMins < 30 || durationMins > 240) {
-            showToast("Duration must be between 30 minutes and 4 hours (240 mins).", "error");
-            return;
-        }
-        if (!safeCode.trim() || !duressCode.trim() || safeCode.trim() === duressCode.trim()) {
-            showToast("Safe Code and Silent Duress Code must be set and different.", "error");
-            return;
-        }
-        setStartingSession(true);
-        try {
-            await new Promise((r) => setTimeout(r, 350));
-            const secs = durationMins * 60;
-            setTotalSessionSecs(secs);
-            setSecondsLeft(secs);
-            setSessionState("RUNNING");
-            showToast(`Safety timer running on ${selectedProxy}.`, "success");
-        }
-        finally {
-            setStartingSession(false);
-        }
-    }
-    function handleExtend15() {
-        const maxSecs = 240 * 60;
-        setSecondsLeft((prev) => {
-            const next = Math.min(prev + 15 * 60, maxSecs);
-            setTotalSessionSecs((t) => Math.max(t, next));
-            return next;
-        });
-        showToast("Safety timer extended by 15 minutes.", "info");
-    }
-    function handleCheckCode(e) {
-        e.preventDefault();
-        const entered = codeInput.trim();
-        if (!entered)
-            return;
-        if (entered === duressCode.trim()) {
-            setSessionState("DURESS");
-            setCodeInput("");
-            // Confirmation intentionally looks calm/normal so an observer sees nothing unusual
-            showToast("Session closed safely.", "success");
-            return;
-        }
-        if (entered === safeCode.trim()) {
-            setSessionState("Closed Safely");
-            setCodeInput("");
-            showToast("Session closed safely. Client number deleted from vault.", "success");
-            return;
-        }
-        showToast("Code not recognised. Check your Safe Code.", "error");
-    }
-    function handleCreateLink(e) {
-        e.preventDefault();
-        if (tokens <= 0) {
-            showToast("You have 0 verification tokens. Please top up first.", "error");
-            return;
-        }
-        const tokenSlug = Math.random().toString(36).slice(2, 10);
-        const newEntry = {
-            id: `tok-${Date.now()}`,
-            Provider_ID: "demo-user",
-            Client_Alias_Name: newAlias.trim() || "New Client",
-            Client_Phone_Hashed: `hmac_${newClientPhone.replace(/\D/g, "")}`,
-            SHA256_Fingerprint: "",
-            Global_Verify_Status: "PENDING",
-            Link_Used_Status: "UNUSED",
-            created_at: new Date().toISOString(),
-        };
-        setVault((prev) => [newEntry, ...prev]);
-        setGeneratedVerifyUrl(buildVerifyUrl(tokenSlug));
-        setNewAlias("");
-        setNewClientPhone("");
-        showToast("Single-use Client ID link created.", "success");
-    }
-    function handleTopUp(amount, price) {
-        setTokens((prev) => prev + amount);
-        showToast(`Added ${amount} verification checks (£${price}).`, "success");
-    }
-    function handleRepeatVerify(e) {
-        e.preventDefault();
-        if (!repeatTarget)
-            return;
-        if (repeatPhone.replace(/\D/g, "").length < 7) {
-            showToast("Number does not match stored client hash. A fresh ID check is required.", "error");
-            return;
-        }
-        setSelectedClientId(repeatTarget.id);
-        setRepeatTarget(null);
-        setRepeatPhone("");
-        jumpToTab("timer");
-        showToast("Client number verified (£0). Ready to start masked safety session.", "success");
-    }
-    function handleReportSubmit(e) {
-        e.preventDefault();
-        if (!reportTarget)
-            return;
-        setVault((prev) => prev.map((item) => item.id === reportTarget.id
-            ? { ...item, Global_Verify_Status: "FLAGGED / HIGH RISK" }
-            : item));
-        showToast(`Report logged under "${reportCategory}".`, "info");
-        setReportTarget(null);
-    }
-    const activeLines = proxyNumbers.filter((n) => n.Status === "ACTIVE");
-    const verifiedClients = vault.filter((c) => c.Global_Verify_Status === "ACTIVE");
-    const minsDisplay = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
-    const secsDisplay = String(secondsLeft % 60).padStart(2, "0");
-    const progressPct = totalSessionSecs > 0 ? Math.min(100, Math.round((secondsLeft / totalSessionSecs) * 100)) : 0;
-    return (<div className="min-h-screen bg-[#F9FAFB] text-[#111827] pb-24">
-      {/* Triple-tap top-left invisible trigger for fake low-battery screen */}
-      <button type="button" onClick={handleCornerTap} aria-label="Discreet screen toggle" className="fixed top-0 left-0 w-14 h-14 z-40 opacity-0"/>
+  const { showToast } = useToast();
+  const settings = DEFAULT_APP_SETTINGS;
+  const [activeTab, setActiveTab] = useState("timer");
+  const [preview, setPreview] = useState({ fast: false, tools: false });
 
-      {/* Fake Low-Battery Overlay */}
-      {lowBatteryMode && (<div onClick={handleCornerTap} className="fixed inset-0 z-50 bg-black text-white flex flex-col items-center justify-center select-none">
-          <BatteryLow className="w-16 h-16 text-[#DC2626] animate-pulse"/>
+  const [country, setCountry] = useState("GB");
+  const [newClientPhoneCountry, setNewClientPhoneCountry] = useState("GB");
+  const [repeatPhoneCountry, setRepeatPhoneCountry] = useState("GB");
+
+  const [billingStatus, setBillingStatus] = useState("ACTIVE");
+  const [tokens, setTokens] = useState(3);
+  const [proxyNumbers, setProxyNumbers] = useState(INITIAL_PROXY_NUMBERS);
+  const [selectedProxy, setSelectedProxy] = useState(INITIAL_PROXY_NUMBERS[0].Twilio_Number);
+  const [vault, setVault] = useState(INITIAL_VAULT);
+
+  const [selectedClientId, setSelectedClientId] = useState("");
+  const [address, setAddress] = useState("");
+  const [locating, setLocating] = useState(false);
+  const [durationMins, setDurationMins] = useState(60);
+  const [customDurationInput, setCustomDurationInput] = useState("60");
+  const [totalSessionSecs, setTotalSessionSecs] = useState(3600);
+  const [safeCode, setSafeCode] = useState("");
+  const [duressCode, setDuressCode] = useState("");
+  const [sessionState, setSessionState] = useState("IDLE");
+  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [graceLeft, setGraceLeft] = useState(GRACE_WINDOW_SECS);
+  const [sessionEndsAt, setSessionEndsAt] = useState(null);
+  const [alertSentAt, setAlertSentAt] = useState(null);
+  const [codeInput, setCodeInput] = useState("");
+  const [codeError, setCodeError] = useState(false);
+  const [startingSession, setStartingSession] = useState(false);
+  const [checkingCode, setCheckingCode] = useState(false);
+
+  const [lowBatteryMode, setLowBatteryMode] = useState(false);
+  const tapTimestamps = useRef([]);
+
+  const [showCreateLinkModal, setShowCreateLinkModal] = useState(false);
+  const [newAlias, setNewAlias] = useState("");
+  const [newClientPhone, setNewClientPhone] = useState("");
+  const [generatedVerifyUrl, setGeneratedVerifyUrl] = useState(null);
+  const [creatingLink, setCreatingLink] = useState(false);
+
+  const [reportTarget, setReportTarget] = useState(null);
+  const [reportCategory, setReportCategory] = useState(REPORT_CATEGORIES[0]);
+  const [reportConfirmStep, setReportConfirmStep] = useState(false);
+  const [undoTimers, setUndoTimers] = useState({});
+
+  const [repeatTarget, setRepeatTarget] = useState(null);
+  const [repeatPhone, setRepeatPhone] = useState("");
+  const [verifyingRepeat, setVerifyingRepeat] = useState(false);
+  const [showHibernationModal, setShowHibernationModal] = useState(false);
+  const [showSosGuideModal, setShowSosGuideModal] = useState(false);
+  const [buyingPack, setBuyingPack] = useState(null);
+
+  const timerSectionRef = useRef(null);
+  const vaultSectionRef = useRef(null);
+  const creditsSectionRef = useRef(null);
+
+  const search = useSearchString();
+  const greeting = useClientValue(readGreeting, "Welcome back");
+  const [appliedSearch, setAppliedSearch] = useState("");
+  if (search !== appliedSearch) {
+    setAppliedSearch(search);
+    const params = new URLSearchParams(search);
+    const urlCountry = params.get("country");
+    if (urlCountry && SUPPORTED_COUNTRIES[urlCountry]) {
+      setCountry(urlCountry);
+      setNewClientPhoneCountry(urlCountry);
+      setRepeatPhoneCountry(urlCountry);
+    }
+    const flags = (params.get("preview") || "").split(",");
+    if (flags.includes("grace")) setBillingStatus("GRACE_PERIOD");
+    setPreview({ fast: flags.includes("fast"), tools: flags.some(Boolean) });
+  }
+
+  // Session clock: main countdown, then the 5-minute grace window after the Stage 1 warning
+  useEffect(() => {
+    if (sessionState !== "RUNNING" && sessionState !== "GRACE") return;
+    const step = preview.fast ? 30 : 1;
+    const id = setTimeout(() => {
+      if (sessionState === "RUNNING") {
+        const next = Math.max(0, secondsLeft - step);
+        setSecondsLeft(next);
+        if (next === 0) {
+          setSessionState("GRACE");
+          setGraceLeft(GRACE_WINDOW_SECS);
+          navigator.vibrate?.([200, 100, 200]);
+          showToast("Timer expired. Warning SMS sent to your phone — enter your Safe Code within 5 minutes.", "error");
+        }
+      } else {
+        const next = Math.max(0, graceLeft - step);
+        setGraceLeft(next);
+        if (next === 0) {
+          setSessionState("Expired Crisis");
+          setAlertSentAt(new Date());
+          showToast("No Safe Code received. Your emergency contact has been alerted.", "error");
+        }
+      }
+    }, 1000);
+    return () => clearTimeout(id);
+  }, [sessionState, secondsLeft, graceLeft, preview.fast, showToast]);
+
+  // 10-minute undo window for safety reports
+  useEffect(() => {
+    if (Object.keys(undoTimers).length === 0) return;
+    const id = setInterval(() => {
+      setUndoTimers((prev) => {
+        const next = {};
+        const locked = [];
+        for (const [cid, info] of Object.entries(prev)) {
+          if (info.secondsLeft <= 1) locked.push(cid);
+          else next[cid] = { ...info, secondsLeft: info.secondsLeft - 1 };
+        }
+        if (locked.length) {
+          setVault((v) => v.map((item) => (locked.includes(item.id) ? { ...item, reportLocked: true } : item)));
+        }
+        return next;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, [undoTimers]);
+
+  // Keep the bottom tab bar in sync with the section on screen
+  useEffect(() => {
+    const sections = [
+      ["timer", timerSectionRef.current],
+      ["vault", vaultSectionRef.current],
+      ["credits", creditsSectionRef.current],
+    ];
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const match = sections.find(([, el]) => el === entry.target);
+          if (match) setActiveTab(match[0]);
+        }
+      },
+      { rootMargin: "-35% 0px -55% 0px" }
+    );
+    sections.forEach(([, el]) => el && observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  function handleUserCountryChange(code) {
+    setCountry(code);
+    setNewClientPhoneCountry(code);
+    setRepeatPhoneCountry(code);
+  }
+
+  function selectPresetDuration(mins) {
+    setDurationMins(mins);
+    setCustomDurationInput(String(mins));
+  }
+
+  function handleCustomDurationChange(val) {
+    setCustomDurationInput(val);
+    const parsed = parseInt(val, 10);
+    if (!Number.isNaN(parsed)) setDurationMins(parsed);
+  }
+
+  function handleCustomDurationBlur() {
+    const parsed = parseInt(customDurationInput, 10);
+    const clamped = Number.isNaN(parsed) ? 30 : Math.min(240, Math.max(30, parsed));
+    setDurationMins(clamped);
+    setCustomDurationInput(String(clamped));
+  }
+
+  function jumpToTab(tab) {
+    setActiveTab(tab);
+    const target =
+      tab === "timer" ? timerSectionRef.current : tab === "vault" ? vaultSectionRef.current : creditsSectionRef.current;
+    target?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function handleCornerTap() {
+    const now = Date.now();
+    tapTimestamps.current = [...tapTimestamps.current.filter((t) => now - t < 700), now];
+    if (tapTimestamps.current.length >= 3) {
+      tapTimestamps.current = [];
+      setLowBatteryMode((prev) => !prev);
+    }
+  }
+
+  function handleGeolocate() {
+    if (!navigator.geolocation) {
+      showToast("Geolocation is not supported on this device.", "error");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setAddress(`GPS: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`);
+        setLocating(false);
+        showToast("Current location added.", "success");
+      },
+      () => {
+        setLocating(false);
+        showToast("Location permission denied. Enter the address manually.", "error");
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  }
+
+  async function handleStartSession(e) {
+    e.preventDefault();
+    if (!address.trim()) {
+      showToast("Enter the appointment address.", "error");
+      return;
+    }
+    if (durationMins < 30 || durationMins > 240) {
+      showToast("Duration must be between 30 minutes and 4 hours.", "error");
+      return;
+    }
+    if (!safeCode.trim() || !duressCode.trim()) {
+      showToast("Set both a Safe Code and a Silent Duress Code.", "error");
+      return;
+    }
+    if (safeCode.trim() === duressCode.trim()) {
+      showToast("Safe Code and Duress Code must be different.", "error");
+      return;
+    }
+    setStartingSession(true);
+    await new Promise((r) => setTimeout(r, 700));
+    const secs = durationMins * 60;
+    setTotalSessionSecs(secs);
+    setSecondsLeft(secs);
+    setSessionEndsAt(new Date(Date.now() + secs * 1000));
+    setSessionState("RUNNING");
+    setStartingSession(false);
+    showToast(`Safety timer running · masked line ${selectedProxy}`, "success");
+    timerSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function handleExtend15() {
+    const maxSecs = 240 * 60;
+    const next = Math.min(secondsLeft + 15 * 60, maxSecs);
+    setSecondsLeft(next);
+    setTotalSessionSecs((t) => Math.max(t, next));
+    setSessionEndsAt(new Date(Date.now() + next * 1000));
+    showToast("Timer extended by 15 minutes.", "info");
+  }
+
+  async function handleCheckCode(e) {
+    e.preventDefault();
+    const entered = codeInput.trim();
+    if (!entered) return;
+    setCheckingCode(true);
+    await new Promise((r) => setTimeout(r, 450));
+    setCheckingCode(false);
+    if (entered === duressCode.trim()) {
+      // Silent: the screen must look exactly like a safe close
+      setSessionState("DURESS");
+      setCodeInput("");
+      showToast("Session closed safely.", "success");
+      return;
+    }
+    if (entered === safeCode.trim()) {
+      setSessionState("Closed Safely");
+      setCodeInput("");
+      showToast("Session closed safely.", "success");
+      return;
+    }
+    setCodeError(true);
+    setTimeout(() => setCodeError(false), 400);
+    showToast("Code not recognised. Try again.", "error");
+  }
+
+  function resetSession() {
+    setSessionState("IDLE");
+    setSecondsLeft(0);
+    setGraceLeft(GRACE_WINDOW_SECS);
+    setSafeCode("");
+    setDuressCode("");
+    setCodeInput("");
+    setAlertSentAt(null);
+  }
+
+  async function handleCreateLink(e) {
+    e.preventDefault();
+    if (tokens <= 0) {
+      showToast("You have 0 ID checks left. Top up first.", "error");
+      return;
+    }
+    setCreatingLink(true);
+    await new Promise((r) => setTimeout(r, 700));
+    const newEntry = {
+      id: `tok-${Date.now()}`,
+      Client_Alias_Name: newAlias.trim() || "New Client",
+      SHA256_Fingerprint: "",
+      Global_Verify_Status: "PENDING",
+      Link_Used_Status: "UNUSED",
+      reportLocked: false,
+    };
+    setVault((prev) => [newEntry, ...prev]);
+    setGeneratedVerifyUrl(buildVerifyUrl(Math.random().toString(36).slice(2, 10)));
+    setNewAlias("");
+    setNewClientPhone("");
+    setCreatingLink(false);
+    showToast("Single-use ID link created.", "success");
+  }
+
+  async function handleTopUp(amount, price) {
+    setBuyingPack(amount);
+    await new Promise((r) => setTimeout(r, 700));
+    setTokens((prev) => prev + amount);
+    setBuyingPack(null);
+    showToast(`Added ${amount} ID checks (£${price}).`, "success");
+  }
+
+  async function handleRepeatVerify(e) {
+    e.preventDefault();
+    if (!repeatTarget) return;
+    setVerifyingRepeat(true);
+    await new Promise((r) => setTimeout(r, 600));
+    setVerifyingRepeat(false);
+    if (repeatPhone.replace(/\D/g, "").length < 7) {
+      showToast("Number doesn't match the stored hash. A fresh ID check is needed.", "error");
+      return;
+    }
+    setSelectedClientId(repeatTarget.id);
+    setRepeatTarget(null);
+    setRepeatPhone("");
+    jumpToTab("timer");
+    showToast("Number matched (£0). Ready to start a masked session.", "success");
+  }
+
+  function openReportModal(client) {
+    if (client.reportLocked) {
+      showToast("This report is permanently locked.", "info");
+      return;
+    }
+    setReportTarget(client);
+    setReportCategory(REPORT_CATEGORIES[0]);
+    setReportConfirmStep(false);
+  }
+
+  function handleReportStepSubmit(e) {
+    e.preventDefault();
+    if (!reportTarget) return;
+    if (!reportConfirmStep) {
+      setReportConfirmStep(true);
+      return;
+    }
+    const targetId = reportTarget.id;
+    const prevStatus =
+      reportTarget.Global_Verify_Status === "FLAGGED / HIGH RISK" ? "ACTIVE" : reportTarget.Global_Verify_Status;
+    setVault((prev) =>
+      prev.map((item) =>
+        item.id === targetId
+          ? { ...item, Global_Verify_Status: "FLAGGED / HIGH RISK", reportCategory, reportLocked: false }
+          : item
+      )
+    );
+    if (selectedClientId === targetId) setSelectedClientId("");
+    setUndoTimers((prev) => ({ ...prev, [targetId]: { secondsLeft: 600, previousStatus: prevStatus } }));
+    showToast("Report submitted. You have 10 minutes to undo.", "info");
+    setReportTarget(null);
+    setReportConfirmStep(false);
+  }
+
+  function handleUndoReport(clientId) {
+    const info = undoTimers[clientId];
+    if (!info) return;
+    setVault((prev) =>
+      prev.map((item) =>
+        item.id === clientId
+          ? { ...item, Global_Verify_Status: info.previousStatus || "ACTIVE", reportCategory: undefined, reportLocked: false }
+          : item
+      )
+    );
+    setUndoTimers((prev) => {
+      const next = { ...prev };
+      delete next[clientId];
+      return next;
+    });
+    showToast("Report undone. Client restored.", "success");
+  }
+
+  function handleLockReportNow(clientId) {
+    setUndoTimers((prev) => {
+      const next = { ...prev };
+      delete next[clientId];
+      return next;
+    });
+    setVault((prev) => prev.map((item) => (item.id === clientId ? { ...item, reportLocked: true } : item)));
+  }
+
+  const countryCfg = SUPPORTED_COUNTRIES[country] || SUPPORTED_COUNTRIES.GB;
+  const activeLines = proxyNumbers.filter((n) => n.Status === "ACTIVE");
+  const verifiedClients = vault.filter((c) => c.Global_Verify_Status === "ACTIVE");
+  const isLive = sessionState === "RUNNING" || sessionState === "GRACE";
+  const isClosedSafely = sessionState === "Closed Safely" || sessionState === "DURESS";
+  const progress = totalSessionSecs > 0 ? secondsLeft / totalSessionSecs : 0;
+  const ringColor = progress > 0.2 ? "#00E08C" : progress > 0.08 ? "#FBBF24" : "#F87171";
+  const tabs = [
+    { tab: "timer", icon: Timer, label: "Timer" },
+    { tab: "vault", icon: Shield, label: "Vault" },
+    { tab: "credits", icon: CreditCard, label: "Checks" },
+  ];
+  const activeTabIndex = tabs.findIndex((t) => t.tab === activeTab);
+
+  return (
+    <div className="min-h-screen bg-[#F9FAFB] text-[#111827] pb-28 overflow-x-clip">
+      <button
+        type="button"
+        onClick={handleCornerTap}
+        aria-label="Discreet screen toggle"
+        className="fixed top-0 left-0 w-14 h-14 z-40 opacity-0"
+      />
+
+      {lowBatteryMode && (
+        <div
+          onClick={handleCornerTap}
+          className="cs-fade fixed inset-0 z-[60] bg-black text-white flex flex-col items-center justify-center select-none"
+        >
+          <BatteryLow className="w-16 h-16 text-[#DC2626] animate-pulse" />
           <p className="mt-3 text-sm font-medium text-neutral-400">Battery critically low (1%)</p>
-          <p className="mt-1 text-xs text-neutral-600">Triple-tap top-left to return</p>
-        </div>)}
-
-      {/* Top Header (Icon + text-only logo, no tagline) */}
-      <header className="bg-[#111827] text-white sticky top-0 z-30">
-        <div className="max-w-[390px] mx-auto px-4 h-14 flex items-center justify-between">
-          <Link href="/" aria-label="Checksafe home" className="inline-flex items-center">
-            <CheckSafeLogo darkSurface size="sm"/>
-          </Link>
-          <div className="flex items-center gap-2">
-            <button type="button" onClick={() => setShowSosGuideModal(true)} className="px-2.5 py-1 rounded-full bg-white/10 text-[11px] font-semibold text-slate-200 hover:bg-white/20 cursor-pointer">
-              Add SOS Icon
-            </button>
-            <Link href="/sos/demo-sos-token" className="px-3 py-1 rounded-full bg-[#DC2626] text-white text-xs font-bold">
-              SOS
-            </Link>
-            <button type="button" onClick={() => setBillingStatus((prev) => prev === "GRACE_PERIOD" ? "ACTIVE" : "GRACE_PERIOD")} className="px-2 py-1 rounded-full bg-white/10 text-[10px] text-slate-300 cursor-pointer" title="Toggle Grace Banner preview">
-              {billingStatus === "GRACE_PERIOD" ? "Grace" : "Active"}
-            </button>
-          </div>
+          <p className="mt-1 text-xs text-neutral-600">Connect to power</p>
         </div>
-      </header>
+      )}
 
-      {/* 390px Mobile-First Column */}
-      <main className="max-w-[390px] mx-auto px-4 pt-4 space-y-4">
-        {/* Grace Banner: hidden and collapsed by default; shown only when GRACE_PERIOD */}
-        {billingStatus === "GRACE_PERIOD" && (<div className="bg-[#FEF08A] border border-amber-400 text-[#713F12] rounded-[20px] p-4 flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5"/>
-            <div className="text-xs leading-relaxed">
-              <strong className="block text-sm font-bold">Payment failed — 7-day grace period</strong>
-              Your safety timers still work. Update your card within 7 days to avoid moving to
-              £{settings.hibernation_1_price_gbp}/month Hibernation Mode.
+      <AppHeader>
+        <select
+          aria-label="Operating country"
+          value={country}
+          onChange={(e) => handleUserCountryChange(e.target.value)}
+          className="h-9 bg-slate-100 border border-slate-200 text-slate-800 text-xs font-semibold rounded-full px-2.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#0B2545]/20"
+        >
+          {COUNTRY_LIST.map((c) => (
+            <option key={c.code} value={c.code}>
+              {COUNTRY_FLAGS[c.code]} {c.code}
+            </option>
+          ))}
+        </select>
+        <button
+          type="button"
+          onClick={() => setShowSosGuideModal(true)}
+          aria-label="Add SOS to home screen"
+          className="cs-press h-9 w-9 rounded-full bg-slate-100 border border-slate-200 text-slate-600 hover:bg-slate-200 flex items-center justify-center cursor-pointer"
+        >
+          <Smartphone className="w-4 h-4" />
+        </button>
+        <Link
+          href="/sos/demo-sos-token"
+          className="cs-press h-9 px-3.5 rounded-full bg-[#DC2626] hover:bg-red-700 text-white text-xs font-extrabold tracking-wide flex items-center shadow-[0_6px_16px_-6px_rgba(220,38,38,0.7)]"
+        >
+          SOS
+        </Link>
+      </AppHeader>
+
+      <main className="max-w-[390px] mx-auto px-4 pt-5 space-y-4">
+        {billingStatus === "GRACE_PERIOD" && (
+          <div className="cs-rise bg-[#FEF08A] border border-amber-300 text-[#713F12] rounded-[22px] p-4 flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+            <div className="text-xs leading-relaxed min-w-0">
+              <strong className="block text-sm font-bold">Payment failed · 7-day grace period</strong>
+              Your safety timers still work. Update your card within 7 days to avoid moving to £
+              {settings.hibernation_1_price_gbp}/month Hibernation Mode.
+              <button
+                type="button"
+                onClick={() => {
+                  setBillingStatus("ACTIVE");
+                  showToast("Card updated. Your plan is active again.", "success");
+                }}
+                className="cs-press mt-2.5 flex items-center gap-1 px-3.5 py-2 rounded-full bg-[#713F12] text-[#FEF08A] text-xs font-bold cursor-pointer"
+              >
+                Update card <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
-          </div>)}
+          </div>
+        )}
 
-        {/* 1. P0 Priority: Safety Countdown Panel */}
-        <section ref={timerSectionRef} className="bg-white border border-slate-200 rounded-[24px] p-5 shadow-xs scroll-mt-16">
-          <div className="flex items-center justify-between mb-3">
-            <h1 className="text-base font-bold text-[#111827]">Safety Countdown</h1>
-            <span aria-live="polite" className={`text-[11px] font-semibold px-3 py-1 rounded-full ${sessionState === "RUNNING"
-            ? "bg-emerald-100 text-emerald-800"
-            : sessionState === "DURESS"
-                ? "bg-red-100 text-[#DC2626]"
-                : "bg-slate-100 text-slate-600"}`}>
-              {sessionState === "DURESS" ? "Closed Safely" : sessionState}
+        {/* Account summary */}
+        <section className="cs-rise navy-grid text-white rounded-[28px] p-5 overflow-hidden">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs text-slate-300">{greeting}</p>
+              <p className="mt-0.5 text-xl font-extrabold tracking-tight">{ACCOUNT.plan} plan</p>
+            </div>
+            <span
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide ${
+                isLive ? "bg-[#00E08C]/15 text-[#00E08C]" : "bg-white/10 text-slate-200"
+              }`}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${isLive ? "bg-[#00E08C] cs-blink" : "bg-slate-300"}`} />
+              {isLive ? "SESSION LIVE" : billingStatus === "GRACE_PERIOD" ? "GRACE PERIOD" : "PROTECTED"}
             </span>
           </div>
+          <div className="mt-5 grid grid-cols-3 gap-2">
+            {[
+              { label: "Masked lines", value: activeLines.length },
+              { label: "ID checks", value: tokens },
+              { label: "Verified", value: verifiedClients.length },
+            ].map(({ label, value }) => (
+              <div key={label} className="rounded-2xl bg-white/[0.07] border border-white/10 px-3 py-2.5">
+                <p className="text-xl font-black tabular-nums">{value}</p>
+                <p className="text-[10px] text-slate-300 mt-0.5">{label}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
-          {sessionState === "RUNNING" ? (<div className="space-y-4">
-              <div className="bg-[#111827] text-white rounded-[20px] p-5 text-center space-y-2">
-                <p className="text-xs text-slate-400">Time remaining</p>
-                <p className="text-4xl font-bold font-mono tabular-nums">
-                  {minsDisplay}:{secsDisplay}
-                </p>
-                <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                  <div className="h-full bg-[#16A34A] transition-all duration-500" style={{ width: `${progressPct}%` }}/>
+        {/* 1. Safety countdown */}
+        <section ref={timerSectionRef} className="cs-rise cs-d1 app-card rounded-[28px] p-5 scroll-mt-20">
+          <div className="flex items-start justify-between gap-3 mb-4">
+            <div>
+              <SectionLabel index="01">Safety timer</SectionLabel>
+              <h1 className="mt-1 text-2xl font-extrabold text-[#0B2545] tracking-tight">Safety Countdown</h1>
+            </div>
+            {sessionState === "IDLE" && (
+              <span className="mt-1 text-[10px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-500">Ready</span>
+            )}
+          </div>
+
+          {sessionState === "RUNNING" && (
+            <div className="space-y-4">
+              <div className="cs-rise navy-grid text-white rounded-[24px] p-5">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="inline-flex items-center gap-1.5 font-bold text-[#00E08C]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#00E08C] cs-blink" />
+                    LIVE
+                  </span>
+                  <span className="font-mono text-slate-300">{selectedProxy}</span>
                 </div>
-                <p className="text-xs text-slate-300 truncate pt-1">{address}</p>
-                <p className="text-[11px] text-emerald-400">Masked line: {selectedProxy}</p>
-                <button type="button" onClick={handleExtend15} className="mt-1 inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-xs font-semibold cursor-pointer">
-                  <Clock className="w-3.5 h-3.5"/>
-                  <span>Extend +15m</span>
+                <div className="my-3">
+                  <CountdownRing progress={progress} color={ringColor}>
+                    <p className="text-[10px] font-mono tracking-[0.2em] text-slate-400">REMAINING</p>
+                    <p className="text-[44px] leading-none font-black font-mono tabular-nums tracking-tight mt-1.5">
+                      {formatClock(secondsLeft)}
+                    </p>
+                    {sessionEndsAt && <p className="text-[11px] text-slate-400 mt-2">Check in by {timeOfDay(sessionEndsAt)}</p>}
+                  </CountdownRing>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-slate-300 min-w-0">
+                  <MapPin className="w-3.5 h-3.5 text-[#00E08C] shrink-0" />
+                  <span className="truncate">{address}</span>
+                </div>
+                <div className="mt-4">
+                  <StageTracker stage={0} />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleExtend15}
+                  className="cs-press mt-4 w-full min-h-[44px] rounded-full bg-white/10 hover:bg-white/15 border border-white/10 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Clock className="w-3.5 h-3.5" />
+                  Extend +15 min
                 </button>
               </div>
+            </div>
+          )}
 
-              <form onSubmit={handleCheckCode} className="space-y-3">
-                <div>
-                  <label htmlFor="active-code" className="block text-xs font-medium text-slate-700 mb-1">
-                    Enter Safe Code to close (or Silent Duress Code)
-                  </label>
-                  <input id="active-code" type="password" inputMode="numeric" value={codeInput} onChange={(e) => setCodeInput(e.target.value)} placeholder="Enter code" className="w-full h-12 px-4 rounded-xl border border-slate-300 bg-[#F9FAFB] text-sm focus:outline-none focus:ring-2 focus:ring-[#111827]"/>
-                </div>
-                <button type="submit" className="w-full min-h-[48px] rounded-full bg-[#16A34A] hover:bg-emerald-700 text-white font-semibold text-sm transition cursor-pointer">
-                  Confirm Code
-                </button>
-              </form>
+          {sessionState === "GRACE" && (
+            <div className="cs-rise rounded-[24px] p-5 text-white bg-linear-to-b from-[#7F1D1D] to-[#0B2545]">
+              <div className="flex items-center gap-2 text-[11px] font-bold text-amber-300">
+                <BellRing className="w-4 h-4 cs-blink" />
+                WARNING SMS SENT TO YOUR PHONE
+              </div>
+              <div className="my-3">
+                <CountdownRing progress={graceLeft / GRACE_WINDOW_SECS} color="#F87171">
+                  <p className="text-[10px] font-mono tracking-[0.2em] text-red-200">ALERT IN</p>
+                  <p className="text-[44px] leading-none font-black font-mono tabular-nums mt-1.5">{formatClock(graceLeft)}</p>
+                  <p className="text-[11px] text-red-200 mt-2">Enter your Safe Code now</p>
+                </CountdownRing>
+              </div>
+              <StageTracker stage={2} />
+              <p className="mt-4 text-xs text-red-100/90 leading-relaxed">
+                If no Safe Code is entered, your emergency contact receives the appointment address.
+              </p>
+            </div>
+          )}
 
-              <a href={`sms:${selectedProxy.replace(/\s+/g, "")}?body=SOS`} className="w-full min-h-[48px] rounded-full bg-[#DC2626] hover:bg-red-700 text-white font-semibold text-sm flex items-center justify-center gap-2 transition">
-                <MessageSquareWarning className="w-4 h-4"/>
-                <span>SOS by SMS</span>
+          {isLive && (
+            <form onSubmit={handleCheckCode} className="mt-4 space-y-3">
+              <div className={codeError ? "cs-shake" : ""}>
+                <FieldLabel htmlFor="active-code">Enter your code to check in</FieldLabel>
+                <input
+                  id="active-code"
+                  type="password"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  value={codeInput}
+                  onChange={(e) => setCodeInput(e.target.value)}
+                  placeholder="••••"
+                  className={`cs-input text-center text-lg tracking-[0.5em] font-bold ${codeError ? "!border-[#DC2626]" : ""}`}
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={checkingCode || !codeInput}
+                className="cs-press w-full min-h-[52px] rounded-full bg-[#16A34A] hover:bg-[#15803D] disabled:opacity-60 text-white font-bold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-[0_12px_24px_-12px_rgba(22,163,74,0.7)]"
+              >
+                {checkingCode ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                Confirm code
+              </button>
+              <a
+                href={`sms:${selectedProxy.replace(/\s+/g, "")}?body=SOS`}
+                className="cs-press w-full min-h-[52px] rounded-full border-2 border-[#DC2626] text-[#DC2626] hover:bg-red-50 font-bold text-sm flex items-center justify-center gap-2"
+              >
+                <MessageSquareWarning className="w-4 h-4" />
+                SOS by SMS
               </a>
-            </div>) : (<form onSubmit={handleStartSession} className="space-y-3.5">
-              {verifiedClients.length > 0 && (<div>
-                  <label htmlFor="vault-client-select" className="block text-xs font-medium text-slate-700 mb-1">
-                    Verified client (optional)
-                  </label>
-                  <select id="vault-client-select" value={selectedClientId} onChange={(e) => setSelectedClientId(e.target.value)} className="w-full h-12 px-3.5 rounded-xl border border-slate-300 bg-[#F9FAFB] text-sm focus:outline-none focus:ring-2 focus:ring-[#111827]">
-                    <option value="">General appointment (no vault link)</option>
-                    {verifiedClients.map((c) => (<option key={c.id} value={c.id}>
-                        {c.Client_Alias_Name}
-                      </option>))}
+            </form>
+          )}
+
+          {isClosedSafely && (
+            <div className="text-center py-4">
+              <div className="cs-pop mx-auto w-20 h-20 rounded-full bg-[#16A34A] flex items-center justify-center shadow-[0_0_0_10px_rgba(22,163,74,0.12)]">
+                <svg viewBox="0 0 24 24" className="w-9 h-9" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path className="cs-draw" d="M5 12.5l4.5 4.5L19 7.5" />
+                </svg>
+              </div>
+              <h2 className="cs-rise cs-d2 mt-5 text-xl font-extrabold text-[#0B2545]">Session closed safely</h2>
+              <p className="cs-rise cs-d3 mt-1.5 text-sm text-slate-500">Scheduled alerts cancelled. Glad you&apos;re safe.</p>
+              <button
+                type="button"
+                onClick={resetSession}
+                className="cs-rise cs-d4 cs-press mt-5 w-full min-h-[52px] rounded-full bg-[#0B2545] hover:bg-[#123461] text-white font-bold text-sm flex items-center justify-center gap-2 cursor-pointer"
+              >
+                Start a new session <ArrowRight className="w-4 h-4 text-[#00E08C]" />
+              </button>
+            </div>
+          )}
+
+          {sessionState === "Expired Crisis" && (
+            <div className="cs-rise rounded-[24px] bg-red-50 border border-red-200 p-5 text-center">
+              <div className="cs-pop mx-auto w-16 h-16 rounded-full bg-[#DC2626] flex items-center justify-center shadow-[0_0_0_10px_rgba(220,38,38,0.12)]">
+                <AlertTriangle className="w-7 h-7 text-white" />
+              </div>
+              <h2 className="mt-4 text-xl font-extrabold text-[#7F1D1D]">Emergency contact alerted</h2>
+              <p className="mt-1.5 text-sm text-red-900/80 leading-relaxed">
+                Your appointment address was sent{alertSentAt ? ` at ${timeOfDay(alertSentAt)}` : ""}, with local emergency instructions.
+              </p>
+              <a
+                href={`tel:${countryCfg.emergencyNumber}`}
+                className="cs-press mt-5 w-full min-h-[52px] rounded-full bg-[#DC2626] hover:bg-red-700 text-white font-bold text-sm flex items-center justify-center gap-2"
+              >
+                <Phone className="w-4 h-4" />
+                Call {countryCfg.emergencyNumber}
+              </a>
+              <button
+                type="button"
+                onClick={resetSession}
+                className="cs-press mt-2 w-full min-h-[48px] rounded-full text-sm font-semibold text-red-900/80 hover:bg-red-100 cursor-pointer"
+              >
+                I&apos;m safe · start new session
+              </button>
+            </div>
+          )}
+
+          {sessionState === "IDLE" && (
+            <form onSubmit={handleStartSession} className="space-y-4">
+              {verifiedClients.length > 0 && (
+                <div>
+                  <FieldLabel htmlFor="vault-client-select">Verified client (optional)</FieldLabel>
+                  <select
+                    id="vault-client-select"
+                    value={selectedClientId}
+                    onChange={(e) => setSelectedClientId(e.target.value)}
+                    className="cs-input cursor-pointer"
+                  >
+                    <option value="">General appointment</option>
+                    {verifiedClients.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        ✓ {c.Client_Alias_Name}
+                      </option>
+                    ))}
                   </select>
-                </div>)}
+                </div>
+              )}
 
               <div>
-                <label htmlFor="appt-address" className="block text-xs font-medium text-slate-700 mb-1">
-                  Appointment address (sent in emergency SMS)
-                </label>
+                <FieldLabel htmlFor="appt-address">Appointment address</FieldLabel>
                 <div className="flex gap-2">
-                  <input id="appt-address" type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Flat 4, 22 Baker Street, NW1 6XE" className="flex-1 min-w-0 h-12 px-3.5 rounded-xl border border-slate-300 bg-[#F9FAFB] text-sm focus:outline-none focus:ring-2 focus:ring-[#111827]"/>
-                  <button type="button" onClick={handleGeolocate} disabled={locating} aria-label="Use current GPS location" className="min-h-[48px] px-3.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 flex items-center justify-center shrink-0 cursor-pointer">
-                    {locating ? (<Loader2 className="w-4 h-4 animate-spin"/>) : (<MapPin className="w-4 h-4"/>)}
+                  <input
+                    id="appt-address"
+                    type="text"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="Flat 4, 22 Baker Street, NW1 6XE"
+                    className="cs-input flex-1 min-w-0"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleGeolocate}
+                    disabled={locating}
+                    aria-label="Use current location"
+                    className="cs-press w-12 h-12 rounded-[14px] bg-[#0B2545] hover:bg-[#123461] text-[#00E08C] flex items-center justify-center shrink-0 cursor-pointer"
+                  >
+                    {locating ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />}
                   </button>
                 </div>
+                <p className="mt-1.5 text-[11px] text-slate-500">Only sent to your emergency contact if an alert fires.</p>
               </div>
 
               <div>
-                <span className="block text-xs font-medium text-slate-700 mb-1.5">
-                  Duration (30 mins – 4 hours)
-                </span>
-                <div className="grid grid-cols-4 gap-2">
-                  {[30, 60, 90].map((m) => (<button key={m} type="button" onClick={() => setDurationMins(m)} className={`min-h-[44px] rounded-full text-xs font-semibold border transition cursor-pointer ${durationMins === m
-                    ? "bg-[#111827] text-white border-[#111827]"
-                    : "bg-[#F9FAFB] text-slate-700 border-slate-200"}`}>
+                <FieldLabel
+                  htmlFor="custom-duration-mins"
+                  aside={<span className="text-[11px] font-mono font-bold text-emerald-700">{formatDurationLabel(durationMins)}</span>}
+                >
+                  Duration
+                </FieldLabel>
+                <div className="grid grid-cols-4 gap-1 p-1 rounded-2xl bg-slate-100">
+                  {[30, 60, 90].map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => selectPresetDuration(m)}
+                      aria-pressed={durationMins === m}
+                      className={`cs-press min-h-[44px] rounded-xl text-xs font-bold cursor-pointer ${
+                        durationMins === m ? "bg-[#0B2545] text-white shadow-sm" : "text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
                       {m}m
-                    </button>))}
-                  <input type="number" min={30} max={240} aria-label="Custom minutes" value={durationMins} onChange={(e) => setDurationMins(Number(e.target.value))} className="h-[44px] px-2 rounded-full border border-slate-300 bg-[#F9FAFB] text-xs text-center font-semibold tabular-nums"/>
+                    </button>
+                  ))}
+                  <div className="relative">
+                    <input
+                      id="custom-duration-mins"
+                      type="number"
+                      min={30}
+                      max={240}
+                      step={5}
+                      aria-label="Custom duration in minutes, 30 to 240"
+                      value={customDurationInput}
+                      onChange={(e) => handleCustomDurationChange(e.target.value)}
+                      onBlur={handleCustomDurationBlur}
+                      className={`w-full h-[44px] pl-2 pr-5 rounded-xl text-xs text-center font-bold tabular-nums focus:outline-none focus:ring-2 focus:ring-[#0B2545]/30 ${
+                        ![30, 60, 90].includes(durationMins) ? "bg-white text-[#0B2545] shadow-sm" : "bg-transparent text-slate-600"
+                      }`}
+                    />
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-400 pointer-events-none">m</span>
+                  </div>
                 </div>
+                <p className="mt-1.5 text-[11px] text-slate-500">Or type any length from 30 minutes to 4 hours.</p>
               </div>
 
               <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label htmlFor="safe-code" className="block text-xs font-medium text-slate-700 mb-1">
-                    Safe Code
-                  </label>
-                  <input id="safe-code" type="password" inputMode="numeric" value={safeCode} onChange={(e) => setSafeCode(e.target.value)} placeholder="e.g. 1234" className="w-full h-12 px-3 rounded-xl border border-slate-300 bg-[#F9FAFB] text-sm focus:outline-none focus:ring-2 focus:ring-[#111827]"/>
+                  <FieldLabel htmlFor="safe-code">Safe Code</FieldLabel>
+                  <input
+                    id="safe-code"
+                    type="password"
+                    inputMode="numeric"
+                    autoComplete="off"
+                    value={safeCode}
+                    onChange={(e) => setSafeCode(e.target.value)}
+                    placeholder="e.g. 1234"
+                    className="cs-input"
+                  />
                 </div>
                 <div>
-                  <label htmlFor="duress-code" className="block text-xs font-medium text-slate-700 mb-1">
-                    Silent Duress Code
-                  </label>
-                  <input id="duress-code" type="password" inputMode="numeric" value={duressCode} onChange={(e) => setDuressCode(e.target.value)} placeholder="e.g. 4-digit code" className="w-full h-12 px-3 rounded-xl border border-slate-300 bg-[#F9FAFB] text-sm focus:outline-none focus:ring-2 focus:ring-[#111827]"/>
+                  <FieldLabel htmlFor="duress-code">Duress Code</FieldLabel>
+                  <input
+                    id="duress-code"
+                    type="password"
+                    inputMode="numeric"
+                    autoComplete="off"
+                    value={duressCode}
+                    onChange={(e) => setDuressCode(e.target.value)}
+                    placeholder="Secret"
+                    className="cs-input"
+                  />
                 </div>
               </div>
+              <p className="-mt-2 text-[11px] text-slate-500 leading-relaxed">
+                The Duress Code looks like a normal check-in on screen but silently alerts your contact.
+              </p>
 
-              {activeLines.length === 0 ? (<div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
-                  No active proxy lines (Hibernation or Paused). Reactivate a plan to mask calls.
-                </div>) : (activeLines.length > 1 && (<div>
-                    <label htmlFor="proxy-select" className="block text-xs font-medium text-slate-700 mb-1">
-                      Masked proxy number for this session
-                    </label>
-                    <select id="proxy-select" value={selectedProxy} onChange={(e) => setSelectedProxy(e.target.value)} className="w-full h-12 px-3 rounded-xl border border-slate-300 bg-[#F9FAFB] text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#111827]">
-                      {activeLines.map((n) => (<option key={n.id} value={n.Twilio_Number}>
-                          {n.Twilio_Number} (Line #{n.Assigned_Order})
-                        </option>))}
-                    </select>
-                  </div>))}
+              {activeLines.length === 0 ? (
+                <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
+                  No active masked lines. Reactivate a plan to start masked sessions.
+                </div>
+              ) : (
+                activeLines.length > 1 && (
+                  <fieldset>
+                    <legend className="text-xs font-semibold text-slate-700 mb-1.5">Masked line for this session</legend>
+                    <div className="space-y-2">
+                      {activeLines.map((n) => {
+                        const checked = selectedProxy === n.Twilio_Number;
+                        return (
+                          <label
+                            key={n.id}
+                            className={`cs-press flex items-center justify-between gap-3 min-h-[52px] px-4 rounded-2xl border cursor-pointer ${
+                              checked ? "border-[#0B2545] bg-[#0B2545]/[0.03]" : "border-slate-200 bg-white hover:border-slate-300"
+                            }`}
+                          >
+                            <span className="flex items-center gap-3">
+                              <input
+                                type="radio"
+                                name="proxy"
+                                className="sr-only"
+                                checked={checked}
+                                onChange={() => setSelectedProxy(n.Twilio_Number)}
+                              />
+                              <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${checked ? "border-[#0B2545]" : "border-slate-300"}`}>
+                                {checked && <span className="w-2 h-2 rounded-full bg-[#0B2545]" />}
+                              </span>
+                              <span className="text-sm font-mono font-semibold">{n.Twilio_Number}</span>
+                            </span>
+                            <span className="text-[10px] font-semibold text-slate-400">
+                              {n.Assigned_Order === 1 ? "Primary" : `Line ${n.Assigned_Order}`}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </fieldset>
+                )
+              )}
 
-              <button type="submit" disabled={startingSession} className="w-full min-h-[48px] rounded-full bg-[#16A34A] hover:bg-emerald-700 disabled:opacity-60 text-white font-semibold text-sm flex items-center justify-center gap-2 transition cursor-pointer">
-                {startingSession ? (<Loader2 className="w-4 h-4 animate-spin"/>) : (<Phone className="w-4 h-4"/>)}
-                <span>START SAFETY TIMER &amp; MASK LINE</span>
+              <button
+                type="submit"
+                disabled={startingSession || activeLines.length === 0}
+                className="cs-press w-full min-h-[56px] rounded-full bg-[#16A34A] hover:bg-[#15803D] disabled:opacity-60 text-white font-extrabold text-sm tracking-wide flex items-center justify-center gap-2 cursor-pointer shadow-[0_14px_28px_-12px_rgba(22,163,74,0.75)]"
+              >
+                {startingSession ? <Loader2 className="w-4 h-4 animate-spin" /> : <Phone className="w-4 h-4" />}
+                {startingSession ? "STARTING…" : "START SAFETY TIMER & MASK LINE"}
               </button>
 
-              <a href={`sms:${selectedProxy.replace(/\s+/g, "")}?body=SOS`} className="w-full min-h-[48px] rounded-full border border-[#DC2626] text-[#DC2626] hover:bg-red-50 font-semibold text-sm flex items-center justify-center gap-2 transition">
-                <MessageSquareWarning className="w-4 h-4"/>
-                <span>SOS by SMS</span>
+              <a
+                href={`sms:${selectedProxy.replace(/\s+/g, "")}?body=SOS`}
+                className="cs-press w-full min-h-[48px] rounded-full border border-red-200 text-[#DC2626] hover:bg-red-50 font-bold text-sm flex items-center justify-center gap-2"
+              >
+                <MessageSquareWarning className="w-4 h-4" />
+                SOS by SMS
               </a>
-            </form>)}
+            </form>
+          )}
+
+          {preview.tools && isLive && (
+            <button
+              type="button"
+              onClick={() => (sessionState === "RUNNING" ? setSecondsLeft(0) : setGraceLeft(0))}
+              className="mt-3 w-full py-2 rounded-xl border border-dashed border-slate-300 text-[11px] font-mono text-slate-500 cursor-pointer"
+            >
+              Preview: skip to next stage
+            </button>
+          )}
         </section>
 
         {/* 2. Trusted Client Vault */}
-        <section ref={vaultSectionRef} className="bg-white border border-slate-200 rounded-[24px] p-5 shadow-xs scroll-mt-16">
-          <h2 className="text-base font-bold text-[#111827]">Trusted Client Vault</h2>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Zero-knowledge hashes only. Repeat verified clients at £0.
+        <section ref={vaultSectionRef} className="cs-rise cs-d2 app-card rounded-[28px] p-5 scroll-mt-20">
+          <SectionLabel index="02">Client vault</SectionLabel>
+          <h2 className="mt-1 text-2xl font-extrabold text-[#0B2545] tracking-tight">Trusted Client Vault</h2>
+          <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+            <Fingerprint className="w-3.5 h-3.5 text-emerald-700" />
+            Encrypted fingerprints only · verified clients repeat at £0
           </p>
 
-          {vault.length === 0 ? (<div className="mt-4 p-5 rounded-2xl bg-[#F3F7F4] text-center space-y-2">
-              <p className="text-sm font-semibold text-[#111827]">No verified clients yet</p>
-              <p className="text-xs text-slate-600">
-                Generate a single-use ID link below before your next first-time appointment.
-              </p>
-            </div>) : (<div className="mt-3 space-y-2.5">
-              {vault.map((client) => (<div key={client.id} className="p-3.5 rounded-2xl border border-slate-200 bg-[#F9FAFB] space-y-2.5">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-[#111827] truncate">
-                        {client.Client_Alias_Name}
-                      </p>
-                      <p className="text-[11px] font-mono text-slate-500">
-                        {client.SHA256_Fingerprint || "Awaiting scan"}
-                      </p>
+          {vault.length === 0 ? (
+            <div className="mt-4 p-6 rounded-2xl bg-[#F9FAFB] border border-dashed border-slate-200 text-center">
+              <Shield className="w-8 h-8 text-slate-300 mx-auto" />
+              <p className="mt-2 text-sm font-semibold text-[#111827]">No clients yet</p>
+              <p className="text-xs text-slate-500 mt-1">Generate an ID link before your next first-time appointment.</p>
+            </div>
+          ) : (
+            <ul className="mt-4 space-y-3">
+              {vault.map((client, i) => {
+                const isFlagged = client.Global_Verify_Status === "FLAGGED / HIGH RISK";
+                const isVerified = client.Global_Verify_Status === "ACTIVE";
+                const undoInfo = undoTimers[client.id];
+                return (
+                  <li
+                    key={client.id}
+                    className={`cs-rise p-4 rounded-[20px] border transition-colors ${
+                      isFlagged ? "border-red-200 bg-red-50/50" : "border-slate-100 bg-[#F9FAFB]"
+                    }`}
+                    style={{ animationDelay: `${Math.min(i, 5) * 60}ms` }}
+                  >
+                    <div className="flex items-start gap-3">
+                      <span
+                        className={`w-10 h-10 rounded-2xl flex items-center justify-center text-sm font-black shrink-0 ${
+                          isFlagged ? "bg-[#DC2626] text-white" : isVerified ? "bg-[#0B2545] text-[#00E08C]" : "bg-slate-200 text-slate-500"
+                        }`}
+                      >
+                        {client.Client_Alias_Name.charAt(0)}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-bold text-[#111827] truncate">{client.Client_Alias_Name}</p>
+                        <p className="text-[11px] font-mono text-slate-400 truncate">
+                          {client.SHA256_Fingerprint || (client.Link_Used_Status === "UNUSED" ? "Link sent · awaiting scan" : "Scanning…")}
+                        </p>
+                      </div>
+                      {isVerified ? (
+                        <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-100 text-emerald-800">
+                          <CheckCircle2 className="w-3 h-3" /> Verified
+                        </span>
+                      ) : isFlagged ? (
+                        <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-red-100 text-[#DC2626]">
+                          <AlertTriangle className="w-3 h-3" /> High risk
+                        </span>
+                      ) : (
+                        <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-slate-200 text-slate-600">
+                          <span className="w-1.5 h-1.5 rounded-full bg-slate-500 cs-blink" /> Pending
+                        </span>
+                      )}
                     </div>
-                    <span className={`shrink-0 text-[10px] font-bold px-2.5 py-0.5 rounded-full ${client.Global_Verify_Status === "ACTIVE"
-                    ? "bg-emerald-100 text-emerald-800"
-                    : client.Global_Verify_Status === "FLAGGED / HIGH RISK"
-                        ? "bg-red-100 text-[#DC2626]"
-                        : "bg-slate-200 text-slate-700"}`}>
-                      {client.Global_Verify_Status}
-                    </span>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-2">
-                    <button type="button" onClick={() => setRepeatTarget(client)} className="min-h-[44px] px-2.5 rounded-full bg-white border border-slate-300 hover:bg-slate-100 text-xs font-semibold text-[#111827] inline-flex items-center justify-center gap-1.5 cursor-pointer">
-                      <RotateCcw className="w-3.5 h-3.5"/>
-                      <span>Repeat (£0)</span>
-                    </button>
-                    <button type="button" onClick={() => setReportTarget(client)} className="min-h-[44px] px-2.5 rounded-full bg-white border border-red-200 hover:bg-red-50 text-xs font-semibold text-[#DC2626] inline-flex items-center justify-center gap-1.5 cursor-pointer">
-                      <Flag className="w-3.5 h-3.5"/>
-                      <span>Report Issue</span>
-                    </button>
-                  </div>
-                </div>))}
-            </div>)}
+                    {isFlagged && (
+                      <div className="mt-3 p-3 rounded-2xl bg-white border border-red-200 text-[11px] text-red-900 leading-snug">
+                        <strong className="font-bold block">FLAGGED / HIGH RISK · £0 repeat disabled</strong>
+                        Reported for <em>{client.reportCategory || "Safety / Conduct Breach"}</em>.
+                      </div>
+                    )}
+
+                    {undoInfo && (
+                      <div className="mt-3 p-3 rounded-2xl bg-amber-50 border border-amber-200 text-[11px] text-amber-950">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-bold flex items-center gap-1.5">
+                            <Clock className="w-3.5 h-3.5 text-amber-700" />
+                            Undo within <span className="font-mono tabular-nums">{formatClock(undoInfo.secondsLeft)}</span>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleUndoReport(client.id)}
+                            className="cs-press px-3 py-1.5 rounded-full bg-white border border-amber-300 hover:bg-amber-100 text-amber-900 font-bold inline-flex items-center gap-1 cursor-pointer"
+                          >
+                            <Undo2 className="w-3 h-3" /> Undo
+                          </button>
+                        </div>
+                        {preview.tools && (
+                          <button
+                            type="button"
+                            onClick={() => handleLockReportNow(client.id)}
+                            className="mt-2 text-[10px] font-mono text-amber-700 underline cursor-pointer"
+                          >
+                            Preview: lock now
+                          </button>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        disabled={isFlagged || !isVerified}
+                        onClick={() => setRepeatTarget(client)}
+                        className="cs-press min-h-[44px] px-2 rounded-full bg-white border border-slate-200 hover:border-slate-300 disabled:opacity-45 disabled:cursor-not-allowed text-xs font-bold text-[#0B2545] inline-flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        Repeat (£0)
+                      </button>
+                      {client.reportLocked ? (
+                        <span className="min-h-[44px] px-2 rounded-full bg-slate-100 text-xs font-semibold text-slate-400 inline-flex items-center justify-center gap-1.5">
+                          <Lock className="w-3.5 h-3.5" /> Report locked
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled={!!undoInfo}
+                          onClick={() => openReportModal(client)}
+                          className="cs-press min-h-[44px] px-2 rounded-full bg-white border border-red-200 hover:bg-red-50 disabled:opacity-45 text-xs font-bold text-[#DC2626] inline-flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                          <Flag className="w-3.5 h-3.5" /> Report issue
+                        </button>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </section>
 
-        {/* 3. Checks & Top-ups Card */}
-        <section ref={creditsSectionRef} className="bg-white border border-slate-200 rounded-[24px] p-5 shadow-xs scroll-mt-16">
-          <div className="flex items-center justify-between gap-2">
+        {/* 3. Checks & top-ups */}
+        <section ref={creditsSectionRef} className="cs-rise cs-d3 app-card rounded-[28px] p-5 scroll-mt-20">
+          <SectionLabel index="03">ID checks &amp; top-ups</SectionLabel>
+          <div className="mt-1 flex items-end justify-between gap-3">
             <div>
-              <p className="text-xs font-medium text-slate-500">Verification tokens</p>
-              <p className="text-3xl font-bold tabular-nums tracking-tight text-[#111827] mt-0.5">
+              <h2 className="text-2xl font-extrabold text-[#0B2545] tracking-tight">ID Checks</h2>
+              <p className="text-xs text-slate-500 mt-1">Single-use client verification links</p>
+            </div>
+            <div className="text-right">
+              <p key={tokens} className="cs-pop text-4xl font-black tabular-nums text-[#0B2545] leading-none">
                 {tokens}
               </p>
+              <p className="text-[10px] font-semibold text-slate-400 mt-1 uppercase tracking-wider">available</p>
             </div>
-            <button type="button" disabled={tokens === 0} onClick={() => {
-            setGeneratedVerifyUrl(null);
-            setShowCreateLinkModal(true);
-        }} className="min-h-[48px] px-4 rounded-full bg-[#111827] hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 text-white text-xs font-semibold inline-flex items-center gap-1.5 transition cursor-pointer">
-              <Plus className="w-4 h-4"/>
-              <span>Generate Client ID Link</span>
-            </button>
           </div>
 
-          <div className="mt-4 pt-3 border-t border-slate-100">
-            <p className="text-xs font-medium text-slate-500 mb-2">Top up ID checks</p>
-            <div className="grid grid-cols-3 gap-2">
-              <button type="button" onClick={() => handleTopUp(5, settings.topup_5_price_gbp)} className="min-h-[48px] px-2 py-2 rounded-2xl border border-slate-200 bg-[#F3F7F4] hover:bg-slate-200/70 text-center transition cursor-pointer">
-                <div className="text-xs font-bold text-[#111827]">5 Checks</div>
-                <div className="text-xs text-slate-600 tabular-nums">
-                  £{settings.topup_5_price_gbp}
-                </div>
-              </button>
-              <button type="button" onClick={() => handleTopUp(15, settings.topup_15_price_gbp)} className="min-h-[48px] px-2 py-2 rounded-2xl border border-slate-200 bg-[#F3F7F4] hover:bg-slate-200/70 text-center transition cursor-pointer">
-                <div className="text-xs font-bold text-[#111827]">15 Checks</div>
-                <div className="text-xs text-slate-600 tabular-nums">
-                  £{settings.topup_15_price_gbp}
-                </div>
-              </button>
-              <button type="button" onClick={() => handleTopUp(50, settings.topup_50_price_gbp)} className="min-h-[48px] px-2 py-2 rounded-2xl border border-slate-200 bg-[#F3F7F4] hover:bg-slate-200/70 text-center transition cursor-pointer">
-                <div className="text-xs font-bold text-[#111827]">50 Checks</div>
-                <div className="text-xs text-slate-600 tabular-nums">
-                  £{settings.topup_50_price_gbp}
-                </div>
-              </button>
+          <button
+            type="button"
+            disabled={tokens === 0}
+            onClick={() => {
+              setGeneratedVerifyUrl(null);
+              setShowCreateLinkModal(true);
+            }}
+            className="cs-press mt-4 w-full min-h-[52px] rounded-full bg-[#0B2545] hover:bg-[#123461] disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-[0_12px_24px_-12px_rgba(11,37,69,0.6)] disabled:shadow-none"
+          >
+            <Link2 className="w-4 h-4" />
+            Generate Client ID Link
+          </button>
+          {tokens === 0 && <p className="mt-2 text-center text-[11px] text-[#DC2626] font-semibold">Top up to generate a new link.</p>}
+
+          <div className="mt-5 pt-5 border-t border-slate-100">
+            <SectionLabel tone="slate">Top up</SectionLabel>
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              {[
+                { checks: 5, price: settings.topup_5_price_gbp },
+                { checks: 15, price: settings.topup_15_price_gbp, popular: true },
+                { checks: 50, price: settings.topup_50_price_gbp },
+              ].map(({ checks, price, popular }) => (
+                <button
+                  key={checks}
+                  type="button"
+                  disabled={buyingPack !== null}
+                  onClick={() => handleTopUp(checks, price)}
+                  className={`cs-press relative min-h-[84px] px-2 pt-4 pb-3 rounded-2xl border text-center cursor-pointer disabled:cursor-wait ${
+                    popular ? "border-[#0B2545] bg-[#0B2545] text-white" : "border-slate-200 bg-white hover:border-slate-300"
+                  }`}
+                >
+                  {popular && (
+                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-[#00E08C] text-[#0B2545] text-[9px] font-black tracking-wide whitespace-nowrap">
+                      POPULAR
+                    </span>
+                  )}
+                  {buyingPack === checks ? (
+                    <Loader2 className="w-5 h-5 animate-spin mx-auto my-3" />
+                  ) : (
+                    <>
+                      <span className={`block text-2xl font-black tabular-nums ${popular ? "" : "text-[#0B2545]"}`}>{checks}</span>
+                      <span className={`block text-[10px] font-semibold ${popular ? "text-slate-300" : "text-slate-400"}`}>checks</span>
+                      <span className={`block mt-1 text-xs font-bold tabular-nums ${popular ? "text-[#00E08C]" : "text-emerald-700"}`}>£{price}</span>
+                    </>
+                  )}
+                </button>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* Subscription Footer Action */}
-        <section className="pt-2 pb-4 text-center">
-          <button type="button" onClick={() => setShowHibernationModal(true)} className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-[#DC2626] py-2 px-3 cursor-pointer">
-            <PauseCircle className="w-4 h-4"/>
-            <span>Cancel Subscription</span>
+        <section className="cs-rise cs-d4 pt-1 pb-2 flex items-center justify-between gap-2">
+          {ACCOUNT.isAgencyAdmin ? (
+            <Link
+              href="/agency"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-[#0B2545] py-2 transition"
+            >
+              <Users className="w-3.5 h-3.5" />
+              Manage team seats
+            </Link>
+          ) : (
+            <span />
+          )}
+          <button
+            type="button"
+            onClick={() => setShowHibernationModal(true)}
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-[#DC2626] py-2 cursor-pointer transition"
+          >
+            <PauseCircle className="w-3.5 h-3.5" />
+            Cancel subscription
           </button>
         </section>
       </main>
 
-      {/* Sticky 390px Bottom PWA Tab Bar */}
-      <nav aria-label="Dashboard sections" className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur border-t border-slate-200">
-        <div className="max-w-[390px] mx-auto px-4 h-16 grid grid-cols-3 gap-2 items-center">
-          <button type="button" onClick={() => jumpToTab("timer")} className={`min-h-[44px] rounded-full flex flex-col items-center justify-center text-[11px] font-semibold cursor-pointer ${activeTab === "timer" ? "bg-[#111827] text-white" : "text-slate-600"}`}>
-            <Timer className="w-4 h-4"/>
-            <span>Timer</span>
-          </button>
-          <button type="button" onClick={() => jumpToTab("vault")} className={`min-h-[44px] rounded-full flex flex-col items-center justify-center text-[11px] font-semibold cursor-pointer ${activeTab === "vault" ? "bg-[#111827] text-white" : "text-slate-600"}`}>
-            <Shield className="w-4 h-4"/>
-            <span>Vault</span>
-          </button>
-          <button type="button" onClick={() => jumpToTab("credits")} className={`min-h-[44px] rounded-full flex flex-col items-center justify-center text-[11px] font-semibold cursor-pointer ${activeTab === "credits" ? "bg-[#111827] text-white" : "text-slate-600"}`}>
-            <CreditCard className="w-4 h-4"/>
-            <span>Credits ({tokens})</span>
-          </button>
+      {/* Bottom tab bar */}
+      <nav
+        aria-label="Dashboard sections"
+        className="fixed bottom-0 left-0 right-0 z-30 bg-white/90 backdrop-blur-md border-t border-slate-100 pb-[env(safe-area-inset-bottom)]"
+      >
+        <div className="relative max-w-[390px] mx-auto px-4 h-[68px] grid grid-cols-3 items-center">
+          <span
+            aria-hidden="true"
+            className="absolute top-2.5 bottom-2.5 left-4 w-[calc((100%-2rem)/3)] rounded-2xl bg-[#0B2545] shadow-[0_8px_20px_-8px_rgba(11,37,69,0.6)] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+            style={{ transform: `translateX(${Math.max(0, activeTabIndex) * 100}%)` }}
+          />
+          {tabs.map(({ tab, icon: Icon, label }) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => jumpToTab(tab)}
+              aria-current={activeTab === tab ? "true" : undefined}
+              className={`relative z-10 h-full flex flex-col items-center justify-center gap-0.5 text-[11px] font-bold cursor-pointer transition-colors duration-300 ${
+                activeTab === tab ? "text-white" : "text-slate-400 hover:text-slate-700"
+              }`}
+            >
+              <span className="relative">
+                <Icon className={`w-[18px] h-[18px] ${activeTab === tab ? "text-[#00E08C]" : ""}`} />
+                {tab === "timer" && isLive && (
+                  <span className="absolute -top-0.5 -right-1 w-2 h-2 rounded-full bg-[#00E08C] ring-2 ring-white cs-blink" />
+                )}
+              </span>
+              <span>{tab === "credits" ? `${label} (${tokens})` : label}</span>
+            </button>
+          ))}
         </div>
       </nav>
 
-      {/* Add SOS Shortcut Guide Modal */}
-      {showSosGuideModal && (<div role="dialog" aria-modal="true" className="fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="w-full max-w-[390px] bg-white rounded-t-2xl sm:rounded-2xl p-5 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Smartphone className="w-5 h-5 text-[#16A34A]"/>
-                <h2 className="text-base font-bold">Add SOS to Home Screen</h2>
+      {/* SOS home-screen guide */}
+      <Sheet open={showSosGuideModal} onClose={() => setShowSosGuideModal(false)} labelledBy="sos-guide-title">
+        <SheetHeader
+          id="sos-guide-title"
+          eyebrow="One-tap SOS"
+          title="Add SOS to your home screen"
+          subtitle="Your private SOS page works without logging in."
+          icon={Smartphone}
+          onClose={() => setShowSosGuideModal(false)}
+        />
+        <ol className="space-y-2.5">
+          {[
+            ["iPhone (Safari)", "Open your SOS page, tap Share, then Add to Home Screen."],
+            ["Android (Chrome)", "Open your SOS page, tap ⋮, then Add to Home screen."],
+          ].map(([title, body], i) => (
+            <li key={title} className="flex gap-3 p-3.5 rounded-2xl bg-[#F9FAFB] border border-slate-100">
+              <span className="w-7 h-7 rounded-full bg-[#0B2545] text-[#00E08C] text-xs font-black flex items-center justify-center shrink-0">
+                {i + 1}
+              </span>
+              <div>
+                <p className="text-sm font-bold">{title}</p>
+                <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{body}</p>
               </div>
-              <button type="button" onClick={() => setShowSosGuideModal(false)} aria-label="Close" className="p-1 text-slate-400 hover:text-slate-700">
-                <X className="w-5 h-5"/>
-              </button>
+            </li>
+          ))}
+        </ol>
+        <Link
+          href="/sos/demo-sos-token"
+          className="cs-press mt-5 w-full min-h-[52px] rounded-full bg-[#DC2626] hover:bg-red-700 text-white font-bold text-sm flex items-center justify-center"
+        >
+          Open my private SOS page
+        </Link>
+      </Sheet>
+
+      {/* Generate client ID link */}
+      <Sheet open={showCreateLinkModal} onClose={() => setShowCreateLinkModal(false)} labelledBy="create-link-title">
+        <SheetHeader
+          id="create-link-title"
+          eyebrow={generatedVerifyUrl ? "Link ready" : "New ID check"}
+          title={generatedVerifyUrl ? "Send this link to your client" : "Generate Client ID Link"}
+          subtitle={
+            generatedVerifyUrl
+              ? "It works once. 1 check is used when the client is approved."
+              : "Your client's number is encrypted and hashed. It is never stored in readable form."
+          }
+          icon={Link2}
+          onClose={() => setShowCreateLinkModal(false)}
+        />
+        {generatedVerifyUrl ? (
+          <div className="space-y-3">
+            <div className="cs-rise p-3.5 rounded-2xl bg-[#F9FAFB] border border-slate-200 text-xs font-mono break-all text-slate-700">
+              {generatedVerifyUrl}
             </div>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Your private SOS page works <strong>without logging in</strong>, even from an iPhone
-              Home Screen shortcut.
-            </p>
-            <div className="p-3.5 rounded-2xl bg-[#F3F7F4] text-xs space-y-1.5 text-slate-700">
-              <p>
-                <strong>iPhone (Safari):</strong> Open your SOS page, tap{" "}
-                <strong>Share</strong>, then choose <strong>Add to Home Screen</strong>.
-              </p>
-              <p>
-                <strong>Android (Chrome):</strong> Open your SOS page, tap the{" "}
-                <strong>⋮ menu</strong>, then choose <strong>Install app / Add to Home screen</strong>.
-              </p>
+            <button
+              type="button"
+              onClick={() => {
+                navigator.clipboard?.writeText(generatedVerifyUrl);
+                showToast("Link copied.", "success");
+              }}
+              className="cs-press w-full min-h-[52px] rounded-full bg-[#16A34A] hover:bg-[#15803D] text-white font-bold text-sm flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Copy className="w-4 h-4" />
+              Copy single-use link
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowCreateLinkModal(false)}
+              className="cs-press w-full min-h-[48px] rounded-full text-sm font-semibold text-slate-600 hover:bg-slate-100 cursor-pointer"
+            >
+              Done
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleCreateLink} className="space-y-4">
+            <div>
+              <FieldLabel htmlFor="link-alias">Client nickname</FieldLabel>
+              <input
+                id="link-alias"
+                type="text"
+                required
+                value={newAlias}
+                onChange={(e) => setNewAlias(e.target.value)}
+                placeholder="e.g. Flat 2 Viewing — M.B."
+                className="cs-input"
+              />
             </div>
-            <Link href="/sos/demo-sos-token" className="w-full min-h-[48px] rounded-full bg-[#DC2626] text-white font-semibold text-sm flex items-center justify-center">
-              Open Private SOS Page
-            </Link>
-          </div>
-        </div>)}
+            <div>
+              <p className="text-xs font-semibold text-slate-700 mb-1.5">Client mobile number</p>
+              <PhoneInput
+                label="Client mobile number"
+                country={newClientPhoneCountry}
+                onCountry={setNewClientPhoneCountry}
+                value={newClientPhone}
+                onChange={setNewClientPhone}
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={creatingLink}
+              className="cs-press w-full min-h-[52px] rounded-full bg-[#0B2545] hover:bg-[#123461] disabled:opacity-60 text-white font-bold text-sm flex items-center justify-center gap-2 cursor-pointer"
+            >
+              {creatingLink ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4 text-[#00E08C]" />}
+              Create link
+            </button>
+          </form>
+        )}
+      </Sheet>
 
-      {/* Generate Client ID Link Modal */}
-      {showCreateLinkModal && (<div role="dialog" aria-modal="true" className="fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="w-full max-w-[390px] bg-white rounded-t-2xl sm:rounded-2xl p-5">
-            <h2 className="text-base font-bold text-[#111827]">Generate Client ID Link</h2>
-            <p className="text-xs text-slate-600 mt-1">
-              Enter your client&apos;s mobile number. It is encrypted in the vault and hashed with
-              HMAC-SHA256—never stored in readable form.
-            </p>
-            {generatedVerifyUrl ? (<div className="mt-4 space-y-3">
-                <div className="p-3 rounded-xl bg-[#F9FAFB] border border-slate-200 text-xs font-mono break-all">
-                  {generatedVerifyUrl}
-                </div>
-                <button type="button" onClick={() => {
-                    navigator.clipboard?.writeText(generatedVerifyUrl);
-                    showToast("Verification link copied.", "success");
-                }} className="w-full min-h-[48px] rounded-full bg-[#16A34A] text-white font-semibold text-sm flex items-center justify-center gap-2 cursor-pointer">
-                  <Copy className="w-4 h-4"/>
-                  <span>Copy Single-Use Link</span>
-                </button>
-                <button type="button" onClick={() => setShowCreateLinkModal(false)} className="w-full min-h-[44px] rounded-full text-xs font-medium text-slate-600 cursor-pointer">
-                  Done
-                </button>
-              </div>) : (<form onSubmit={handleCreateLink} className="mt-4 space-y-3">
-                <input type="text" required value={newAlias} onChange={(e) => setNewAlias(e.target.value)} placeholder="Client alias (e.g. Flat 2 Viewing)" className="w-full h-12 px-3.5 rounded-xl border border-slate-300 bg-[#F9FAFB] text-sm"/>
-                <input type="tel" required value={newClientPhone} onChange={(e) => setNewClientPhone(e.target.value)} placeholder="Client mobile (+44 7700 900123)" className="w-full h-12 px-3.5 rounded-xl border border-slate-300 bg-[#F9FAFB] text-sm"/>
-                <button type="submit" className="w-full min-h-[48px] rounded-full bg-[#111827] text-white font-semibold text-sm cursor-pointer">
-                  Create Link (Uses 1 token on approval)
-                </button>
-                <button type="button" onClick={() => setShowCreateLinkModal(false)} className="w-full min-h-[44px] rounded-full text-xs font-medium text-slate-600 cursor-pointer">
-                  Cancel
-                </button>
-              </form>)}
-          </div>
-        </div>)}
+      {/* Repeat session */}
+      <Sheet open={!!repeatTarget} onClose={() => setRepeatTarget(null)} labelledBy="repeat-title">
+        <SheetHeader
+          id="repeat-title"
+          eyebrow="Repeat session · £0"
+          title={repeatTarget?.Client_Alias_Name || ""}
+          subtitle="Re-enter the client's mobile. It must match the stored fingerprint, or a fresh ID check is needed."
+          icon={RotateCcw}
+          onClose={() => setRepeatTarget(null)}
+        />
+        <form onSubmit={handleRepeatVerify} className="space-y-4">
+          <PhoneInput
+            label="Client mobile number"
+            country={repeatPhoneCountry}
+            onCountry={setRepeatPhoneCountry}
+            value={repeatPhone}
+            onChange={setRepeatPhone}
+          />
+          <button
+            type="submit"
+            disabled={verifyingRepeat}
+            className="cs-press w-full min-h-[52px] rounded-full bg-[#16A34A] hover:bg-[#15803D] disabled:opacity-60 text-white font-bold text-sm flex items-center justify-center gap-2 cursor-pointer"
+          >
+            {verifyingRepeat ? <Loader2 className="w-4 h-4 animate-spin" /> : <Fingerprint className="w-4 h-4" />}
+            {verifyingRepeat ? "Checking fingerprint…" : "Verify & continue"}
+          </button>
+        </form>
+      </Sheet>
 
-      {/* Repeat Session (£0) Phone Hash Verification Modal */}
-      {repeatTarget && (<div role="dialog" aria-modal="true" className="fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="w-full max-w-[390px] bg-white rounded-t-2xl sm:rounded-2xl p-5">
-            <h2 className="text-base font-bold text-[#111827]">Repeat Session (£0)</h2>
-            <p className="text-xs text-slate-600 mt-1">
-              Re-enter the mobile number for <strong>{repeatTarget.Client_Alias_Name}</strong> to
-              confirm it matches the stored hash.
-            </p>
-            <form onSubmit={handleRepeatVerify} className="mt-4 space-y-3">
-              <input type="tel" required value={repeatPhone} onChange={(e) => setRepeatPhone(e.target.value)} placeholder="+44 7700 900123" className="w-full h-12 px-3.5 rounded-xl border border-slate-300 bg-[#F9FAFB] text-sm"/>
-              <button type="submit" className="w-full min-h-[48px] rounded-full bg-[#16A34A] text-white font-semibold text-sm cursor-pointer">
-                Verify &amp; Start Session (£0)
+      {/* Report issue */}
+      <Sheet open={!!reportTarget} onClose={() => setReportTarget(null)} labelledBy="report-title">
+        <SheetHeader
+          id="report-title"
+          eyebrow={reportConfirmStep ? "Step 2 of 2" : "Step 1 of 2"}
+          title={reportConfirmStep ? "Confirm safety report" : "Report an issue"}
+          subtitle={reportConfirmStep ? undefined : "Adds the client's anonymous fingerprint to the internal red-flag list."}
+          tone="red"
+          icon={Flag}
+          onClose={() => setReportTarget(null)}
+        />
+        <form onSubmit={handleReportStepSubmit} className="space-y-3">
+          {!reportConfirmStep ? (
+            <>
+              <div className="space-y-2">
+                {REPORT_CATEGORIES.map((cat) => {
+                  const checked = reportCategory === cat;
+                  return (
+                    <label
+                      key={cat}
+                      className={`cs-press flex items-center gap-3 min-h-[52px] px-4 rounded-2xl border text-sm font-semibold cursor-pointer ${
+                        checked ? "border-[#DC2626] bg-red-50 text-[#7F1D1D]" : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+                      }`}
+                    >
+                      <input type="radio" name="reportCategory" className="sr-only" checked={checked} onChange={() => setReportCategory(cat)} />
+                      <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${checked ? "border-[#DC2626]" : "border-slate-300"}`}>
+                        {checked && <span className="w-2 h-2 rounded-full bg-[#DC2626]" />}
+                      </span>
+                      {cat}
+                    </label>
+                  );
+                })}
+              </div>
+              <button
+                type="submit"
+                className="cs-press w-full min-h-[52px] rounded-full bg-[#DC2626] hover:bg-red-700 text-white font-bold text-sm cursor-pointer !mt-5"
+              >
+                Continue
               </button>
-              <button type="button" onClick={() => setRepeatTarget(null)} className="w-full min-h-[44px] rounded-full text-xs font-medium text-slate-600 cursor-pointer">
-                Cancel
+            </>
+          ) : (
+            <>
+              <div className="cs-rise p-4 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-950 space-y-2">
+                <p className="font-bold text-sm">{reportTarget?.Client_Alias_Name}</p>
+                <p>
+                  Category: <strong>{reportCategory}</strong>
+                </p>
+                <p className="pt-2 border-t border-red-200 leading-relaxed text-red-900/90">
+                  The client is marked <strong>FLAGGED / HIGH RISK</strong> and £0 repeats are disabled. You can undo for{" "}
+                  <strong>10 minutes</strong>; after that the report is permanently locked.
+                </p>
+              </div>
+              <button
+                type="submit"
+                className="cs-press w-full min-h-[52px] rounded-full bg-[#DC2626] hover:bg-red-700 text-white font-bold text-sm cursor-pointer"
+              >
+                Submit report
               </button>
-            </form>
-          </div>
-        </div>)}
+              <button
+                type="button"
+                onClick={() => setReportConfirmStep(false)}
+                className="cs-press w-full min-h-[48px] rounded-full text-sm font-semibold text-slate-600 hover:bg-slate-100 cursor-pointer"
+              >
+                Back
+              </button>
+            </>
+          )}
+        </form>
+      </Sheet>
 
-      {/* Report Issue Modal */}
-      {reportTarget && (<div role="dialog" aria-modal="true" className="fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="w-full max-w-[390px] bg-white rounded-t-2xl sm:rounded-2xl p-5">
-            <h2 className="text-base font-bold text-[#111827]">Report Issue</h2>
-            <p className="text-xs text-slate-600 mt-1">
-              Saves the client&apos;s anonymised fingerprint to the server-side{" "}
-              <code>Global_Safety_Hash</code> list.
-            </p>
-            <form onSubmit={handleReportSubmit} className="mt-4 space-y-2.5">
-              {[
-                "Severe Safety / Conduct Breach",
-                "Non-Payment / Fraud",
-                "Minor Late Cancellation",
-            ].map((cat) => (<label key={cat} className={`flex items-center gap-3 p-3 rounded-xl border text-xs font-medium cursor-pointer ${reportCategory === cat
-                    ? "border-[#DC2626] bg-red-50 text-[#111827]"
-                    : "border-slate-200 bg-[#F9FAFB] text-slate-700"}`}>
-                  <input type="radio" name="reportCategory" checked={reportCategory === cat} onChange={() => setReportCategory(cat)}/>
-                  <span>{cat}</span>
-                </label>))}
-              <button type="submit" className="w-full min-h-[48px] rounded-full bg-[#DC2626] text-white font-semibold text-sm mt-2 cursor-pointer">
-                Submit Safety Report
-              </button>
-              <button type="button" onClick={() => setReportTarget(null)} className="w-full min-h-[44px] rounded-full text-xs font-medium text-slate-600 cursor-pointer">
-                Cancel
-              </button>
-            </form>
-          </div>
-        </div>)}
-
-      {/* Cancellation / Hibernation Modal */}
-      <HibernationModal open={showHibernationModal} onClose={() => setShowHibernationModal(false)} proxyNumbers={proxyNumbers} settings={settings} onConfirmHibernation={async (keptIds, price) => {
-            setProxyNumbers((prev) => prev.map((n) => ({
-                ...n,
-                Status: keptIds.includes(n.id) ? "RESERVED" : "RELEASED",
-            })));
-            showToast(`Switched to Hibernation Mode (£${price}/month). Kept ${keptIds.length} number(s).`, "success");
-        }}/>
-    </div>);
+      <HibernationModal
+        open={showHibernationModal}
+        onClose={() => setShowHibernationModal(false)}
+        proxyNumbers={proxyNumbers}
+        settings={settings}
+        onConfirmHibernation={async (keptIds, price) => {
+          setProxyNumbers((prev) => prev.map((n) => ({ ...n, Status: keptIds.includes(n.id) ? "RESERVED" : "RELEASED" })));
+          showToast(`Hibernation Mode on (£${price}/month). Kept ${keptIds.length} number(s).`, "success");
+        }}
+      />
+    </div>
+  );
 }

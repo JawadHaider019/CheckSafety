@@ -2,77 +2,102 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
-import { CheckSafeLogo } from "@/components/ui/CheckSafeLogo";
+import { Loader2, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { useToast } from "@/components/ui/ToastProvider";
+import { AuthShell, PrimaryButton } from "@/components/ui/AuthShell";
+
 export default function LoginPage() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [loading, setLoading] = useState(false);
-    const { showToast } = useToast();
-    const router = useRouter();
-    async function handleSubmit(e) {
-        e.preventDefault();
-        setLoading(true);
-        try {
-            await new Promise((r) => setTimeout(r, 400));
-            showToast("Signed in to your worker account.", "success");
-            router.push("/dashboard");
-        }
-        finally {
-            setLoading(false);
-        }
-    }
-    return (<div className="min-h-screen bg-[#F8F7F5] flex flex-col items-center justify-center px-4 py-12">
-      <div className="w-full max-w-[400px] space-y-6">
-        <div className="text-center">
-          <Link href="/" className="inline-flex items-center">
-            <CheckSafeLogo darkSurface={false} size="md"/>
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
+  const router = useRouter();
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setLoading(true);
+    await new Promise((r) => setTimeout(r, 600));
+    showToast("Signed in to your worker console.", "success");
+    router.push("/dashboard");
+  }
+
+  return (
+    <AuthShell
+      eyebrow="Worker sign in"
+      title="Welcome back"
+      subtitle="Your safety console, masked lines and client vault."
+      footer={
+        <>
+          New to Checksafe?{" "}
+          <Link href="/signup" className="font-bold text-[#0B2545] hover:underline underline-offset-4">
+            Create a worker account
           </Link>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="login-email" className="block text-xs font-semibold text-slate-700 mb-1.5">
+            Email address
+          </label>
+          <input
+            id="login-email"
+            type="email"
+            required
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="alex@example.co.uk"
+            className="cs-input"
+          />
         </div>
 
-        <div className="editorial-card bg-white rounded-[32px] p-6 sm:p-8">
-          <div className="text-[10px] font-mono font-bold tracking-[0.2em] uppercase text-emerald-700">
-            /01 Authentication
-          </div>
-          <h1 className="text-2xl font-extrabold text-[#111215] mt-1">Sign in</h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Access your safety timer, proxy lines, and Trusted Client Vault.
-          </p>
-
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-            <div>
-              <label htmlFor="login-email" className="block text-xs font-semibold text-slate-700 mb-1">
-                Email address
-              </label>
-              <input id="login-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="alex@example.co.uk" className="w-full h-12 px-3.5 rounded-xl border border-slate-300 bg-[#F9FAFB] text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#111827]"/>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label htmlFor="login-password" className="block text-xs font-semibold text-slate-700">
-                  Password
-                </label>
-                <Link href="/reset-password" className="text-xs font-semibold text-slate-600 hover:text-[#111827]">
-                  Forgot password?
-                </Link>
-              </div>
-              <input id="login-password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full h-12 px-3.5 rounded-xl border border-slate-300 bg-[#F9FAFB] text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#111827]"/>
-            </div>
-
-            <button type="submit" disabled={loading} className="w-full min-h-[48px] rounded-full bg-[#111215] hover:bg-black disabled:opacity-60 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition cursor-pointer shadow-sm hover:scale-[1.01]">
-              {loading && <Loader2 className="w-4 h-4 animate-spin"/>}
-              <span>{loading ? "Signing in..." : "Sign in"}</span>
-            </button>
-          </form>
-
-          <p className="mt-6 text-xs text-center text-slate-600">
-            New to Checksafe?{" "}
-            <Link href="/signup" className="font-bold text-[#111827] underline">
-              Create an account
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <label htmlFor="login-password" className="text-xs font-semibold text-slate-700">
+              Password
+            </label>
+            <Link href="/reset-password" className="text-xs font-semibold text-slate-500 hover:text-[#0B2545] transition">
+              Forgot password?
             </Link>
-          </p>
+          </div>
+          <div className="relative">
+            <input
+              id="login-password"
+              type={showPassword ? "text" : "password"}
+              required
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="cs-input pr-12"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 p-2.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+            >
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
         </div>
-      </div>
-    </div>);
+
+        <PrimaryButton type="submit" loading={loading} className="!mt-6">
+          {loading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Signing in…</span>
+            </>
+          ) : (
+            <>
+              <span>Sign in</span>
+              <ArrowRight className="w-4 h-4 text-[#00E08C]" />
+            </>
+          )}
+        </PrimaryButton>
+      </form>
+    </AuthShell>
+  );
 }

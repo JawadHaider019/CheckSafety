@@ -1,288 +1,226 @@
-"use client";
-import React, { useState } from "react";
 import Link from "next/link";
-import {
-  ShieldCheck,
-  Lock,
-  EyeOff,
-  Clock,
-  Server,
-  FileText,
-  CheckCircle2,
-  AlertCircle,
-  Mail,
-  Building,
-  ArrowRight,
-} from "lucide-react";
-import { SiteHeader } from "@/components/ui/SiteHeader";
-import { SiteFooter } from "@/components/ui/SiteFooter";
+import { ArrowUpRight, ShieldCheck } from "lucide-react";
+import { MarketingPage, PageHero, WRAP } from "@/components/marketing/Marketing";
 import { COMPANY_NAME, PRIMARY_DOMAIN } from "@/lib/domains";
 
+export const metadata = {
+  title: "Privacy policy — Checksafe",
+  description: "How Checksafe handles worker and client data under UK GDPR, with zero readable client records.",
+};
+
 const SECTIONS = [
-  { id: "controller", title: "1. Data Controller & Scope" },
-  { id: "biometrics", title: "2. The 60-Second Biometric Identity Purge" },
-  { id: "proxy", title: "3. Ghost Proxy Virtual Lines & SIM Masking" },
-  { id: "geolocation", title: "4. Geolocation Encryption & Silent Duress" },
-  { id: "retention", title: "5. Data Retention & Global Safety Hash" },
-  { id: "rights", title: "6. Your Statutory Rights Under UK GDPR" },
-  { id: "dpo", title: "7. Data Protection Officer (DPO) Contact" },
+  { id: "controller", title: "Who we are" },
+  { id: "identity", title: "Client ID checks" },
+  { id: "numbers", title: "Masked phone numbers" },
+  { id: "location", title: "Location data" },
+  { id: "retention", title: "How long we keep data" },
+  { id: "rights", title: "Your rights" },
+  { id: "contact", title: "Contact & complaints" },
 ];
 
-export default function PrivacyPage() {
-  const [activeSection, setActiveSection] = useState("controller");
+const RETENTION = [
+  ["Client ID photos, selfies and names", "Deleted through Veriff within 60 seconds of the check", "Data minimisation"],
+  ["Client phone number (encrypted)", "Deleted when a session closes safely; kept 30 days after an alert, then deleted", "Masked calls and incident follow-up"],
+  ["Call and SMS logs (Twilio)", "Deleted on the same schedule as the client phone number", "Data minimisation"],
+  ["Client fingerprint and check result", "While the client is in your Trusted Client Vault", "£0 repeat sessions"],
+  ["Red-flag reports (anonymous fingerprint)", "Severe safety and non-payment reports are kept permanently", "Protecting other workers"],
+  ["Alert and SMS delivery logs", "3 years", "Health and safety records"],
+  ["Worker account and billing data", "Length of subscription plus 6 years", "Tax and accounting law"],
+];
 
+function Section({ id, n, title, children }) {
   return (
-    <div className="min-h-screen bg-white text-[#111215] flex flex-col font-sans antialiased selection:bg-[#111215] selection:text-white pt-16">
-      <SiteHeader activePage="privacy" />
+    <section id={id} className="scroll-mt-28 pt-12 first:pt-0 border-t first:border-t-0 border-slate-200">
+      <p className="font-serif italic text-2xl text-emerald-700">§{n}</p>
+      <h2 className="mt-1 text-2xl sm:text-3xl font-semibold tracking-tight text-[#0B2545]">{title}</h2>
+      <div className="mt-5 space-y-4 text-[15px] sm:text-base text-slate-600 leading-relaxed [&_strong]:text-[#0B2545] [&_ul]:space-y-2 [&_ul]:pl-5 [&_ul]:list-disc [&_li]:marker:text-emerald-600">
+        {children}
+      </div>
+    </section>
+  );
+}
 
-      <main className="flex-1">
-        {/* Hero Section */}
-        <section className="pt-12 sm:pt-20 pb-12 sm:pb-16 bg-gradient-to-b from-slate-50/80 via-white to-white border-b border-slate-100">
-          <div className="w-[96%] max-w-[1400px] mx-auto px-4 sm:px-6">
-            <div className="max-w-3xl">
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#0B2545]/5 border border-[#0B2545]/20 text-[#0B2545] text-xs font-extrabold tracking-wider uppercase mb-4 shadow-2xs">
-                <Lock className="w-4 h-4 text-[#00E08C]" />
-                <span>Zero-Knowledge Privacy Policy &amp; Biometric Charter</span>
-              </div>
-
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-[#111827] tracking-tight leading-[1.08]">
-                Privacy by Cryptographic Design,
-                <br />
-                <span className="text-[#0B2545]">Not Just Policy</span>
-              </h1>
-
-              <p className="mt-4 sm:mt-5 text-base sm:text-lg text-slate-600 leading-relaxed font-normal max-w-2xl">
-                How Checksafe Software Ltd. processes biometric screenings, virtualizes phone lines, and enforces the mandatory 60-second raw identity purge under UK GDPR and the Data Protection Act 2018.
-              </p>
-
-              <div className="mt-6 flex items-center gap-4 text-xs text-slate-500 font-semibold">
-                <span>Last Updated: November 2026</span>
-                <span>•</span>
-                <span>Version 3.4 (UK Lone-Worker Safety & Biometric Protection)</span>
-                <span>•</span>
-                <span className="text-emerald-600">UK Data Residency</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Content Section with Sticky Sidebar */}
-        <section className="py-12 sm:py-20 bg-white">
-          <div className="w-[96%] max-w-[1400px] mx-auto px-4 sm:px-6">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
-              
-              {/* Sticky Sidebar (4 cols) */}
-              <div className="hidden lg:block lg:col-span-4 sticky top-24 space-y-2 p-5 bg-slate-50 rounded-3xl border border-slate-200/80">
-                <div className="text-xs font-bold text-slate-900 uppercase tracking-wider px-3 pb-2 border-b border-slate-200/80">
-                  Privacy Charter Sections
-                </div>
-                <nav className="space-y-1">
-                  {SECTIONS.map((s) => (
-                    <a
-                      key={s.id}
-                      href={`#${s.id}`}
-                      onClick={() => setActiveSection(s.id)}
-                      className={`block text-xs font-semibold py-2 px-3 rounded-xl transition ${
-                        activeSection === s.id
-                          ? "bg-[#0B2545] text-white shadow-xs"
-                          : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
-                      }`}
-                    >
-                      {s.title}
-                    </a>
-                  ))}
-                </nav>
-
-                <div className="pt-4 border-t border-slate-200/80">
-                  <div className="text-[11px] text-slate-500 leading-relaxed">
-                    Have questions regarding our Data Processing Addendum (DPA)?
-                  </div>
-                  <Link
-                    href="/contact"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0B2545] hover:text-black mt-2"
-                  >
-                    <span>Contact DPO Desk</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
-              </div>
-
-              {/* Main Policy Prose (8 cols) */}
-              <div className="lg:col-span-8 space-y-12 text-slate-700 leading-relaxed text-sm sm:text-base">
-                
-                {/* 1. Data Controller */}
-                <div id="controller" className="scroll-mt-24 space-y-3.5">
-                  <h2 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                    <span className="text-[#00E08C] font-mono text-lg">§1</span>
-                    <span>Data Controller &amp; Scope of Protection</span>
-                  </h2>
-                  <p>
-                    This Privacy Policy and Biometric Charter governs the processing of personal data by <strong>{COMPANY_NAME}</strong> (&ldquo;Checksafe&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;), registered in England and Wales under company number 14892011, having our registered operations at 100 Leadenhall Street, City of London, EC3A 3BP.
-                  </p>
-                  <p>
-                    Checksafe operates a proprietary lone-worker security ecosystem comprising our progressive web application, emergency dispatch relays, virtual proxy communication channels, and identity verification portals (&ldquo;Services&rdquo;). We act as an independent <strong>Data Controller</strong> for our registered solo workers and agency fleet supervisors, and as a <strong>Data Processor</strong> with respect to third-party clients (such as property viewers, tutoring parents, or domiciliary patients) undergoing pre-appointment identity checks on behalf of a subscriber.
-                  </p>
-                </div>
-
-                {/* 2. 60-Second Biometric Identity Purge */}
-                <div id="biometrics" className="scroll-mt-24 space-y-3.5 pt-8 border-t border-slate-100">
-                  <h2 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                    <span className="text-[#00E08C] font-mono text-lg">§2</span>
-                    <span>The 60-Second Biometric Identity Purge</span>
-                  </h2>
-                  <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs sm:text-sm text-emerald-900 space-y-1">
-                    <strong>Zero Raw Biometric Storage Guarantee:</strong>
-                    <p>
-                      Checksafe never permanently retains raw facial scans, passport imagery, or biometric vectors on our production servers. All identity data is cryptographically destroyed within 60 seconds of automated verification clearance.
-                    </p>
-                  </div>
-                  <p>
-                    When an unaccompanied worker initiates a client verification pass, the counterparty receives a secure, unbranded verification link. The verification process is executed through our certified KYC verification partner (<strong>Veriff</strong>). The viewer provides:
-                  </p>
-                  <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm">
-                    <li>Government-issued photographic identification (e.g., UK Driving Licence or International Passport);</li>
-                    <li>A real-time 3D liveness selfie to prevent spoofing and presentation attacks.</li>
-                  </ul>
-                  <p>
-                    Upon successful liveness clearance, our pipeline computes a one-way cryptographic <strong>HMAC SHA-256 fingerprint</strong> combining the verified date-of-birth and document authority code. This irreversible token is cross-referenced with the Global Safety Hash registry. Once verified, the raw selfie and photo document images are permanently purged from cache within 60 seconds.
-                  </p>
-                </div>
-
-                {/* 3. Ghost Proxy Virtual Lines */}
-                <div id="proxy" className="scroll-mt-24 space-y-3.5 pt-8 border-t border-slate-100">
-                  <h2 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                    <span className="text-[#00E08C] font-mono text-lg">§3</span>
-                    <span>Ghost Proxy Virtual Lines &amp; SIM Masking</span>
-                  </h2>
-                  <p>
-                    A foundational hazard for lone workers is the exposure of personal mobile numbers to unknown clients, resulting in harassment, stalking, or out-of-hours intrusion. Checksafe integrates virtual telecommunications proxy lines powered by <strong>Twilio UK</strong>:
-                  </p>
-                  <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm">
-                    <li><strong>Outbound Masking:</strong> When a worker contacts a viewer via SMS or phone call, the recipient only observes the dedicated virtual Checksafe proxy line;</li>
-                    <li><strong>Inbound Filtering:</strong> Inbound calls route through our proxy exchange and can be muted outside designated working appointments;</li>
-                    <li><strong>Zero Carrier SIM Logging:</strong> Your actual SIM IMEI, IMSI, and personal WhatsApp identifier are never exposed or recorded in the client-facing transaction.</li>
-                  </ul>
-                </div>
-
-                {/* 4. Geolocation Minimization */}
-                <div id="geolocation" className="scroll-mt-24 space-y-3.5 pt-8 border-t border-slate-100">
-                  <h2 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                    <span className="text-[#00E08C] font-mono text-lg">§4</span>
-                    <span>Geolocation Minimization &amp; Silent Duress Escalation</span>
-                  </h2>
-                  <p>
-                    We strictly reject permanent, invasive 24/7 worker surveillance. In compliance with the <strong>UK Information Commissioner&apos;s Office (ICO) Employment Practices Code</strong>:
-                  </p>
-                  <ul className="list-disc pl-5 space-y-2 text-xs sm:text-sm">
-                    <li>
-                      <strong>Active Session Window Only:</strong> Location coordinates are captured only during an active timed session (e.g. an estate viewing or home therapy session) initiated by the worker.
-                    </li>
-                    <li>
-                      <strong>Zero Idle Tracking:</strong> When no timer is running, our application does not track, record, or poll background geolocation coordinates.
-                    </li>
-                    <li>
-                      <strong>Custom Secret Duress Protocol:</strong> In the event of duress where an aggressor coerces the worker to unlock or checkout their phone, entering the secret duress PIN displays a benign checkout screen while instantaneously relaying real-time emergency coordinates to the worker&apos;s nominated fleet supervisor or emergency contact.
-                    </li>
-                  </ul>
-                </div>
-
-                {/* 5. Data Retention */}
-                <div id="retention" className="scroll-mt-24 space-y-3.5 pt-8 border-t border-slate-100">
-                  <h2 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                    <span className="text-[#00E08C] font-mono text-lg">§5</span>
-                    <span>Data Retention Periods &amp; Cryptographic Vault</span>
-                  </h2>
-                  <p>
-                    We retain data only for periods strictly necessary to satisfy statutory duty-of-care, health and safety audit trails, and legal defence:
-                  </p>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-xs text-left border-collapse border border-slate-200 rounded-xl overflow-hidden">
-                      <thead className="bg-slate-100 text-slate-800 font-bold uppercase">
-                        <tr>
-                          <th className="p-3 border-b border-slate-200">Data Category</th>
-                          <th className="p-3 border-b border-slate-200">Retention Horizon</th>
-                          <th className="p-3 border-b border-slate-200">Legal Justification</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        <tr>
-                          <td className="p-3 font-semibold text-slate-900">Raw Client Selfies &amp; Passports</td>
-                          <td className="p-3 text-emerald-600 font-bold">Purged within 60 Seconds</td>
-                          <td className="p-3 text-slate-500">Biometric Minimization Principle</td>
-                        </tr>
-                        <tr>
-                          <td className="p-3 font-semibold text-slate-900">Session Verification Tokens (Hashed)</td>
-                          <td className="p-3">30 Days (Repeat Token: 365 Days)</td>
-                          <td className="p-3 text-slate-500">Client Repeat Booking Vault</td>
-                        </tr>
-                        <tr>
-                          <td className="p-3 font-semibold text-slate-900">Emergency Dispatch &amp; Duress Logs</td>
-                          <td className="p-3">3 Years</td>
-                          <td className="p-3 text-slate-500">UK HSE &amp; Limitation Act 1980</td>
-                        </tr>
-                        <tr>
-                          <td className="p-3 font-semibold text-slate-900">Worker Account &amp; Billing Data</td>
-                          <td className="p-3">Duration of subscription + 6 years</td>
-                          <td className="p-3 text-slate-500">HMRC Statutory Tax Compliance</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-                {/* 6. Statutory Rights */}
-                <div id="rights" className="scroll-mt-24 space-y-3.5 pt-8 border-t border-slate-100">
-                  <h2 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                    <span className="text-[#00E08C] font-mono text-lg">§6</span>
-                    <span>Your Statutory Rights Under UK GDPR</span>
-                  </h2>
-                  <p>
-                    Under the <strong>UK General Data Protection Regulation (UK GDPR)</strong> and the <strong>Data Protection Act 2018</strong>, both registered workers and external clients retain enforceable rights regarding their data:
-                  </p>
-                  <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm">
-                    <li><strong>Right to Erasure (Article 17):</strong> Request deletion of hashed tokens and historical contact records where legal retention mandates have expired;</li>
-                    <li><strong>Right to Rectification (Article 16):</strong> Correct inaccurate contact or emergency peer allocation details instantly in the Worker Console;</li>
-                    <li><strong>Right to Data Portability (Article 20):</strong> Export session logs and compliance audit trails in machine-readable JSON format;</li>
-                    <li><strong>Right to Object (Article 21):</strong> Opt out of non-essential operational notifications or safety bulletins at any time.</li>
-                  </ul>
-                </div>
-
-                {/* 7. DPO Contact */}
-                <div id="dpo" className="scroll-mt-24 space-y-3.5 pt-8 border-t border-slate-100">
-                  <h2 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                    <span className="text-[#00E08C] font-mono text-lg">§7</span>
-                    <span>Data Protection Officer (DPO) &amp; Supervisory Authority</span>
-                  </h2>
-                  <p>
-                    For inquiries regarding cryptographic verification, data protection agreements (DPAs), or exercising statutory privacy rights:
-                  </p>
-                  <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5 text-xs sm:text-sm">
-                    <div className="font-bold text-slate-900">Data Protection Officer</div>
-                    <div>Checksafe Software Ltd.</div>
-                    <div>100 Leadenhall Street, City of London, London EC3A 3BP</div>
-                    <div>
-                      Email:{" "}
-                      <a
-                        href={`mailto:compliance@${PRIMARY_DOMAIN}`}
-                        className="font-mono text-[#0B2545] font-bold hover:underline"
-                      >
-                        compliance@{PRIMARY_DOMAIN}
-                      </a>
-                    </div>
-                  </div>
-                  <p className="text-xs text-slate-500">
-                    If you believe your personal data has been handled in breach of UK data protection laws, you retain the right to lodge a formal complaint with the <strong>Information Commissioner&apos;s Office (ICO)</strong> at <a href="https://ico.org.uk" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-900">ico.org.uk</a>.
-                  </p>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <SiteFooter />
+function Callout({ children }) {
+  return (
+    <div className="flex gap-3 p-5 rounded-[22px] bg-[#0B2545] text-slate-200">
+      <ShieldCheck className="w-5 h-5 text-[#00E08C] shrink-0 mt-0.5" />
+      <div className="text-[15px] leading-relaxed [&_strong]:!text-white">{children}</div>
     </div>
+  );
+}
+
+export default function PrivacyPage() {
+  return (
+    <MarketingPage active="privacy">
+      <PageHero
+        eyebrow="Privacy policy"
+        image="https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=2000&q=80"
+        imagePosition="center 35%"
+        title="Privacy by design,"
+        accent="not just policy."
+        lead="How Checksafe handles worker and client data under UK GDPR and the Data Protection Act 2018, and why client details are never stored in readable form."
+      >
+        <ul className="flex flex-wrap gap-2">
+          {["Last updated: November 2026", "UK GDPR & DPA 2018", "London data region"].map((t) => (
+            <li key={t} className="px-3.5 py-2 rounded-full bg-white/[0.07] border border-white/10 text-xs font-medium text-slate-200">
+              {t}
+            </li>
+          ))}
+        </ul>
+      </PageHero>
+
+      <div className={`${WRAP} py-16 sm:py-24 grid lg:grid-cols-[260px_1fr] gap-10 lg:gap-20 items-start`}>
+        <aside className="lg:sticky lg:top-28">
+          <nav aria-label="On this page" className="rounded-[24px] bg-[#F8F7F5] p-5">
+            <p className="text-[11px] font-mono font-semibold tracking-[0.2em] uppercase text-slate-500 px-2">On this page</p>
+            <ol className="mt-3 grid grid-cols-2 lg:grid-cols-1 gap-1">
+              {SECTIONS.map((s, i) => (
+                <li key={s.id}>
+                  <a
+                    href={`#${s.id}`}
+                    className="flex gap-2 px-2 py-2 rounded-xl text-sm font-medium text-slate-600 hover:text-[#0B2545] hover:bg-white transition"
+                  >
+                    <span className="font-serif italic text-emerald-700 w-4">{i + 1}</span>
+                    {s.title}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+          <Link
+            href="/contact"
+            className="mt-4 hidden lg:inline-flex items-center gap-1.5 px-2 text-sm font-semibold text-[#0B2545] hover:gap-2.5 transition-all"
+          >
+            Questions? Contact us <ArrowUpRight className="w-4 h-4 text-emerald-600" />
+          </Link>
+        </aside>
+
+        <article className="max-w-[760px] space-y-12">
+          <Section id="controller" n={1} title="Who we are">
+            <p>
+              This policy explains how <strong>{COMPANY_NAME}</strong> (&ldquo;Checksafe&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) processes
+              personal data, registered in England and Wales under company number 14892011, at 100 Leadenhall Street, London EC3A 3BP.
+            </p>
+            <p>
+              We are the <strong>data controller</strong> for the workers and agency admins who use Checksafe. For clients who complete an ID
+              check at a worker&apos;s request, we act as a <strong>data processor</strong> on that worker&apos;s behalf.
+            </p>
+          </Section>
+
+          <Section id="identity" n={2} title="Client ID checks">
+            <Callout>
+              <strong>We never keep ID images, selfies or names.</strong> Our verification partner deletes them within 60 seconds of each
+              check. We keep only an anonymous fingerprint and the result.
+            </Callout>
+            <p>
+              When a worker requests a check, their client receives a single-use link and completes an automated check with our partner,{" "}
+              <strong>Veriff</strong>. The client provides:
+            </p>
+            <ul>
+              <li>a photo of a government-issued ID, such as a passport or driving licence;</li>
+              <li>a live selfie, to confirm the ID belongs to them.</li>
+            </ul>
+            <p>
+              The worker enters the client&apos;s phone number when creating the link. We turn it into a one-way{" "}
+              <strong>HMAC-SHA256 fingerprint</strong> using a secret key held only on our servers. The fingerprint lets us recognise a
+              returning client, or a client reported by another worker, without being able to read who they are.
+            </p>
+          </Section>
+
+          <Section id="numbers" n={3} title="Masked phone numbers">
+            <p>
+              Each worker gets dedicated phone numbers, provided through <strong>Twilio</strong>. Calls and texts between a worker and their
+              client go through these numbers, so:
+            </p>
+            <ul>
+              <li>clients only ever see the worker&apos;s Checksafe number, never their personal mobile;</li>
+              <li>the client&apos;s real number is held encrypted only while it&apos;s needed to connect calls, and is never shown in the app;</li>
+              <li>call and SMS logs are deleted on the same schedule as the client&apos;s number (see section 5).</li>
+            </ul>
+          </Section>
+
+          <Section id="location" n={4} title="Location data">
+            <p>We don&apos;t track workers. Specifically:</p>
+            <ul>
+              <li>
+                <strong>Appointment address only.</strong> For each session the worker enters the appointment address, or fills it once from
+                their phone&apos;s location.
+              </li>
+              <li>
+                <strong>Shared only in an alert.</strong> The address is sent to the worker&apos;s emergency contact only if a session isn&apos;t
+                closed in time, or the worker uses their Duress Code or SOS.
+              </li>
+              <li>
+                <strong>No background tracking.</strong> Checksafe doesn&apos;t collect location when no session is running.
+              </li>
+            </ul>
+          </Section>
+
+          <Section id="retention" n={5} title="How long we keep data">
+            <p>We keep data only as long as it&apos;s needed for safety, legal and accounting purposes:</p>
+            <div className="rounded-[22px] border border-slate-200 overflow-hidden">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-[#F8F7F5] text-[#0B2545]">
+                  <tr>
+                    <th className="p-4 font-semibold">Data</th>
+                    <th className="p-4 font-semibold">How long</th>
+                    <th className="p-4 font-semibold hidden sm:table-cell">Why</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {RETENTION.map(([data, period, why]) => (
+                    <tr key={data} className="align-top">
+                      <td className="p-4 font-medium text-[#0B2545]">{data}</td>
+                      <td className="p-4">{period}</td>
+                      <td className="p-4 text-slate-500 hidden sm:table-cell">{why}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Section>
+
+          <Section id="rights" n={6} title="Your rights">
+            <p>
+              Under <strong>UK GDPR</strong> and the <strong>Data Protection Act 2018</strong>, workers and clients can:
+            </p>
+            <ul>
+              <li>
+                <strong>access</strong> the personal data we hold about them;
+              </li>
+              <li>
+                <strong>correct</strong> inaccurate data, such as an emergency contact, which workers can also do in their console;
+              </li>
+              <li>
+                <strong>ask for deletion</strong> where we no longer have a legal reason to keep the data;
+              </li>
+              <li>
+                <strong>object</strong> to non-essential messages at any time.
+              </li>
+            </ul>
+          </Section>
+
+          <Section id="contact" n={7} title="Contact & complaints">
+            <div className="p-6 rounded-[22px] bg-[#F8F7F5] text-[15px] space-y-1">
+              <p className="font-semibold text-[#0B2545]">Data Protection Officer</p>
+              <p>{COMPANY_NAME}, 100 Leadenhall Street, London EC3A 3BP</p>
+              <p>
+                <a href={`mailto:compliance@${PRIMARY_DOMAIN}`} className="font-mono font-semibold text-[#0B2545] hover:underline underline-offset-4">
+                  compliance@{PRIMARY_DOMAIN}
+                </a>
+              </p>
+            </div>
+            <p>
+              If you&apos;re unhappy with how we&apos;ve handled your data, you can complain to the{" "}
+              <strong>Information Commissioner&apos;s Office</strong> at{" "}
+              <a href="https://ico.org.uk" target="_blank" rel="noopener noreferrer" className="font-semibold text-[#0B2545] underline underline-offset-4">
+                ico.org.uk
+              </a>
+              .
+            </p>
+          </Section>
+        </article>
+      </div>
+    </MarketingPage>
   );
 }
