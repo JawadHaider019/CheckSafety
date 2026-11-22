@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2, Eye, EyeOff, ArrowRight, AlertCircle, KeyRound } from "lucide-react";
@@ -19,10 +19,6 @@ export default function LoginPage() {
   const router = useRouter();
   const session = useSession();
   const next = safeNext(new URLSearchParams(useSearchString()).get("next"));
-
-  useEffect(() => {
-    if (session.status === "in" && !loading) router.replace(next);
-  }, [session.status, loading, next, router]);
 
   async function handleSubmit(e) {
     e.preventDefault();

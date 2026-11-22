@@ -7,7 +7,7 @@ const STEPS = [
     icon: Timer,
     tag: "In session",
     title: "Timer runs",
-    body: "Set 30 minutes to 4 hours. Enter your Safe Code when you leave to close it safely.",
+    body: "Set 15 minutes to 4 hours. Enter your Safe Code when you leave to close it safely.",
     iconClass: "bg-white text-[#0B2545]",
     fill: "from-white/80 to-amber-300",
   },

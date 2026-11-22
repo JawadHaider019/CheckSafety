@@ -49,7 +49,7 @@ const SAFEGUARDS = [
   {
     title: "Missed check-ins",
     risk: "Nobody notices a worker hasn't left an appointment until hours later.",
-    answer: "Sessions of 30 minutes to 4 hours. If the Safe Code isn't entered, the worker is warned, then after 5 minutes their contact gets the address.",
+    answer: "Sessions of 15 minutes to 4 hours. If the Safe Code isn't entered, the worker is warned, then after 5 minutes their contact gets the address.",
   },
   {
     title: "Poor or no mobile data",

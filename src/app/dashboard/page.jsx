@@ -68,7 +68,7 @@ const INITIAL_VAULT = [
     Global_Verify_Status: "FLAGGED / HIGH RISK",
     Link_Used_Status: "USED",
     reportCategory: "Severe Safety / Conduct Breach",
-    reportLocked: true,
+    reportLocked: false,
   },
   {
     id: "tok-3",
@@ -88,7 +88,7 @@ function formatClock(totalSecs) {
 }
 
 function formatDurationLabel(mins) {
-  if (!mins || mins < 30) return "Min 30m";
+  if (!mins || mins < 15) return "Min 15m";
   const h = Math.floor(mins / 60);
   const m = mins % 60;
   if (h === 0) return `${m} min`;
@@ -243,7 +243,7 @@ function WorkerDashboard() {
   const [reportTarget, setReportTarget] = useState(null);
   const [reportCategory, setReportCategory] = useState(REPORT_CATEGORIES[0]);
   const [reportConfirmStep, setReportConfirmStep] = useState(false);
-  const [undoTimers, setUndoTimers] = useState({});
+  const [undoTimers, setUndoTimers] = useState({ "tok-2": { secondsLeft: 540, previousStatus: "ACTIVE" } });
 
   const [repeatTarget, setRepeatTarget] = useState(null);
   const [repeatPhone, setRepeatPhone] = useState("");
@@ -272,6 +272,9 @@ function WorkerDashboard() {
     const flags = (params.get("preview") || "").split(",");
     if (flags.includes("grace")) setBillingStatus("GRACE_PERIOD");
     setPreview({ fast: flags.includes("fast"), tools: flags.some(Boolean) });
+    if (params.get("cancel") === "1" || flags.includes("cancel") || params.get("modal") === "cancel") {
+      setShowHibernationModal(true);
+    }
   }
 
   // Session clock: main countdown, then the 5-minute grace window after the Stage 1 warning
@@ -355,7 +358,7 @@ function WorkerDashboard() {
 
   function handleCustomDurationBlur() {
     const parsed = parseInt(customDurationInput, 10);
-    const clamped = Number.isNaN(parsed) ? 30 : Math.min(240, Math.max(30, parsed));
+    const clamped = Number.isNaN(parsed) ? 15 : Math.min(240, Math.max(15, parsed));
     setDurationMins(clamped);
     setCustomDurationInput(String(clamped));
   }
@@ -402,8 +405,8 @@ function WorkerDashboard() {
       showToast("Enter the appointment address.", "error");
       return;
     }
-    if (durationMins < 30 || durationMins > 240) {
-      showToast("Duration must be between 30 minutes and 4 hours.", "error");
+    if (durationMins < 15 || durationMins > 240) {
+      showToast("Duration must be between 15 minutes and 4 hours.", "error");
       return;
     }
     if (!safeCode.trim() || !duressCode.trim()) {
@@ -881,7 +884,7 @@ function WorkerDashboard() {
                   Duration
                 </FieldLabel>
                 <div className="grid grid-cols-4 gap-1 p-1 rounded-2xl bg-slate-100">
-                  {[30, 60, 90].map((m) => (
+                  {[15, 30, 60].map((m) => (
                     <button
                       key={m}
                       type="button"
@@ -898,21 +901,21 @@ function WorkerDashboard() {
                     <input
                       id="custom-duration-mins"
                       type="number"
-                      min={30}
+                      min={15}
                       max={240}
                       step={5}
-                      aria-label="Custom duration in minutes, 30 to 240"
+                      aria-label="Custom duration in minutes, 15 to 240"
                       value={customDurationInput}
                       onChange={(e) => handleCustomDurationChange(e.target.value)}
                       onBlur={handleCustomDurationBlur}
                       className={`w-full h-[44px] pl-2 pr-5 rounded-xl text-xs text-center font-bold tabular-nums focus:outline-none focus:ring-2 focus:ring-[#0B2545]/30 ${
-                        ![30, 60, 90].includes(durationMins) ? "bg-white text-[#0B2545] shadow-sm" : "bg-transparent text-slate-600"
+                        ![15, 30, 60].includes(durationMins) ? "bg-white text-[#0B2545] shadow-sm" : "bg-transparent text-slate-600"
                       }`}
                     />
                     <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-400 pointer-events-none">m</span>
                   </div>
                 </div>
-                <p className="mt-1.5 text-[11px] text-slate-500">Or type any length from 30 minutes to 4 hours.</p>
+                <p className="mt-1.5 text-[11px] text-slate-500">Or type any length from 15 minutes to 4 hours.</p>
               </div>
 
               <div className="grid grid-cols-2 gap-2.5">
@@ -1063,12 +1066,12 @@ function WorkerDashboard() {
                         </p>
                       </div>
                       {isVerified ? (
-                        <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-100 text-emerald-800">
-                          <CheckCircle2 className="w-3 h-3" /> Verified
+                        <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                          <CheckCircle2 className="w-3 h-3 text-[#16A34A]" /> Verified
                         </span>
                       ) : isFlagged ? (
-                        <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-red-100 text-[#DC2626]">
-                          <AlertTriangle className="w-3 h-3" /> High risk
+                        <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full bg-red-100 text-[#DC2626] border border-red-300">
+                          <AlertTriangle className="w-3 h-3" /> FLAGGED / HIGH RISK
                         </span>
                       ) : (
                         <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-slate-200 text-slate-600">

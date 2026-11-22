@@ -5,6 +5,7 @@ import { useSyncExternalStore } from "react";
 export const DEMO_USER = { email: "user@gmail.com", password: "user" };
 
 const KEY = "cs-demo-session";
+const SIGNOUT_KEY = "cs-demo-signed-out";
 const listeners = new Set();
 
 function notify() {
@@ -14,7 +15,7 @@ function notify() {
 function subscribe(cb) {
   listeners.add(cb);
   const onStorage = (e) => {
-    if (e.key === KEY) cb();
+    if (e.key === KEY || e.key === SIGNOUT_KEY) cb();
   };
   window.addEventListener("storage", onStorage);
   return () => {
@@ -25,16 +26,26 @@ function subscribe(cb) {
 
 function read() {
   try {
-    return localStorage.getItem(KEY);
+    const existing = localStorage.getItem(KEY);
+    if (existing) return existing;
+    if (sessionStorage.getItem(SIGNOUT_KEY) === "1") return null;
+    const defaultSession = JSON.stringify({ email: DEMO_USER.email });
+    localStorage.setItem(KEY, defaultSession);
+    return defaultSession;
   } catch {
-    return null;
+    return JSON.stringify({ email: DEMO_USER.email });
   }
 }
 
 function write(value) {
   try {
-    if (value) localStorage.setItem(KEY, value);
-    else localStorage.removeItem(KEY);
+    if (value) {
+      sessionStorage.removeItem(SIGNOUT_KEY);
+      localStorage.setItem(KEY, value);
+    } else {
+      sessionStorage.setItem(SIGNOUT_KEY, "1");
+      localStorage.removeItem(KEY);
+    }
   } catch {}
   notify();
 }

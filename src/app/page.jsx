@@ -60,7 +60,7 @@ const PLANS = [
 ];
 
 const PLAN_FEATURES = [
-  "Cloud safety timer, 30 min to 4 h",
+  "Cloud safety timer, 15 min to 4 h",
   "Two-stage alerts with 5-minute grace",
   "Silent Duress Code",
   "One-tap SOS link, no login",
