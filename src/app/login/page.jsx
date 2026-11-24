@@ -1,14 +1,20 @@
 "use client";
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Eye, EyeOff, ArrowRight, AlertCircle, KeyRound } from "lucide-react";
 import { useToast } from "@/components/ui/ToastProvider";
 import { AuthShell, PrimaryButton } from "@/components/ui/AuthShell";
 import { DEMO_USER, safeNext, signIn, useSession } from "@/lib/demoAuth";
-import { useSearchString } from "@/lib/useClientSnapshot";
-
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -18,7 +24,7 @@ export default function LoginPage() {
   const { showToast } = useToast();
   const router = useRouter();
   const session = useSession();
-  const next = safeNext(new URLSearchParams(useSearchString()).get("next"));
+  const next = safeNext(useSearchParams().get("next"));
 
   async function handleSubmit(e) {
     e.preventDefault();

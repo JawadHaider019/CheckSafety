@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  ArrowUpRight,
   ArrowRight,
   Lock,
   BadgeCheck,
@@ -17,7 +16,6 @@ import {
   KeyRound,
   BatteryLow,
   Smartphone,
-  Users,
   Moon,
   ScanFace,
   Plus,
@@ -53,10 +51,24 @@ const FACTS = [
   { num: 7, suffix: "", label: "Launch countries, each with local emergency numbers" },
 ];
 
+// TODO(client): confirm included ID checks per plan; "X" is a placeholder.
+const ID_CHECKS_PLACEHOLDER = "X";
+
 const PLANS = [
-  { id: "core", label: "Core", price: settings.core_price_gbp, lines: 1, note: "For occasional solo appointments" },
-  { id: "pro", label: "Pro", price: settings.pro_price_gbp, lines: 2, note: "For busy weeks and separate work lines", featured: true },
-  { id: "elite", label: "Elite", price: settings.elite_price_gbp, lines: 5, note: "For high-volume and multi-brand work" },
+  { id: "core", label: "Core", price: settings.core_price_gbp, lines: 1, idChecks: ID_CHECKS_PLACEHOLDER, note: "For occasional solo appointments", cta: "Choose Core" },
+  { id: "pro", label: "Pro", price: settings.pro_price_gbp, lines: 2, idChecks: ID_CHECKS_PLACEHOLDER, note: "For busy weeks and separate work lines", featured: true, cta: "Choose Pro" },
+  { id: "elite", label: "Elite", price: settings.elite_price_gbp, lines: 5, idChecks: ID_CHECKS_PLACEHOLDER, note: "For high-volume and multi-brand work", cta: "Choose Elite" },
+  {
+    id: "agency",
+    label: "Teams & agencies",
+    price: settings.agency_seat_price_gbp,
+    unit: "/seat / month",
+    lines: 1,
+    perSeat: true,
+    idChecks: ID_CHECKS_PLACEHOLDER,
+    note: "From 5 seats. Admins manage seats, never staff sessions.",
+    cta: "Set up a team",
+  },
 ];
 
 const PLAN_FEATURES = [
@@ -158,9 +170,7 @@ function Facts() {
             >
               <dt className="sr-only">{f.label}</dt>
               <dd className="text-[clamp(2.5rem,6vw,4.5rem)] font-semibold tracking-[-0.04em] leading-none text-[#0B2545] tabular-nums">
-                <span className="mk-count" style={{ "--to": f.num }}>
-                  {f.num}
-                </span>
+                {f.num}
                 {f.suffix}
               </dd>
               <dd className="mt-3 text-sm text-slate-500 leading-snug max-w-[24ch]">{f.label}</dd>
@@ -477,9 +487,7 @@ function Privacy() {
             ].map(([n, unit, l]) => (
               <div key={l}>
                 <p className="text-3xl font-semibold tracking-tight text-[#0B2545] tabular-nums">
-                  <span className="mk-count" style={{ "--to": n }}>
-                    {n}
-                  </span>
+                  {n}
                   {unit}
                 </p>
                 <p className="mt-1 text-sm text-slate-500 leading-snug">{l}</p>
@@ -504,13 +512,13 @@ function Pricing() {
           <p className="mt-5 text-base sm:text-lg text-slate-600">Every plan includes the full safety protocol. Choose by how many masked numbers you need.</p>
         </div>
 
-        <ul className="mk-stagger mt-12 sm:mt-16 grid lg:grid-cols-3 gap-4 sm:gap-5 items-stretch">
+        <ul className="mk-stagger mt-12 sm:mt-16 grid md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5 items-stretch">
           {PLANS.map((p) => (
             <li
               key={p.id}
               data-fx="soft"
-              className={`mk-reveal relative flex flex-col rounded-[32px] p-7 sm:p-9 border ${
-                p.featured ? "navy-gradient text-white border-transparent lg:-my-4 lg:py-12" : "bg-white border-slate-200/80"
+              className={`mk-reveal relative flex flex-col rounded-[32px] p-7 sm:p-8 border ${
+                p.featured ? "navy-gradient text-white border-transparent xl:-my-4 xl:py-12" : "bg-white border-slate-200/80"
               }`}
             >
               {p.featured && (
@@ -520,16 +528,24 @@ function Pricing() {
               <p className={`mt-1 text-sm ${p.featured ? "text-slate-300" : "text-slate-500"}`}>{p.note}</p>
               <p className="mt-8 flex items-baseline gap-1">
                 <span className={`text-6xl font-semibold tracking-[-0.04em] ${p.featured ? "" : "text-[#0B2545]"}`}>£{p.price}</span>
-                <span className={p.featured ? "text-slate-400" : "text-slate-500"}>/month</span>
+                <span className={p.featured ? "text-slate-400" : "text-slate-500"}>{p.unit || "/month"}</span>
               </p>
-              <p
-                className={`mt-5 inline-flex items-center gap-2 w-fit px-3 py-1.5 rounded-full text-sm font-semibold ${
-                  p.featured ? "bg-white/10 text-white" : "bg-[#F8F7F5] text-[#0B2545]"
-                }`}
-              >
-                <PhoneOff className={`fx-icon w-4 h-4 ${p.featured ? "text-[#00E08C]" : "text-emerald-600"}`} />
-                {p.lines} masked {p.lines === 1 ? "number" : "numbers"}
-              </p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {[
+                  [PhoneOff, `${p.lines} masked ${p.lines === 1 ? "number" : "numbers"}${p.perSeat ? " per seat" : ""}`],
+                  [ScanFace, `${p.idChecks} ID checks${p.perSeat ? " per seat" : ""}`],
+                ].map(([Icon, text]) => (
+                  <p
+                    key={text}
+                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold ${
+                      p.featured ? "bg-white/10 text-white" : "bg-[#F8F7F5] text-[#0B2545]"
+                    }`}
+                  >
+                    <Icon className={`fx-icon w-4 h-4 ${p.featured ? "text-[#00E08C]" : "text-emerald-600"}`} />
+                    {text}
+                  </p>
+                ))}
+              </div>
               <ul className={`mt-8 space-y-3.5 text-[15px] flex-1 ${p.featured ? "text-slate-200" : "text-slate-600"}`}>
                 {PLAN_FEATURES.map((f) => (
                   <li key={f} className="flex items-start gap-3">
@@ -546,24 +562,14 @@ function Pricing() {
                     : "bg-[#0B2545] hover:bg-[#123461] text-white"
                 }`}
               >
-                Choose {p.label}
+                {p.cta}
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </li>
           ))}
         </ul>
 
-        <ul className="mk-stagger mt-6 sm:mt-10 grid md:grid-cols-3 gap-4 sm:gap-5">
-          <li data-fx className="mk-reveal rounded-[28px] bg-[#F8F7F5] p-7">
-            <Users className="fx-icon w-5 h-5 text-emerald-700" />
-            <h3 className="mt-4 text-lg font-semibold text-[#0B2545]">Teams &amp; agencies</h3>
-            <p className="mt-1 text-sm text-slate-600">
-              £{settings.agency_seat_price_gbp} per seat per month, from 5 seats. Admins manage seats, never staff sessions.
-            </p>
-            <Link href="/signup?plan=agency" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#0B2545] hover:gap-2 transition-all">
-              Set up a team <ArrowUpRight className="w-4 h-4 text-emerald-600" />
-            </Link>
-          </li>
+        <ul className="mk-stagger mt-6 sm:mt-10 grid md:grid-cols-2 gap-4 sm:gap-5">
           <li data-fx className="mk-reveal rounded-[28px] bg-[#F8F7F5] p-7">
             <Plus className="fx-icon w-5 h-5 text-emerald-700" />
             <h3 className="mt-4 text-lg font-semibold text-[#0B2545]">Client ID checks</h3>

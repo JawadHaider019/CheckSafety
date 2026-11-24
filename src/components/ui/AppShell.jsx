@@ -60,10 +60,10 @@ export function Sheet({ open, onClose, labelledBy, maxWidth = "sm:max-w-[420px]"
       />
       <div
         data-lenis-prevent
-        className={`cs-sheet relative w-full ${maxWidth} bg-white rounded-t-[28px] sm:rounded-[28px] shadow-[0_30px_80px_-20px_rgba(11,37,69,0.45)] max-h-[92vh] overflow-y-auto overscroll-contain pb-[env(safe-area-inset-bottom)]`}
+        className={`cs-sheet relative w-full ${maxWidth} bg-white rounded-t-[28px] sm:rounded-[28px] shadow-[0_30px_80px_-20px_rgba(11,37,69,0.45)] max-h-[92vh] overflow-x-hidden overflow-y-auto overscroll-contain pb-[env(safe-area-inset-bottom)]`}
       >
         <div className="sm:hidden mx-auto mt-2.5 h-1 w-10 rounded-full bg-slate-200" />
-        <div className="p-5 sm:p-6">{children}</div>
+        <div className="p-5 sm:p-6 min-w-0 w-full">{children}</div>
       </div>
     </div>
   );

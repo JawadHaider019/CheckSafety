@@ -1,6 +1,7 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   MapPin,
   BatteryLow,
@@ -34,7 +35,7 @@ import { buildVerifyUrl } from "@/lib/domains";
 import { HibernationModal } from "@/components/modals/HibernationModal";
 import { DEFAULT_APP_SETTINGS } from "@/lib/types";
 import { COUNTRY_LIST, SUPPORTED_COUNTRIES, COUNTRY_FLAGS } from "@/lib/countries";
-import { useClientValue, useSearchString } from "@/lib/useClientSnapshot";
+import { useClientValue } from "@/lib/useClientSnapshot";
 import { RequireAuth } from "@/components/ui/RequireAuth";
 import { signOut } from "@/lib/demoAuth";
 
@@ -192,7 +193,9 @@ function PhoneInput({ country, onCountry, value, onChange, label }) {
 export default function WorkerDashboardPage() {
   return (
     <RequireAuth>
-      <WorkerDashboard />
+      <Suspense fallback={null}>
+        <WorkerDashboard />
+      </Suspense>
     </RequireAuth>
   );
 }
@@ -217,7 +220,6 @@ function WorkerDashboard() {
   const [address, setAddress] = useState("");
   const [locating, setLocating] = useState(false);
   const [durationMins, setDurationMins] = useState(60);
-  const [customDurationInput, setCustomDurationInput] = useState("60");
   const [totalSessionSecs, setTotalSessionSecs] = useState(3600);
   const [safeCode, setSafeCode] = useState("");
   const [duressCode, setDuressCode] = useState("");
@@ -252,12 +254,13 @@ function WorkerDashboard() {
   const [showSosGuideModal, setShowSosGuideModal] = useState(false);
   const [showSignOutModal, setShowSignOutModal] = useState(false);
   const [buyingPack, setBuyingPack] = useState(null);
+  const [topupTarget, setTopupTarget] = useState(null);
 
   const timerSectionRef = useRef(null);
   const vaultSectionRef = useRef(null);
   const creditsSectionRef = useRef(null);
 
-  const search = useSearchString();
+  const search = useSearchParams().toString();
   const greeting = useClientValue(readGreeting, "Welcome back");
   const [appliedSearch, setAppliedSearch] = useState("");
   if (search !== appliedSearch) {
@@ -347,20 +350,20 @@ function WorkerDashboard() {
 
   function selectPresetDuration(mins) {
     setDurationMins(mins);
-    setCustomDurationInput(String(mins));
   }
 
-  function handleCustomDurationChange(val) {
-    setCustomDurationInput(val);
-    const parsed = parseInt(val, 10);
-    if (!Number.isNaN(parsed)) setDurationMins(parsed);
+  function handleDurationHoursChange(val) {
+    const h = Math.min(4, Math.max(0, parseInt(val, 10) || 0));
+    const prevM = durationMins % 60;
+    const m = h === 4 ? 0 : h === 0 && prevM === 0 ? 15 : prevM;
+    setDurationMins(h * 60 + m);
   }
 
-  function handleCustomDurationBlur() {
-    const parsed = parseInt(customDurationInput, 10);
-    const clamped = Number.isNaN(parsed) ? 15 : Math.min(240, Math.max(15, parsed));
-    setDurationMins(clamped);
-    setCustomDurationInput(String(clamped));
+  function handleDurationMinsChange(val) {
+    const m = parseInt(val, 10) || 0;
+    const h = Math.floor(durationMins / 60);
+    if (h === 4 && m > 0) return;
+    setDurationMins(h * 60 + m);
   }
 
   function jumpToTab(tab) {
@@ -497,12 +500,15 @@ function WorkerDashboard() {
     showToast("Single-use ID link created.", "success");
   }
 
-  async function handleTopUp(amount, price) {
-    setBuyingPack(amount);
+  async function handleConfirmTopUp() {
+    if (!topupTarget) return;
+    const { checks, price } = topupTarget;
+    setTopupTarget(null);
+    setBuyingPack(checks);
     await new Promise((r) => setTimeout(r, 700));
-    setTokens((prev) => prev + amount);
+    setTokens((prev) => prev + checks);
     setBuyingPack(null);
-    showToast(`Added ${amount} ID checks (£${price}).`, "success");
+    showToast(`Added ${checks} ID checks (£${price}).`, "success");
   }
 
   async function handleRepeatVerify(e) {
@@ -590,6 +596,9 @@ function WorkerDashboard() {
   const isClosedSafely = sessionState === "Closed Safely" || sessionState === "DURESS";
   const progress = totalSessionSecs > 0 ? secondsLeft / totalSessionSecs : 0;
   const ringColor = progress > 0.2 ? "#00E08C" : progress > 0.08 ? "#FBBF24" : "#F87171";
+  const durationHours = Math.floor(durationMins / 60);
+  const durationRemMins = durationMins % 60;
+  const minuteOptions = durationHours === 0 ? [15, 30, 45] : durationHours === 4 ? [0] : [0, 15, 30, 45];
   const tabs = [
     { tab: "timer", icon: Timer, label: "Timer" },
     { tab: "vault", icon: Shield, label: "Vault" },
@@ -877,45 +886,62 @@ function WorkerDashboard() {
               </div>
 
               <div>
-                <FieldLabel
-                  htmlFor="custom-duration-mins"
-                  aside={<span className="text-[11px] font-mono font-bold text-emerald-700">{formatDurationLabel(durationMins)}</span>}
-                >
+                <FieldLabel aside={<span className="text-[11px] font-mono font-bold text-emerald-700">{formatDurationLabel(durationMins)}</span>}>
                   Duration
                 </FieldLabel>
-                <div className="grid grid-cols-4 gap-1 p-1 rounded-2xl bg-slate-100">
-                  {[15, 30, 60].map((m) => (
+
+                {/* Custom h + m fields */}
+                <div className="mb-2.5">
+                  <p className="text-[10px] font-mono font-bold tracking-[0.15em] uppercase text-slate-400 mb-1.5">Custom duration</p>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 relative">
+                      <input
+                        id="duration-hours"
+                        type="number"
+                        min={0}
+                        max={4}
+                        value={durationHours}
+                        onChange={(e) => handleDurationHoursChange(e.target.value)}
+                        aria-label="Duration hours"
+                        className="cs-input text-center font-bold tabular-nums pr-7"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-mono text-slate-400 pointer-events-none">h</span>
+                    </div>
+                    <span className="text-slate-300 font-bold">:</span>
+                    <div className="flex-1">
+                      <select
+                        id="duration-minutes"
+                        value={durationRemMins}
+                        onChange={(e) => handleDurationMinsChange(e.target.value)}
+                        aria-label="Duration minutes"
+                        disabled={durationHours === 4}
+                        className="cs-input text-center font-bold tabular-nums cursor-pointer disabled:opacity-50"
+                      >
+                        {minuteOptions.map((m) => (
+                          <option key={m} value={m}>{String(m).padStart(2, "0")} min</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick-pick presets */}
+                <div className="flex gap-1.5">
+                  {[30, 60, 90].map((m) => (
                     <button
                       key={m}
                       type="button"
                       onClick={() => selectPresetDuration(m)}
                       aria-pressed={durationMins === m}
-                      className={`cs-press min-h-[44px] rounded-xl text-xs font-bold cursor-pointer ${
-                        durationMins === m ? "bg-[#0B2545] text-white shadow-sm" : "text-slate-600 hover:text-slate-900"
+                      className={`cs-press flex-1 min-h-[40px] rounded-2xl text-xs font-bold cursor-pointer border ${
+                        durationMins === m ? "bg-[#0B2545] text-white border-transparent" : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
                       }`}
                     >
                       {m}m
                     </button>
                   ))}
-                  <div className="relative">
-                    <input
-                      id="custom-duration-mins"
-                      type="number"
-                      min={15}
-                      max={240}
-                      step={5}
-                      aria-label="Custom duration in minutes, 15 to 240"
-                      value={customDurationInput}
-                      onChange={(e) => handleCustomDurationChange(e.target.value)}
-                      onBlur={handleCustomDurationBlur}
-                      className={`w-full h-[44px] pl-2 pr-5 rounded-xl text-xs text-center font-bold tabular-nums focus:outline-none focus:ring-2 focus:ring-[#0B2545]/30 ${
-                        ![15, 30, 60].includes(durationMins) ? "bg-white text-[#0B2545] shadow-sm" : "bg-transparent text-slate-600"
-                      }`}
-                    />
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-400 pointer-events-none">m</span>
-                  </div>
                 </div>
-                <p className="mt-1.5 text-[11px] text-slate-500">Or type any length from 15 minutes to 4 hours.</p>
+                <p className="mt-1.5 text-[11px] text-slate-500">15 minutes to 4 hours.</p>
               </div>
 
               <div className="grid grid-cols-2 gap-2.5">
@@ -1187,7 +1213,7 @@ function WorkerDashboard() {
                   key={checks}
                   type="button"
                   disabled={buyingPack !== null}
-                  onClick={() => handleTopUp(checks, price)}
+                  onClick={() => setTopupTarget({ checks, price })}
                   className={`cs-press relative min-h-[84px] px-2 pt-4 pb-3 rounded-2xl border text-center cursor-pointer disabled:cursor-wait ${
                     popular ? "border-[#0B2545] bg-[#0B2545] text-white" : "border-slate-200 bg-white hover:border-slate-300"
                   }`}
@@ -1330,7 +1356,7 @@ function WorkerDashboard() {
         />
         {generatedVerifyUrl ? (
           <div className="space-y-3">
-            <div className="cs-rise p-3.5 rounded-2xl bg-[#F9FAFB] border border-slate-200 text-xs font-mono break-all text-slate-700">
+            <div className="cs-rise w-full min-w-0 p-3.5 rounded-2xl bg-[#F9FAFB] border border-slate-200 text-xs font-mono break-all text-slate-700">
               {generatedVerifyUrl}
             </div>
             <button
@@ -1485,6 +1511,37 @@ function WorkerDashboard() {
             </>
           )}
         </form>
+      </Sheet>
+
+      {/* Top-up confirmation */}
+      <Sheet open={!!topupTarget} onClose={() => setTopupTarget(null)} labelledBy="topup-confirm-title">
+        <SheetHeader
+          id="topup-confirm-title"
+          eyebrow="ID Checks"
+          title="Confirm purchase"
+          onClose={() => setTopupTarget(null)}
+        />
+        {topupTarget && (
+          <>
+            <div className="rounded-2xl bg-[#F8F7F5] border border-slate-200 p-4 mb-5 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-2xl font-black tabular-nums text-[#0B2545]">{topupTarget.checks}</p>
+                <p className="text-xs text-slate-500 mt-0.5">ID check credits</p>
+              </div>
+              <p className="text-2xl font-black text-emerald-700">£{topupTarget.price}</p>
+            </div>
+            <p className="text-xs text-slate-500 mb-5 leading-relaxed">
+              Credits are added to your account immediately. Payment is processed via your saved card through Paddle.
+            </p>
+            <button
+              type="button"
+              onClick={handleConfirmTopUp}
+              className="cs-press w-full min-h-[52px] rounded-full bg-[#0B2545] hover:bg-[#123461] text-white font-bold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-[0_12px_24px_-12px_rgba(11,37,69,0.5)]"
+            >
+              Pay £{topupTarget.price}
+            </button>
+          </>
+        )}
       </Sheet>
 
       {/* Sign out confirmation */}

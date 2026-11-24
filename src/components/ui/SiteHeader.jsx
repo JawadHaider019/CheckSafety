@@ -43,7 +43,7 @@ export function SiteHeader({ activePage = "" }) {
     <header
       className={`fixed top-0 inset-x-0 z-50 transition-[background-color,box-shadow,border-color] duration-500 border-b ${
         scrolled || menuOpen
-          ? "bg-white/95 lg:bg-white/80 lg:backdrop-blur-xl border-slate-200/70 shadow-[0_8px_30px_-20px_rgba(11,37,69,0.25)]"
+          ? "bg-white border-slate-200/70 shadow-[0_8px_30px_-20px_rgba(11,37,69,0.25)]"
           : "bg-white border-transparent"
       }`}
     >

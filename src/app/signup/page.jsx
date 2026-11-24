@@ -1,11 +1,10 @@
 "use client";
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Users, ArrowRight, Eye, EyeOff, Minus, Plus } from "lucide-react";
 import { COUNTRY_LIST, SUPPORTED_COUNTRIES, COUNTRY_FLAGS } from "@/lib/countries";
 import { DEFAULT_APP_SETTINGS } from "@/lib/types";
-import { useSearchString } from "@/lib/useClientSnapshot";
 import { startSession } from "@/lib/demoAuth";
 import { useToast } from "@/components/ui/ToastProvider";
 import { AuthShell, PrimaryButton } from "@/components/ui/AuthShell";
@@ -62,6 +61,14 @@ function PhoneField({ id, label, country, onCountry, value, onChange }) {
 }
 
 export default function SignupPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignupForm />
+    </Suspense>
+  );
+}
+
+function SignupForm() {
   const [country, setCountry] = useState("GB");
   const [mobileCountry, setMobileCountry] = useState("GB");
   const [emergencyCountry, setEmergencyCountry] = useState("GB");
@@ -77,7 +84,7 @@ export default function SignupPage() {
   const router = useRouter();
   const settings = DEFAULT_APP_SETTINGS;
 
-  const search = useSearchString();
+  const search = useSearchParams().toString();
   const [appliedSearch, setAppliedSearch] = useState("");
   if (search !== appliedSearch) {
     setAppliedSearch(search);
