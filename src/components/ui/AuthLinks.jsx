@@ -5,7 +5,9 @@ import { isLoggedIn } from "@/lib/demoAuth";
 
 const AUTH_PATHS = ["/login", "/signup"];
 
-// While signed in, every link to sign-in or sign-up pages goes to the dashboard instead.
+// While signed in, links to sign-in or sign-up pages go to the dashboard instead.
+// Plan buttons (/signup?plan=…) open the dashboard's Change plan sheet for that plan,
+// so a signed-in user never creates a second account.
 export function AuthLinks() {
   const router = useRouter();
 
@@ -17,7 +19,8 @@ export function AuthLinks() {
       const url = new URL(anchor.href, window.location.href);
       if (url.origin !== window.location.origin || !AUTH_PATHS.includes(url.pathname)) return;
       e.preventDefault();
-      router.push("/dashboard");
+      const plan = url.pathname === "/signup" ? url.searchParams.get("plan") : null;
+      router.push(plan ? `/dashboard?plan=${encodeURIComponent(plan)}` : "/dashboard");
     };
     document.addEventListener("click", onClick, true);
     return () => document.removeEventListener("click", onClick, true);

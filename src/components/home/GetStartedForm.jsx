@@ -19,7 +19,7 @@ export function GetStartedForm({ plans }) {
     e.preventDefault();
     setLoading(true);
     if (isLoggedIn()) {
-      router.push("/dashboard");
+      router.push(`/dashboard?plan=${encodeURIComponent(plan)}`);
       return;
     }
     const params = new URLSearchParams({ email: email.trim(), country, plan });

@@ -66,7 +66,7 @@ const PLANS = [
     lines: 1,
     perSeat: true,
     idChecks: ID_CHECKS_PLACEHOLDER,
-    note: "From 5 seats. Admins manage seats, never staff sessions.",
+    note: "Per seat, from 5 seats. Admins manage seats, never staff sessions.",
     cta: "Set up a team",
   },
 ];
@@ -530,14 +530,14 @@ function Pricing() {
                 <span className={`text-6xl font-semibold tracking-[-0.04em] ${p.featured ? "" : "text-[#0B2545]"}`}>£{p.price}</span>
                 <span className={p.featured ? "text-slate-400" : "text-slate-500"}>{p.unit || "/month"}</span>
               </p>
-              <div className="mt-5 flex flex-wrap gap-2">
+              <div className="mt-5 flex flex-wrap gap-1.5 sm:gap-2">
                 {[
-                  [PhoneOff, `${p.lines} masked ${p.lines === 1 ? "number" : "numbers"}${p.perSeat ? " per seat" : ""}`],
-                  [ScanFace, `${p.idChecks} ID checks${p.perSeat ? " per seat" : ""}`],
+                  [PhoneOff, `${p.lines} masked ${p.lines === 1 ? "number" : "numbers"}`],
+                  [ScanFace, `${p.idChecks} ID checks`],
                 ].map(([Icon, text]) => (
                   <p
                     key={text}
-                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold ${
+                    className={`inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap ${
                       p.featured ? "bg-white/10 text-white" : "bg-[#F8F7F5] text-[#0B2545]"
                     }`}
                   >

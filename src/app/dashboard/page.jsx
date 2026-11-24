@@ -28,6 +28,7 @@ import {
   Link2,
   BellRing,
   LogOut,
+  Minus,
 } from "lucide-react";
 import { useToast } from "@/components/ui/ToastProvider";
 import { AppHeader, SectionLabel, Sheet, SheetHeader } from "@/components/ui/AppShell";
@@ -44,7 +45,16 @@ function readGreeting() {
   return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
 }
 
-const ACCOUNT = { plan: "Pro", isAgencyAdmin: true };
+const ACCOUNT = { plan: "pro", isAgencyAdmin: true };
+const MIN_TEAM_SEATS = 5;
+
+const PLAN_OPTIONS = [
+  { id: "core", label: "Core", lines: 1, priceKey: "core_price_gbp" },
+  { id: "pro", label: "Pro", lines: 2, priceKey: "pro_price_gbp" },
+  { id: "elite", label: "Elite", lines: 5, priceKey: "elite_price_gbp" },
+  { id: "agency", label: "Team", lines: 1, priceKey: "agency_seat_price_gbp", perSeat: true },
+];
+const planById = (id) => PLAN_OPTIONS.find((p) => p.id === id);
 const GRACE_WINDOW_SECS = 300;
 const REPORT_CATEGORIES = ["Severe Safety / Conduct Breach", "Non-Payment / Fraud", "Minor Late Cancellation"];
 
@@ -211,6 +221,12 @@ function WorkerDashboard() {
   const [repeatPhoneCountry, setRepeatPhoneCountry] = useState("GB");
 
   const [billingStatus, setBillingStatus] = useState("ACTIVE");
+  const [currentPlan, setCurrentPlan] = useState(ACCOUNT.plan);
+  const [teamSeats, setTeamSeats] = useState(MIN_TEAM_SEATS);
+  const [planSheetOpen, setPlanSheetOpen] = useState(false);
+  const [planChoice, setPlanChoice] = useState(ACCOUNT.plan);
+  const [seatChoice, setSeatChoice] = useState(MIN_TEAM_SEATS);
+  const [changingPlan, setChangingPlan] = useState(false);
   const [tokens, setTokens] = useState(3);
   const [proxyNumbers, setProxyNumbers] = useState(INITIAL_PROXY_NUMBERS);
   const [selectedProxy, setSelectedProxy] = useState(INITIAL_PROXY_NUMBERS[0].Twilio_Number);
@@ -271,6 +287,11 @@ function WorkerDashboard() {
       setCountry(urlCountry);
       setNewClientPhoneCountry(urlCountry);
       setRepeatPhoneCountry(urlCountry);
+    }
+    const urlPlan = params.get("plan");
+    if (urlPlan && planById(urlPlan)) {
+      setPlanChoice(urlPlan);
+      setPlanSheetOpen(true);
     }
     const flags = (params.get("preview") || "").split(",");
     if (flags.includes("grace")) setBillingStatus("GRACE_PERIOD");
@@ -500,6 +521,26 @@ function WorkerDashboard() {
     showToast("Single-use ID link created.", "success");
   }
 
+  function openPlanSheet() {
+    setPlanChoice(currentPlan);
+    setSeatChoice(teamSeats);
+    setPlanSheetOpen(true);
+  }
+
+  async function handleConfirmPlanChange() {
+    const plan = planById(planChoice);
+    setChangingPlan(true);
+    await new Promise((r) => setTimeout(r, 700));
+    setCurrentPlan(plan.id);
+    if (plan.perSeat) setTeamSeats(seatChoice);
+    setChangingPlan(false);
+    setPlanSheetOpen(false);
+    showToast(
+      plan.perSeat ? `Team plan set up with ${seatChoice} seats.` : `You're now on the ${plan.label} plan.`,
+      "success"
+    );
+  }
+
   async function handleConfirmTopUp() {
     if (!topupTarget) return;
     const { checks, price } = topupTarget;
@@ -670,7 +711,19 @@ function WorkerDashboard() {
           <div className="flex items-start justify-between gap-3 lg:flex-1 lg:items-center">
             <div>
               <p className="text-xs text-slate-300">{greeting}</p>
-              <p className="mt-0.5 text-xl lg:text-3xl font-extrabold tracking-tight">{ACCOUNT.plan} plan</p>
+              <p className="mt-0.5 text-xl lg:text-3xl font-extrabold tracking-tight">
+                {planById(currentPlan).label} plan
+                {planById(currentPlan).perSeat && (
+                  <span className="ml-2 text-sm lg:text-base font-semibold text-slate-300">· {teamSeats} seats</span>
+                )}
+              </p>
+              <button
+                type="button"
+                onClick={openPlanSheet}
+                className="cs-press mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-[#00E08C] hover:underline underline-offset-4 cursor-pointer"
+              >
+                Change plan <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
             <span
               className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide ${
@@ -1511,6 +1564,117 @@ function WorkerDashboard() {
             </>
           )}
         </form>
+      </Sheet>
+
+      {/* Change plan */}
+      <Sheet open={planSheetOpen} onClose={() => setPlanSheetOpen(false)} labelledBy="plan-change-title">
+        <SheetHeader
+          id="plan-change-title"
+          eyebrow="Billing"
+          title="Change plan"
+          subtitle="Switch plans on your existing account. No new sign-up needed."
+          onClose={() => setPlanSheetOpen(false)}
+        />
+        {(() => {
+          const choice = planById(planChoice);
+          const unitPrice = settings[choice.priceKey];
+          const monthly = choice.perSeat ? unitPrice * seatChoice : unitPrice;
+          const unchanged = choice.id === currentPlan && (!choice.perSeat || seatChoice === teamSeats);
+          return (
+            <>
+              <div className="grid grid-cols-2 gap-2 mb-4" role="radiogroup" aria-label="Plan">
+                {PLAN_OPTIONS.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={planChoice === p.id}
+                    onClick={() => setPlanChoice(p.id)}
+                    className={`cs-press relative text-left rounded-2xl border p-3.5 cursor-pointer ${
+                      planChoice === p.id
+                        ? "border-[#0B2545] bg-[#0B2545] text-white"
+                        : "border-slate-200 bg-white text-[#0B2545] hover:border-slate-300"
+                    }`}
+                  >
+                    <span className="block text-sm font-bold">{p.label}</span>
+                    <span className={`block text-xs font-mono mt-0.5 ${planChoice === p.id ? "text-slate-300" : "text-slate-500"}`}>
+                      £{settings[p.priceKey]}
+                      {p.perSeat ? "/seat" : "/mo"}
+                    </span>
+                    <span className={`block text-[11px] mt-1 ${planChoice === p.id ? "text-slate-300" : "text-slate-500"}`}>
+                      {p.perSeat ? "1 masked line per seat" : `${p.lines} masked ${p.lines === 1 ? "line" : "lines"}`}
+                    </span>
+                    {p.id === currentPlan && (
+                      <span
+                        className={`absolute top-2.5 right-2.5 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${
+                          planChoice === p.id ? "bg-[#00E08C] text-[#07182E]" : "bg-emerald-50 text-emerald-700"
+                        }`}
+                      >
+                        Current
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {choice.perSeat && (
+                <div className="cs-rise mb-4 p-3.5 rounded-2xl bg-[#F8F7F5] border border-slate-200 flex items-center justify-between gap-3">
+                  <span className="flex items-center gap-2 text-xs font-bold text-[#0B2545]">
+                    <Users className="w-4 h-4 text-emerald-700" />
+                    Staff seats
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      aria-label="Remove seat"
+                      onClick={() => setSeatChoice((s) => Math.max(MIN_TEAM_SEATS, s - 1))}
+                      disabled={seatChoice <= MIN_TEAM_SEATS}
+                      className="cs-press w-8 h-8 rounded-lg bg-white border border-slate-200 disabled:opacity-40 flex items-center justify-center cursor-pointer"
+                    >
+                      <Minus className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="w-8 text-center font-mono font-bold tabular-nums text-[#0B2545]">{seatChoice}</span>
+                    <button
+                      type="button"
+                      aria-label="Add seat"
+                      onClick={() => setSeatChoice((s) => Math.min(500, s + 1))}
+                      className="cs-press w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between gap-3 mb-2">
+                <span className="text-xs text-slate-500">New monthly total</span>
+                <span className="text-xl font-black text-[#0B2545] tabular-nums">£{monthly}</span>
+              </div>
+              <p className="text-xs text-slate-500 mb-5 leading-relaxed">
+                {choice.perSeat ? `Minimum ${MIN_TEAM_SEATS} seats. ` : ""}
+                The change applies from today and is prorated on your saved card through Paddle.
+              </p>
+              <button
+                type="button"
+                onClick={handleConfirmPlanChange}
+                disabled={unchanged || changingPlan}
+                className="cs-press w-full min-h-[52px] rounded-full bg-[#0B2545] hover:bg-[#123461] text-white font-bold text-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_12px_24px_-12px_rgba(11,37,69,0.5)]"
+              >
+                {changingPlan ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" /> Updating…
+                  </>
+                ) : unchanged ? (
+                  "This is your current plan"
+                ) : choice.perSeat ? (
+                  `Set up team · £${monthly}/mo`
+                ) : (
+                  `Switch to ${choice.label} · £${monthly}/mo`
+                )}
+              </button>
+            </>
+          );
+        })()}
       </Sheet>
 
       {/* Top-up confirmation */}
