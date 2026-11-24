@@ -27,7 +27,7 @@ const SECTORS = [
     who: "Estate agents, letting agents, surveyors",
     headline: "Viewings with strangers,",
     accent: "in empty homes.",
-    body: "You hand a stranger the keys to a vacant property and walk in alone. Checksafe checks who they are first, and makes sure someone knows if you don't walk back out.",
+    body: "You hand a stranger the keys to a vacant property and walk in alone. CheckSafe checks who they are first, and makes sure someone knows if you don't walk back out.",
     points: [
       { icon: ShieldCheck, text: "Verify the viewer's ID before you share the address" },
       { icon: PhoneOff, text: "Arrange viewings from a masked number, not your own" },
@@ -59,11 +59,11 @@ const SECTORS = [
     who: "Therapists, carers, mobile practitioners",
     headline: "One-to-one,",
     accent: "behind closed doors.",
-    body: "When a session turns, you can't always reach for help openly. Checksafe gives you ways to raise the alarm that look like nothing at all.",
+    body: "When a session turns, you can't always reach for help openly. CheckSafe gives you ways to raise the alarm that look like nothing at all.",
     points: [
-      { icon: KeyRound, text: "A Duress Code that looks like a normal check-in" },
+      { icon: KeyRound, text: "A Duress Code, your secret PIN that silently sends an alert while looking like a safe check-in" },
       { icon: BatteryLow, text: "Triple-tap to show a fake low-battery screen" },
-      { icon: Smartphone, text: "One-tap SOS from your home screen, no login" },
+      { icon: Smartphone, text: "One-tap SOS from your home screen, instantly alerts your emergency contact, no login required" },
     ],
     image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=70",
     alt: "Practitioner preparing for a home appointment",
@@ -81,8 +81,8 @@ const SECTORS = [
       { icon: RotateCcw, text: "Verified repeat clients rebook at £0" },
       { icon: Flag, text: "New clients checked against reported red flags" },
     ],
-    image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1200&q=70",
-    alt: "Professional in a suit walking to a site visit",
+    image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1200&q=70",
+    alt: "Electrician in a hard hat working on a wall-mounted meter",
   },
 ];
 
@@ -106,7 +106,7 @@ export function SectorTabs() {
         role="tablist"
         aria-label="Sectors"
         onKeyDown={onKeyDown}
-        className="no-scrollbar -mx-5 px-5 sm:mx-0 sm:px-0 flex gap-2 overflow-x-auto snap-x"
+        className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3"
       >
         {SECTORS.map((s, i) => {
           const Icon = s.icon;
@@ -123,13 +123,13 @@ export function SectorTabs() {
               aria-controls={`panel-${s.id}`}
               tabIndex={selected ? 0 : -1}
               onClick={() => setActive(i)}
-              className={`cs-press snap-start shrink-0 inline-flex items-center gap-2 h-12 px-5 rounded-full border text-sm font-semibold cursor-pointer whitespace-nowrap ${
+              className={`cs-press min-w-0 flex items-center gap-2 sm:gap-2.5 min-h-[52px] px-3.5 sm:px-5 py-2.5 rounded-2xl border text-left text-[13px] sm:text-sm font-semibold leading-tight cursor-pointer ${
                 selected
                   ? "bg-[#0B2545] border-[#0B2545] text-white shadow-[0_12px_24px_-14px_rgba(11,37,69,0.8)]"
                   : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:text-[#0B2545]"
               }`}
             >
-              <Icon className={`w-4 h-4 ${selected ? "text-[#00E08C]" : ""}`} />
+              <Icon className={`w-4 h-4 shrink-0 ${selected ? "text-[#00E08C]" : ""}`} />
               {s.label}
             </button>
           );

@@ -53,7 +53,7 @@ export function ClassicHero() {
         <div className="hero-scroll-content relative z-10 w-full">
           <div className="hero-mouse-fg w-full px-5 py-6 sm:p-10 lg:p-14 xl:p-16 min-[125rem]:p-24 flex flex-col items-center text-center sm:items-start sm:text-left justify-center max-w-2xl min-[125rem]:max-w-4xl text-white">
             <div className="mk-hero-in mb-4">
-              <Eyebrow dark>UK lone-worker safety</Eyebrow>
+              <Eyebrow dark>Worldwide lone-worker safety</Eyebrow>
             </div>
 
             <h1 className={`${H2} mk-hero-text min-[125rem]:text-[92px] text-white`}>
@@ -63,8 +63,9 @@ export function ClassicHero() {
             </h1>
 
             <p className="mk-hero-in cs-d3 mt-3.5 sm:mt-5 text-sm sm:text-base lg:text-lg min-[125rem]:text-2xl text-white/90 max-w-md sm:max-w-lg min-[125rem]:max-w-2xl leading-relaxed font-normal">
-              Where Solo Workers Meet Clients with Absolute Peace of Mind. Bank-grade biometric KYC before you meet, ghost proxy numbers, and
-              automated cloud timers.
+              Where Solo Workers Meet Clients with Absolute Peace of Mind. Bank-grade biometric KYC (instant photo ID check) before you
+              meet, ghost proxy numbers (a private work number that hides your real mobile), and automated cloud timers (alerts your
+              emergency contact automatically if you fail to check in).
             </p>
 
             <div className="mk-hero-in cs-d5 mt-6 sm:mt-10 w-full sm:w-auto grid grid-cols-2 sm:flex sm:flex-row items-center justify-center sm:justify-start gap-2.5 sm:gap-4">
@@ -112,7 +113,7 @@ export function ClassicHero() {
             <div className="text-xs sm:text-sm font-bold text-[#111827]">Lone Worker Protection</div>
             <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-semibold mt-0.5">
               <span className="w-2 h-2 rounded-full bg-[#00E08C] animate-pulse" />
-              <span>Independent UK Lone-Worker Sentinel</span>
+              <span>Independent Worldwide Lone-Worker Sentinel</span>
             </div>
           </div>
         </div>

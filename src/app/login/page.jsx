@@ -49,7 +49,7 @@ function LoginForm() {
       subtitle="Your safety console, masked lines and client vault."
       footer={
         <>
-          New to Checksafe?{" "}
+          New to CheckSafe?{" "}
           <Link href="/signup" className="font-bold text-[#0B2545] hover:underline underline-offset-4">
             Create a worker account
           </Link>

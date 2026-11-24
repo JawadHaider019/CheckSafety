@@ -4,9 +4,9 @@ import { SecurityPackForm } from "@/components/marketing/SecurityPackForm";
 import { DEFAULT_APP_SETTINGS } from "@/lib/types";
 
 export const metadata = {
-  title: "Compliance & duty of care — Checksafe",
+  title: "Compliance & duty of care — CheckSafe",
   description:
-    "How Checksafe helps UK employers and solo workers meet lone-working duties of care, with automated alerts and zero readable client data.",
+    "How CheckSafe helps UK employers and solo workers meet lone-working duties of care, with automated alerts and zero readable client data.",
 };
 
 const HERO_FACTS = [
@@ -39,7 +39,7 @@ const SAFEGUARDS = [
   {
     title: "Private communication",
     risk: "Workers' personal numbers end up with unknown clients, leading to harassment out of hours.",
-    answer: "Each worker gets dedicated Checksafe numbers. Clients call and text those; the personal mobile is never shown.",
+    answer: "Each worker gets dedicated CheckSafe numbers. Clients call and text those; the personal mobile is never shown.",
   },
   {
     title: "Raising the alarm under pressure",
@@ -54,7 +54,7 @@ const SAFEGUARDS = [
   {
     title: "Poor or no mobile data",
     risk: "Basements, plant rooms and rural sites often have signal but no data.",
-    answer: "Workers can text their Safe Code, or “SOS”, to their Checksafe number. Only texts from their registered mobile are accepted.",
+    answer: "Workers can text their Safe Code, or “SOS”, to their CheckSafe number. Only texts from their registered mobile are accepted.",
   },
   {
     title: "Unknown clients",
@@ -93,7 +93,7 @@ export default function CompliancePage() {
         imagePosition="center 40%"
         title="Duty of care,"
         accent="built in."
-        lead="How Checksafe helps UK employers and solo workers meet their lone-working responsibilities, while keeping client data unreadable by design."
+        lead="How CheckSafe helps UK employers and solo workers meet their lone-working responsibilities, while keeping client data unreadable by design."
       >
         <dl className="grid grid-cols-2 lg:grid-cols-4 gap-6 pt-8 border-t border-white/10">
           {HERO_FACTS.map(([value, label]) => (
@@ -120,7 +120,7 @@ export default function CompliancePage() {
                 lone-working risks and put measures in place before staff attend off-site appointments.
               </p>
               <p>
-                Informal check-ins by text or missed-call agreements leave gaps. Checksafe gives every appointment a timed, automatic
+                Informal check-ins by text or missed-call agreements leave gaps. CheckSafe gives every appointment a timed, automatic
                 safety net with a clear record of what happened.
               </p>
             </div>
@@ -163,7 +163,7 @@ export default function CompliancePage() {
                 </div>
                 <p className="text-[15px] sm:text-base text-[#0B2545] leading-relaxed md:pt-1">
                   <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-700 mr-1">
-                    <Check className="w-4 h-4" /> Checksafe:
+                    <Check className="w-4 h-4" /> CheckSafe:
                   </span>
                   {s.answer}
                 </p>
@@ -178,7 +178,7 @@ export default function CompliancePage() {
           <div className="mk-reveal max-w-[760px]">
             <Eyebrow>Compared</Eyebrow>
             <h2 className={`${H2} mt-4`}>
-              Pendants, chat apps, <Accent>or Checksafe.</Accent>
+              Pendants, chat apps, <Accent>or CheckSafe.</Accent>
             </h2>
           </div>
 
@@ -187,7 +187,7 @@ export default function CompliancePage() {
               <thead>
                 <tr className="text-sm">
                   <th className="py-5 px-7 font-semibold text-slate-500">Capability</th>
-                  <th className="py-5 px-7 font-semibold bg-[#0B2545] text-white">Checksafe</th>
+                  <th className="py-5 px-7 font-semibold bg-[#0B2545] text-white">CheckSafe</th>
                   <th className="py-5 px-7 font-semibold text-slate-500">Hardware pendant</th>
                   <th className="py-5 px-7 font-semibold text-slate-500">Group chat check-ins</th>
                 </tr>
@@ -217,14 +217,14 @@ export default function CompliancePage() {
                 <p className="text-base font-semibold">{row.feature}</p>
                 <dl className="mt-3 grid grid-cols-3 gap-2 text-xs">
                   {[
-                    ["Checksafe", row.checksafe],
+                    ["CheckSafe", row.checksafe],
                     ["Pendant", row.pendant],
                     ["Group chat", row.chat],
                   ].map(([label, yes]) => (
-                    <div key={label} className={`rounded-xl p-2.5 ${label === "Checksafe" ? "bg-[#0B2545] text-white" : "bg-[#F8F7F5]"}`}>
-                      <dt className={label === "Checksafe" ? "text-slate-300" : "text-slate-500"}>{label}</dt>
+                    <div key={label} className={`rounded-xl p-2.5 ${label === "CheckSafe" ? "bg-[#0B2545] text-white" : "bg-[#F8F7F5]"}`}>
+                      <dt className={label === "CheckSafe" ? "text-slate-300" : "text-slate-500"}>{label}</dt>
                       <dd className="mt-1">
-                        <Mark yes={yes} dark={label === "Checksafe"} />
+                        <Mark yes={yes} dark={label === "CheckSafe"} />
                       </dd>
                     </div>
                   ))}

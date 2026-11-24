@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Loader2, Phone, MapPin, Lock, ArrowLeft, Share2 } from "lucide-react";
 import { useClientValue } from "@/lib/useClientSnapshot";
 import { useIsLoggedIn } from "@/lib/demoAuth";
+import { CheckSafeLogo } from "@/components/ui/CheckSafeLogo";
 
 const EMERGENCY_NUMBER = "999";
 
@@ -25,7 +26,7 @@ export default function SosClient() {
     const url = typeof window !== "undefined" ? window.location.href : "";
     if (navigator.share) {
       try {
-        await navigator.share({ title: "Checksafe SOS link", url });
+        await navigator.share({ title: "CheckSafe SOS link", url });
         return;
       } catch {}
     }
@@ -57,25 +58,26 @@ export default function SosClient() {
         style={{ background: "radial-gradient(circle at 50% 35%, rgba(22,163,74,0.22), transparent 60%)" }}
       />
 
-      <div className="relative flex items-center justify-between px-5 h-14 text-[11px] font-mono text-slate-400">
-        <span className="flex items-center gap-1.5">
+      <div className="relative flex items-center justify-between gap-3 px-4 sm:px-5 h-16 text-[11px] font-mono text-slate-400">
+        <CheckSafeLogo darkSurface size="sm" className="min-w-0" />
+        <span className="flex items-center gap-3 shrink-0">
           {loggedIn ? (
             <Link
               href="/dashboard"
-              className="flex items-center gap-1.5 hover:text-white transition-colors"
+              className="flex items-center gap-1 hover:text-white transition-colors"
               aria-label="Back to dashboard"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               Dashboard
             </Link>
           ) : (
-            <>
+            <span className="flex items-center gap-1" title="Private link">
               <Lock className="w-3 h-3" />
-              Private link
-            </>
+              <span className="hidden sm:inline">Private link</span>
+            </span>
           )}
+          <span className="tabular-nums">{clock}</span>
         </span>
-        <span className="tabular-nums">{clock}</span>
       </div>
 
       <main className="relative flex-1 flex flex-col items-center justify-center px-6 pb-10">

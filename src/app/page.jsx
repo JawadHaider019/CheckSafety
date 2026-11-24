@@ -31,24 +31,61 @@ import { Eyebrow, H2, WRAP } from "@/components/marketing/Marketing";
 
 const settings = DEFAULT_APP_SETTINGS;
 
+// Client's list (Design Updates, 24 Nov 2026), plus earlier entries not covered by it.
 const ROLES = [
-  "Estate agents",
-  "Letting agents",
-  "Surveyors",
-  "Private tutors",
-  "Music teachers",
-  "Therapists",
-  "Domiciliary carers",
-  "Mobile practitioners",
+  "Mobile Hairdressers",
+  "Mobile Barbers",
+  "Bridal Makeup Artists",
+  "Mobile Nail Technicians",
+  "Lash Artists",
+  "Mobile Aesthetics Practitioners",
+  "Mobile Massage Therapists",
+  "Spray Tan Specialists",
+  "Personal Trainers",
+  "Plumbers",
+  "Electricians",
+  "Gas Engineers",
+  "Locksmiths",
+  "Handymen",
+  "Painters & Decorators",
+  "Carpet Fitters",
+  "Domestic Cleaners",
+  "Window Cleaners",
+  "Estate Agents",
+  "Letting Agents",
+  "Independent Landlords",
+  "Property Managers",
+  "Chartered Surveyors",
+  "Inventory Clerks",
+  "Energy Assessors",
+  "Turnaround Cleaners",
+  "Domiciliary Care Workers",
+  "Private Nurses",
+  "Physiotherapists",
+  "Occupational Therapists",
+  "Podiatrists",
+  "Midwives",
+  "Doulas",
+  "Private Tutors",
+  "Music Teachers",
+  "Dog Walkers",
+  "Pet Sitters",
+  "Mobile Dog Groomers",
+  "Independent Companions",
+  "Private Chefs",
+  "Mobile Tailors",
+  "Bridal Fitters",
   "Consultants",
-  "Field auditors",
+  "Field Auditors",
 ];
+// Keep the scroll speed the same as before (10 items per 38s) however long the list is.
+const ROLE_MARQUEE_SECS = ROLES.length * 3.8;
 
 const FACTS = [
-  { num: 60, suffix: "s", label: "Raw ID files deleted after every client check" },
-  { num: 5, suffix: " min", label: "Grace window before your contact is alerted" },
-  { num: 0, suffix: "", label: "Readable client names, photos or numbers stored" },
-  { num: 7, suffix: "", label: "Launch countries, each with local emergency numbers" },
+  { num: 60, unit: "seconds", label: "Raw ID files deleted after every client check" },
+  { num: 5, unit: "minutes", label: "Check-in warning window before your emergency contact is alerted" },
+  { num: 0, unit: "", label: "Client IDs kept once your session closes safely" },
+  { num: 7, unit: "", label: "Launch countries, each with local emergency numbers" },
 ];
 
 // TODO(client): confirm included ID checks per plan; "X" is a placeholder.
@@ -87,11 +124,11 @@ const FAQS = [
   },
   {
     q: "What happens if my phone dies or loses signal?",
-    a: "Your timer runs on our servers, not your phone. If it ends without a check-in, the alerts go out anyway. With weak signal you can text your Safe Code, or simply “SOS”, to your Checksafe number with no mobile data.",
+    a: "Your timer runs on our servers, not your phone. If it ends without a check-in, the alerts go out anyway. With weak signal you can text your Safe Code, or simply “SOS”, to your CheckSafe number with no mobile data.",
   },
   {
     q: "What does my client see?",
-    a: "A single-use link for a quick automated ID check, then your dedicated Checksafe number for calls and texts. They never see your personal mobile.",
+    a: "A single-use link for a quick automated ID check, then your dedicated CheckSafe number for calls and texts. They never see your personal mobile.",
   },
   {
     q: "How does the Duress Code work?",
@@ -99,7 +136,7 @@ const FAQS = [
   },
   {
     q: "Do I need to download an app?",
-    a: "No. Checksafe works in your phone's browser on iPhone and Android, and on any computer. Just sign in, there's nothing to install.",
+    a: "No. CheckSafe works in your phone's browser on iPhone and Android, and on any computer. Just sign in, there's nothing to install.",
   },
   {
     q: "Can I pause instead of cancelling?",
@@ -119,12 +156,12 @@ function RoleMarquee() {
     </ul>
   );
   return (
-    <section aria-label="Who uses Checksafe" className="py-10 sm:py-14">
+    <section aria-label="Who uses CheckSafe" className="py-10 sm:py-14">
       <p className="text-center text-xs font-mono tracking-[0.2em] uppercase text-slate-500">Built for people who work alone</p>
       <div className="mk-marquee-wrap relative mt-6 overflow-hidden">
         <div aria-hidden="true" className="absolute inset-y-0 left-0 w-16 sm:w-40 z-10 bg-linear-to-r from-white to-transparent" />
         <div aria-hidden="true" className="absolute inset-y-0 right-0 w-16 sm:w-40 z-10 bg-linear-to-l from-white to-transparent" />
-        <div className="mk-marquee flex w-max">
+        <div className="mk-marquee flex w-max" style={{ animationDuration: `${ROLE_MARQUEE_SECS}s` }}>
           {row(false)}
           {row(true)}
         </div>
@@ -158,7 +195,7 @@ function Sectors() {
 
 function Facts() {
   return (
-    <section aria-label="Checksafe in numbers" className="py-6 sm:py-10">
+    <section aria-label="CheckSafe in numbers" className="py-6 sm:py-10">
       <div className={WRAP}>
         <dl className="mk-stagger grid grid-cols-2 lg:grid-cols-4 border-y border-slate-200">
           {FACTS.map((f, i) => (
@@ -171,7 +208,9 @@ function Facts() {
               <dt className="sr-only">{f.label}</dt>
               <dd className="text-[clamp(2.5rem,6vw,4.5rem)] font-semibold tracking-[-0.04em] leading-none text-[#0B2545] tabular-nums">
                 {f.num}
-                {f.suffix}
+                {f.unit && (
+                  <span className="ml-1.5 text-[0.32em] font-semibold tracking-normal text-[#0B2545]/70">{f.unit}</span>
+                )}
               </dd>
               <dd className="mt-3 text-sm text-slate-500 leading-snug max-w-[24ch]">{f.label}</dd>
             </div>
@@ -231,7 +270,7 @@ function HowItWorks() {
           <StepCard
             n="02"
             title="Talk through a masked line"
-            body="Calls and texts go through your dedicated Checksafe number. Clients can reach you; they just never get your personal mobile."
+            body="Calls and texts go through your dedicated CheckSafe number. Clients can reach you; they just never get your personal mobile."
           >
             <div className="w-full max-w-[260px] space-y-2.5">
               <div className="fx-pop p-3 rounded-xl bg-[#0B2545] text-white">
@@ -398,7 +437,7 @@ function Safeguards() {
               </span>
             </span>
           </Bento>
-          <Bento className="md:col-span-2" title="Works on one bar" body="No data? Text your Safe Code, or “SOS”, to your Checksafe number.">
+          <Bento className="md:col-span-2" title="Works on one bar" body="No data? Text your Safe Code, or “SOS”, to your CheckSafe number.">
             <div className="w-full max-w-[220px] space-y-2">
               <p className="fx-slide ml-auto w-fit px-4 py-2 rounded-2xl rounded-br-md bg-[#0B2545] text-white text-sm font-semibold">SOS</p>
               <p className="w-fit px-4 py-2 rounded-2xl rounded-bl-md bg-slate-100 text-slate-700 text-xs">Alert sent to your contact.</p>
@@ -442,7 +481,7 @@ function Privacy() {
             We can&apos;t leak what <span className="mk-accent font-serif italic font-normal">we never keep.</span>
           </h2>
           <p className="mt-6 text-base sm:text-lg text-slate-600 leading-relaxed max-w-[46ch]">
-            Checksafe is designed so that even a full data breach would reveal nothing readable about your clients.
+            CheckSafe is designed so that even a full data breach would reveal nothing readable about your clients.
           </p>
           <ul className="mt-8 flex flex-wrap gap-2">
             {["London data region", "Row-level security", "Signed webhooks", "Keys held server-side"].map((t) => (
@@ -481,14 +520,14 @@ function Privacy() {
           </div>
           <div data-fx="soft" className="mk-reveal sm:col-span-2 rounded-[28px] bg-white border border-slate-200/80 p-7 sm:p-8 grid sm:grid-cols-3 gap-6">
             {[
-              [60, "s", "ID files deleted after each check"],
-              [0, " days", "Number kept after a safe close"],
-              [30, " days", "Number kept after an alert, then deleted"],
+              [60, "seconds", "ID files deleted after each check"],
+              [0, "days", "Number kept after a safe close"],
+              [30, "days", "Number kept after an alert, then deleted"],
             ].map(([n, unit, l]) => (
               <div key={l}>
                 <p className="text-3xl font-semibold tracking-tight text-[#0B2545] tabular-nums">
                   {n}
-                  {unit}
+                  <span className="ml-1 text-[0.5em] font-semibold tracking-normal text-[#0B2545]/70">{unit}</span>
                 </p>
                 <p className="mt-1 text-sm text-slate-500 leading-snug">{l}</p>
               </div>

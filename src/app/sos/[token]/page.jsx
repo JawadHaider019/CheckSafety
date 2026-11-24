@@ -3,7 +3,7 @@ import { connection } from "next/server";
 import SosClient from "./SosClient";
 
 export const metadata = {
-  title: "SOS",
+  title: "SOS — CheckSafe",
   robots: { index: false, follow: false },
 };
 

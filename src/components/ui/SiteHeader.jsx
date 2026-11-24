@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, LayoutDashboard, LogOut, Menu, X } from "lucide-react";
 import { signOut, useSession } from "@/lib/demoAuth";
-import { CheckSafeLogo, CheckSafeIcon } from "@/components/ui/CheckSafeLogo";
+import { CheckSafeLogo } from "@/components/ui/CheckSafeLogo";
 import { useClientValue } from "@/lib/useClientSnapshot";
 
 const readScrolled = () => window.scrollY > 8;
@@ -47,17 +47,12 @@ export function SiteHeader({ activePage = "" }) {
           : "bg-white border-transparent"
       }`}
     >
-      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 h-16 flex items-center justify-between gap-4">
-        <Link href="/" aria-label="Checksafe home" className="shrink-0 hover:opacity-90 transition-opacity">
-          <span className="sm:hidden">
-            <CheckSafeIcon className="h-8 w-8" />
-          </span>
-          <span className="hidden sm:inline-flex">
-            <CheckSafeLogo darkSurface={false} size="sm" />
-          </span>
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 h-16 flex items-center justify-between gap-3">
+        <Link href="/" aria-label="CheckSafe home" className="min-w-0 hover:opacity-90 transition-opacity">
+          <CheckSafeLogo darkSurface={false} size="sm" />
         </Link>
 
-        <nav aria-label="Main" className="hidden lg:flex items-center gap-0.5 text-[13px] font-medium">
+        <nav aria-label="Main" className="hidden xl:flex items-center gap-0.5 text-[13px] font-medium">
           {NAV.map((item) => {
             const active = activePage === item.id;
             return (
@@ -86,19 +81,13 @@ export function SiteHeader({ activePage = "" }) {
               Dashboard
             </Link>
           ) : (
-            <>
-              <Link href="/login" className="hidden sm:inline-flex px-3 py-2 text-[13px] font-semibold text-slate-600 hover:text-[#0B2545] transition">
-                Sign in
-              </Link>
-              <Link
-                href="/signup"
-                className="cs-press group inline-flex items-center gap-1.5 h-10 pl-4 pr-3 rounded-full bg-[#0B2545] hover:bg-[#123461] text-white text-[13px] font-semibold shadow-[0_8px_20px_-10px_rgba(11,37,69,0.7)]"
-              >
-                <span className="sm:hidden">Get protected</span>
-                <span className="hidden sm:inline">Start protection</span>
-                <ArrowUpRight className="w-3.5 h-3.5 text-[#00E08C] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </Link>
-            </>
+            <Link
+              href="/login"
+              className="cs-press group inline-flex items-center gap-1.5 h-10 pl-4 pr-3 rounded-full bg-[#0B2545] hover:bg-[#123461] text-white text-[13px] font-semibold shadow-[0_8px_20px_-10px_rgba(11,37,69,0.7)]"
+            >
+              Log in
+              <ArrowUpRight className="w-3.5 h-3.5 text-[#00E08C] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </Link>
           )}
           <button
             type="button"
@@ -106,7 +95,7 @@ export function SiteHeader({ activePage = "" }) {
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
             aria-label={menuOpen ? "Close menu" : "Open menu"}
-            className="lg:hidden w-10 h-10 rounded-full hover:bg-slate-100 text-slate-800 flex items-center justify-center cursor-pointer transition"
+            className="xl:hidden w-10 h-10 rounded-full hover:bg-slate-100 text-slate-800 flex items-center justify-center cursor-pointer transition"
           >
             {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -116,7 +105,7 @@ export function SiteHeader({ activePage = "" }) {
       {menuOpen && (
         <div
           id="mobile-menu"
-          className="cs-fade lg:hidden fixed inset-x-0 top-16 bottom-0 bg-white overflow-y-auto pb-[env(safe-area-inset-bottom)]"
+          className="cs-fade xl:hidden fixed inset-x-0 top-16 bottom-0 bg-white overflow-y-auto pb-[env(safe-area-inset-bottom)]"
         >
           <nav aria-label="Mobile" className="px-5 pt-4 pb-8 flex flex-col">
             {NAV.map((item, i) => (
@@ -159,7 +148,7 @@ export function SiteHeader({ activePage = "" }) {
                     onClick={() => setMenuOpen(false)}
                     className="cs-press h-12 rounded-full border border-slate-200 flex items-center justify-center text-sm font-semibold text-[#0B2545]"
                   >
-                    Sign in
+                    Log in
                   </Link>
                   <Link
                     href="/signup"

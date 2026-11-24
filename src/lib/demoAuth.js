@@ -5,7 +5,6 @@ import { useSyncExternalStore } from "react";
 export const DEMO_USER = { email: "user@gmail.com", password: "user" };
 
 const KEY = "cs-demo-session";
-const SIGNOUT_KEY = "cs-demo-signed-out";
 const listeners = new Set();
 
 function notify() {
@@ -15,7 +14,7 @@ function notify() {
 function subscribe(cb) {
   listeners.add(cb);
   const onStorage = (e) => {
-    if (e.key === KEY || e.key === SIGNOUT_KEY) cb();
+    if (e.key === KEY) cb();
   };
   window.addEventListener("storage", onStorage);
   return () => {
@@ -24,28 +23,19 @@ function subscribe(cb) {
   };
 }
 
+// Signed out by default: a session exists only after signIn() or startSession().
 function read() {
   try {
-    const existing = localStorage.getItem(KEY);
-    if (existing) return existing;
-    if (sessionStorage.getItem(SIGNOUT_KEY) === "1") return null;
-    const defaultSession = JSON.stringify({ email: DEMO_USER.email });
-    localStorage.setItem(KEY, defaultSession);
-    return defaultSession;
+    return localStorage.getItem(KEY);
   } catch {
-    return JSON.stringify({ email: DEMO_USER.email });
+    return null;
   }
 }
 
 function write(value) {
   try {
-    if (value) {
-      sessionStorage.removeItem(SIGNOUT_KEY);
-      localStorage.setItem(KEY, value);
-    } else {
-      sessionStorage.setItem(SIGNOUT_KEY, "1");
-      localStorage.removeItem(KEY);
-    }
+    if (value) localStorage.setItem(KEY, value);
+    else localStorage.removeItem(KEY);
   } catch {}
   notify();
 }

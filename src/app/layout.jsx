@@ -29,19 +29,19 @@ const instrumentSerif = Instrument_Serif({
 
 export const metadata = {
   metadataBase: new URL("https://checksafeapp.com"),
-  title: "Checksafe — Client Screening • Masked Numbers • Solo Worker Safety",
+  title: "CheckSafe — Client Screening • Masked Numbers • Solo Worker Safety",
   description:
-    "Zero-knowledge client ID screening, masked phone numbers, and automated cloud safety timers by Checksafe Software Ltd.",
+    "Zero-knowledge client ID screening, masked phone numbers, and automated cloud safety timers by CheckSafe Software Ltd.",
   icons: {
     icon: "/icon-192.svg",
     apple: "/icon-192.svg",
   },
   openGraph: {
-    title: "Checksafe — Client Screening • Masked Numbers • Solo Worker Safety",
+    title: "CheckSafe — Client Screening • Masked Numbers • Solo Worker Safety",
     description:
       "Verify clients before you attend, mask your personal mobile number, and run an automated cloud safety timer.",
     url: "https://checksafeapp.com",
-    siteName: "Checksafe",
+    siteName: "CheckSafe",
     locale: "en_GB",
     type: "website",
   },

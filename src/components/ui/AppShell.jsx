@@ -22,13 +22,13 @@ export function AppHeader({ maxWidth = "max-w-[390px]", children, onLogoTap }) {
       <div className={`${maxWidth} mx-auto px-4 h-16 flex items-center justify-between gap-2`}>
         <Link
           href="/"
-          aria-label="Checksafe home"
+          aria-label="CheckSafe home"
           onClick={onLogoTap}
-          className="inline-flex items-center shrink-0 hover:opacity-90 transition-opacity"
+          className="inline-flex items-center min-w-0 hover:opacity-90 transition-opacity"
         >
           <CheckSafeLogo darkSurface={false} size="sm" />
         </Link>
-        <div className="flex items-center gap-1.5 min-w-0">{children}</div>
+        <div className="flex items-center gap-1.5 shrink-0">{children}</div>
       </div>
     </header>
   );

@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Lock, Loader2, Ban, IdCard, ScanFace, BadgeCheck, Trash2, EyeOff, Fingerprint } from "lucide-react";
+import { CheckSafeLogo } from "@/components/ui/CheckSafeLogo";
 
 const STEPS = [
   { icon: IdCard, title: "Photo of your ID", body: "Passport, driving licence or national ID" },
@@ -44,6 +45,9 @@ export default function VerifyClient({ token }) {
   return (
     <div className="min-h-[100svh] bg-[#F9FAFB] text-[#111827] flex flex-col items-center px-4 py-8 sm:py-14">
       <div className="w-full max-w-[400px] space-y-4">
+        <div className="cs-rise flex justify-center pb-2">
+          <CheckSafeLogo size="sm" />
+        </div>
         <div className="cs-rise flex justify-center">
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-slate-200 text-[11px] font-semibold text-slate-600 shadow-xs">
             <Lock className="w-3 h-3 text-[#16A34A]" />

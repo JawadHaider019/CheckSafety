@@ -6,26 +6,26 @@ import { COMPANY_NAME, PRIMARY_DOMAIN } from "@/lib/domains";
 import { DEFAULT_APP_SETTINGS } from "@/lib/types";
 
 export const metadata = {
-  title: "Contact — Checksafe",
-  description: "Book a team demo or get help with your Checksafe account.",
+  title: "Contact — CheckSafe",
+  description: "Book a team demo or get help with your CheckSafe account.",
 };
 
 const FAQS = [
   {
     q: "How quickly can a team get started?",
-    a: "The same day. Checksafe runs in the browser, so there's nothing to download. An agency admin invites staff by email and each person sets up their own Safe Code and emergency contact.",
+    a: "The same day. CheckSafe runs in the browser, so there's nothing to download. An agency admin invites staff by email and each person sets up their own Safe Code and emergency contact.",
   },
   {
     q: "Do clients need to download anything to be verified?",
     a: "No. Clients receive a single-use link and complete a quick automated ID check in their phone's browser. The link stops working once it's been used.",
   },
   {
-    q: "Can I use Checksafe on my own, without an employer?",
+    q: "Can I use CheckSafe on my own, without an employer?",
     a: `Yes. Most of our plans are for individuals: estate agents, tutors, therapists and consultants who work alone. Plans start at £${DEFAULT_APP_SETTINGS.core_price_gbp}/month and you choose your own emergency contact.`,
   },
   {
     q: "What if I'm somewhere with no mobile data?",
-    a: "Your timer runs on our servers, so alerts still fire if your phone goes offline. With basic signal you can text your Safe Code, or “SOS”, to your Checksafe number.",
+    a: "Your timer runs on our servers, so alerts still fire if your phone goes offline. With basic signal you can text your Safe Code, or “SOS”, to your CheckSafe number.",
   },
   {
     q: "Can an agency admin see my sessions?",

@@ -4,8 +4,8 @@ import { MarketingPage, PageHero, WRAP } from "@/components/marketing/Marketing"
 import { COMPANY_NAME, PRIMARY_DOMAIN } from "@/lib/domains";
 
 export const metadata = {
-  title: "Privacy policy — Checksafe",
-  description: "How Checksafe handles worker and client data under UK GDPR, with zero readable client records.",
+  title: "Privacy policy — CheckSafe",
+  description: "How CheckSafe handles worker and client data under UK GDPR, with zero readable client records.",
 };
 
 const SECTIONS = [
@@ -58,7 +58,7 @@ export default function PrivacyPage() {
         imagePosition="center 35%"
         title="Privacy by design,"
         accent="not just policy."
-        lead="How Checksafe handles worker and client data under UK GDPR and the Data Protection Act 2018, and why client details are never stored in readable form."
+        lead="How CheckSafe handles worker and client data under UK GDPR and the Data Protection Act 2018, and why client details are never stored in readable form."
       >
         <ul className="flex flex-wrap gap-2">
           {["Last updated: November 2026", "UK GDPR & DPA 2018", "London data region"].map((t) => (
@@ -98,11 +98,11 @@ export default function PrivacyPage() {
         <article className="max-w-[760px] space-y-12">
           <Section id="controller" n={1} title="Who we are">
             <p>
-              This policy explains how <strong>{COMPANY_NAME}</strong> (&ldquo;Checksafe&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) processes
+              This policy explains how <strong>{COMPANY_NAME}</strong> (&ldquo;CheckSafe&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) processes
               personal data, registered in England and Wales under company number 14892011, at 100 Leadenhall Street, London EC3A 3BP.
             </p>
             <p>
-              We are the <strong>data controller</strong> for the workers and agency admins who use Checksafe. For clients who complete an ID
+              We are the <strong>data controller</strong> for the workers and agency admins who use CheckSafe. For clients who complete an ID
               check at a worker&apos;s request, we act as a <strong>data processor</strong> on that worker&apos;s behalf.
             </p>
           </Section>
@@ -133,7 +133,7 @@ export default function PrivacyPage() {
               client go through these numbers, so:
             </p>
             <ul>
-              <li>clients only ever see the worker&apos;s Checksafe number, never their personal mobile;</li>
+              <li>clients only ever see the worker&apos;s CheckSafe number, never their personal mobile;</li>
               <li>the client&apos;s real number is held encrypted only while it&apos;s needed to connect calls, and is never shown in the app;</li>
               <li>call and SMS logs are deleted on the same schedule as the client&apos;s number (see section 5).</li>
             </ul>
@@ -151,7 +151,7 @@ export default function PrivacyPage() {
                 closed in time, or the worker uses their Duress Code or SOS.
               </li>
               <li>
-                <strong>No background tracking.</strong> Checksafe doesn&apos;t collect location when no session is running.
+                <strong>No background tracking.</strong> CheckSafe doesn&apos;t collect location when no session is running.
               </li>
             </ul>
           </Section>

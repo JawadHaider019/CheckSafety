@@ -1713,7 +1713,7 @@ function WorkerDashboard() {
         <SheetHeader
           id="signout-title"
           eyebrow="Account"
-          title="Sign out of Checksafe?"
+          title="Sign out of CheckSafe?"
           subtitle="You will need to sign back in to start new timers or manage your Trusted Client Vault."
           icon={LogOut}
           onClose={() => setShowSignOutModal(false)}

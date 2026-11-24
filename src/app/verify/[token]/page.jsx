@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import VerifyClient from "./VerifyClient";
 
 export const metadata = {
-  title: "Identity verification",
+  title: "Identity verification — CheckSafe",
   robots: { index: false, follow: false },
 };
 
